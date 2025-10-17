@@ -8,7 +8,7 @@ services:
     publishPath: ./out
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        value: https://riskx-backend.onrender.com
+        value: https://backend-1-il1e.onrender.com
       - key: NEXT_PUBLIC_APP_NAME
         value: RiskX
       - key: NODE_ENV
