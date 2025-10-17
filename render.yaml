@@ -1,0 +1,15 @@
+services:
+  - type: static_site
+    name: riskx-frontend
+    buildCommand: |
+      npm ci
+      npm run build
+      npm run export
+    publishPath: ./out
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://riskx-backend.onrender.com
+      - key: NEXT_PUBLIC_APP_NAME
+        value: RiskX
+      - key: NODE_ENV
+        value: production

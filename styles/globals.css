@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: #f9fafb;
+  color: #374151;
+  min-height: 100vh;
+}
+
+/* Professional Color Scheme Variables - MANDATORY */
+:root {
+  --primary-navy: #1e3a8a;        /* Primary navigation, headers */
+  --charcoal-gray: #374151;       /* Text, secondary elements */
+  --pure-white: #ffffff;          /* Backgrounds, contrast */
+  --light-gray: #f3f4f6;          /* Subtle backgrounds */
+  --border-gray: #d1d5db;         /* Borders, dividers */
+  --success-green: #059669;       /* Success states only */
+  --warning-amber: #d97706;       /* Warning states only */
+  --danger-red: #dc2626;          /* Error states only */
+}
+
+/* Base styles */
+@layer base {
+  * {
+    @apply border-gray-200;
+  }
+  
+  body {
+    @apply text-gray-700 bg-white font-sans;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-primary-900 font-semibold;
+  }
+}
+
+/* Component styles */
+@layer components {
+  .btn-primary {
+    @apply bg-primary-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-800 transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  .card {
+    @apply bg-white border border-gray-200 rounded-lg p-6 shadow-professional hover:shadow-professional-lg transition-shadow duration-200;
+  }
+  
+  .card-header {
+    @apply border-b border-gray-200 pb-4 mb-6;
+  }
+  
+  .input {
+    @apply border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+  }
+  
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  .badge-success {
+    @apply bg-green-100 text-green-800;
+  }
+  
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  
+  .badge-danger {
+    @apply bg-red-100 text-red-800;
+  }
+  
+  .badge-info {
+    @apply bg-blue-100 text-blue-800;
+  }
+}
+
+/* Professional styling standards */
+@layer utilities {
+  .text-professional {
+    @apply text-gray-700;
+  }
+  
+  .bg-professional {
+    @apply bg-gradient-professional;
+  }
+  
+  .shadow-professional {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .shadow-professional-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+}
