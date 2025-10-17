@@ -47,7 +47,7 @@ interface AnalyticsDashboardProps {
   apiUrl?: string;
 }
 
-export default function AnalyticsDashboard({ apiUrl = 'http://localhost:8001' }: AnalyticsDashboardProps) {
+export default function AnalyticsDashboard({ apiUrl = 'http://localhost:8000' }: AnalyticsDashboardProps) {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

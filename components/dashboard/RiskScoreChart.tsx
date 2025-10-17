@@ -50,7 +50,7 @@ interface RiskScoreChartProps {
   apiUrl?: string;
 }
 
-export default function RiskScoreChart({ apiUrl = 'http://localhost:8001' }: RiskScoreChartProps) {
+export default function RiskScoreChart({ apiUrl = 'http://localhost:8000' }: RiskScoreChartProps) {
   const [riskData, setRiskData] = useState<RiskScore | null>(null);
   const [historicalData, setHistoricalData] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);

@@ -25,7 +25,7 @@ interface MetricsPanelProps {
   apiUrl?: string;
 }
 
-export default function MetricsPanel({ apiUrl = 'http://localhost:8001' }: MetricsPanelProps) {
+export default function MetricsPanel({ apiUrl = 'http://localhost:8000' }: MetricsPanelProps) {
   const [metricsData, setMetricsData] = useState<MetricsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

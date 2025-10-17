@@ -13,7 +13,7 @@ interface SystemStatus {
   version: string;
 }
 
-export default function Header({ apiUrl = 'http://localhost:8001' }: HeaderProps) {
+export default function Header({ apiUrl = 'http://localhost:8000' }: HeaderProps) {
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [statusLoading, setStatusLoading] = useState(false);
 

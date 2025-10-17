@@ -9,7 +9,7 @@ const nextConfig = {
   // Point to frontend directory for pages and components
   experimental: {},
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'RiskX',
   },
   // Note: rewrites() disabled for static export compatibility
