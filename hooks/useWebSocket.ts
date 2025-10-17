@@ -194,69 +194,47 @@ export function useWebSocket(
 export function useRiskUpdates(apiUrl: string) {
   const [riskData, setRiskData] = useState<any>(null);
   const [lastUpdate, setLastUpdate] = useState<string>('');
-  const [isConnected, setIsConnected] = useState(false);
-  const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
   
-  // For now, disable WebSocket and use HTTP polling only to eliminate connection issues
-  // This ensures 100% stability while we're in development mode
-  // 
-  // TO RE-ENABLE WEBSOCKET IN PRODUCTION:
-  // 1. Set ENABLE_WEBSOCKET=true in environment variables
-  // 2. Uncomment the WebSocket implementation below
-  // 3. Comment out the HTTP polling implementation
-  // 
-  // The WebSocket implementation is fully functional and tested, but React dev mode
-  // causes frequent component remounts that lead to connection instability.
-  
-  useEffect(() => {
-    let isMounted = true;
-    setConnectionState('connecting');
-    
-    const fetchRiskData = async () => {
-      try {
-        const response = await fetch(`${apiUrl}/api/v1/risk/score`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  // Use the real WebSocket implementation to connect to FRED-based risk updates
+  const wsUrl = `${apiUrl}/ws/risk-updates`;
+  const { isConnected, connectionState } = useWebSocket(wsUrl, {
+    reconnectAttempts: 5,
+    reconnectInterval: 5000,
+    onMessage: (message: WebSocketMessage) => {
+      if (message.type === 'risk_update' && message.data) {
+        // Transform real FRED data from WebSocket to component format
+        const transformedData = {
+          overall_score: message.data.overall_score,
+          risk_level: message.data.risk_level,
+          confidence: message.data.confidence,
+          timestamp: message.data.timestamp,
+          methodology_version: message.data.methodology_version,
+          factors: message.data.factors?.map((factor: any) => ({
+            name: factor.name,
+            category: factor.category,
+            value: factor.value,
+            normalized_value: factor.normalized_value,
+            weight: factor.weight,
+            description: factor.description,
+            confidence: factor.confidence,
+            contribution: factor.weight * factor.normalized_value
+          })) || []
+        };
         
-        const data = await response.json();
-        if (isMounted) {
-          // Transform API data to WebSocket format for compatibility
-          const transformedData = {
-            overall_score: data.overall_score,
-            risk_level: data.risk_level,
-            confidence: data.confidence,
-            top_factors: data.factors?.map((factor: any) => ({
-              name: factor.name,
-              value: factor.value,
-              normalized_value: factor.normalized_value,
-              contribution: factor.weight * factor.normalized_value
-            })) || []
-          };
-          
-          setRiskData(transformedData);
-          setLastUpdate(new Date().toISOString());
-          setIsConnected(true);
-          setConnectionState('connected');
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error('Risk data fetch error:', error);
-          setIsConnected(false);
-          setConnectionState('error');
-        }
+        setRiskData(transformedData);
+        setLastUpdate(message.timestamp);
       }
-    };
-    
-    // Initial fetch
-    fetchRiskData();
-    
-    // Poll every 10 seconds for live updates
-    const interval = setInterval(fetchRiskData, 10000);
-    
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, [apiUrl]);
+    },
+    onConnect: () => {
+      console.log('Connected to real-time FRED risk data stream');
+    },
+    onDisconnect: () => {
+      console.log('Disconnected from risk data stream');
+    },
+    onError: (error) => {
+      console.error('WebSocket error in risk updates:', error);
+    }
+  });
 
   return {
     riskData,
