@@ -1,34 +1,7 @@
 import React, { useState } from 'react';
 import { Play, RotateCcw, TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from 'lucide-react';
-
-interface PolicyParameter {
-  id: string;
-  name: string;
-  description: string;
-  currentValue: number;
-  minValue: number;
-  maxValue: number;
-  unit: string;
-  category: 'monetary' | 'fiscal' | 'regulatory' | 'trade';
-}
-
-interface SimulationResult {
-  policyId: string;
-  originalValue: number;
-  simulatedValue: number;
-  impact: {
-    gdpChange: number;
-    inflationChange: number;
-    unemploymentChange: number;
-    marketStabilityChange: number;
-  };
-  riskFactors: {
-    category: string;
-    change: number;
-    significance: 'low' | 'medium' | 'high';
-  }[];
-  timestamp: string;
-}
+import { useSimulation } from '../../hooks/useSimulation';
+import { PolicyParameter, SimulationResult, PolicyTemplate } from '../../types/simulation';
 
 const mockPolicyParameters: PolicyParameter[] = [
   {
@@ -40,6 +13,7 @@ const mockPolicyParameters: PolicyParameter[] = [
     maxValue: 10,
     unit: '%',
     category: 'monetary',
+    defaultValue: 5.25,
   },
   {
     id: 'government_spending',
@@ -50,6 +24,7 @@ const mockPolicyParameters: PolicyParameter[] = [
     maxValue: 35,
     unit: '% of GDP',
     category: 'fiscal',
+    defaultValue: 23.5,
   },
   {
     id: 'corporate_tax',
@@ -60,6 +35,7 @@ const mockPolicyParameters: PolicyParameter[] = [
     maxValue: 35,
     unit: '%',
     category: 'fiscal',
+    defaultValue: 21,
   },
   {
     id: 'reserve_requirement',
@@ -70,6 +46,7 @@ const mockPolicyParameters: PolicyParameter[] = [
     maxValue: 20,
     unit: '%',
     category: 'regulatory',
+    defaultValue: 10,
   },
   {
     id: 'tariff_rate',
@@ -80,17 +57,24 @@ const mockPolicyParameters: PolicyParameter[] = [
     maxValue: 25,
     unit: '%',
     category: 'trade',
+    defaultValue: 7.5,
   },
 ];
 
 interface PolicySimulatorProps {
   onSimulationComplete?: (results: SimulationResult[]) => void;
+  apiUrl?: string;
+  appliedTemplate?: PolicyTemplate | null;
 }
 
-export default function PolicySimulator({ onSimulationComplete }: PolicySimulatorProps) {
+export default function PolicySimulator({ 
+  onSimulationComplete, 
+  apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+}: PolicySimulatorProps) {
+  const { runPolicySimulation, loading, error, clearError } = useSimulation(apiUrl);
+  
   const [parameters, setParameters] = useState<PolicyParameter[]>(mockPolicyParameters);
   const [results, setResults] = useState<SimulationResult[]>([]);
-  const [isSimulating, setIsSimulating] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const handleParameterChange = (id: string, value: number) => {
@@ -107,45 +91,14 @@ export default function PolicySimulator({ onSimulationComplete }: PolicySimulato
   };
 
   const runSimulation = async () => {
-    setIsSimulating(true);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Mock simulation results
-    const simulationResults: SimulationResult[] = parameters.map(param => {
-      const changeFromDefault = param.currentValue - mockPolicyParameters.find(p => p.id === param.id)!.currentValue;
-      const relativeChange = changeFromDefault / param.currentValue;
-      
-      return {
-        policyId: param.id,
-        originalValue: mockPolicyParameters.find(p => p.id === param.id)!.currentValue,
-        simulatedValue: param.currentValue,
-        impact: {
-          gdpChange: relativeChange * (Math.random() * 4 - 2),
-          inflationChange: relativeChange * (Math.random() * 2 - 1),
-          unemploymentChange: relativeChange * (Math.random() * 1.5 - 0.75),
-          marketStabilityChange: relativeChange * (Math.random() * 3 - 1.5),
-        },
-        riskFactors: [
-          {
-            category: 'Financial Stability',
-            change: relativeChange * (Math.random() * 20 - 10),
-            significance: Math.abs(relativeChange) > 0.1 ? 'high' : Math.abs(relativeChange) > 0.05 ? 'medium' : 'low',
-          },
-          {
-            category: 'Market Volatility',
-            change: relativeChange * (Math.random() * 15 - 7.5),
-            significance: Math.abs(relativeChange) > 0.15 ? 'high' : Math.abs(relativeChange) > 0.08 ? 'medium' : 'low',
-          },
-        ],
-        timestamp: new Date().toISOString(),
-      };
-    });
-    
-    setResults(simulationResults);
-    onSimulationComplete?.(simulationResults);
-    setIsSimulating(false);
+    try {
+      clearError();
+      const simulationResults = await runPolicySimulation(parameters);
+      setResults(simulationResults);
+      onSimulationComplete?.(simulationResults);
+    } catch (err) {
+      console.error('Policy simulation failed:', err);
+    }
   };
 
   const filteredParameters = selectedCategory === 'all' 
@@ -188,11 +141,11 @@ export default function PolicySimulator({ onSimulationComplete }: PolicySimulato
               </button>
               <button
                 onClick={runSimulation}
-                disabled={isSimulating}
+                disabled={loading}
                 className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Play className="w-4 h-4" />
-                <span>{isSimulating ? 'Simulating...' : 'Run Simulation'}</span>
+                <span>{loading ? 'Simulating...' : 'Run Simulation'}</span>
               </button>
             </div>
           </div>
@@ -254,6 +207,16 @@ export default function PolicySimulator({ onSimulationComplete }: PolicySimulato
           </div>
         </div>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center space-x-2">
+            <AlertTriangle className="w-5 h-5 text-red-600" />
+            <span className="text-red-800">{error}</span>
+          </div>
+        </div>
+      )}
 
       {results.length > 0 && (
         <div className="bg-white rounded-lg shadow border">
