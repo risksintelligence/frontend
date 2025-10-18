@@ -1,6 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, BarChart3, Activity, AlertTriangle } from 'lucide-react';
 import { useRiskFactors } from '../../hooks/useRiskFactors';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 interface FactorDetailsProps {
   apiUrl: string;
@@ -296,15 +319,88 @@ export const FactorDetails: React.FC<FactorDetailsProps> = ({
               </div>
             </div>
             
-            {/* Historical Chart Placeholder */}
-            <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <div className="text-gray-600">Historical trend chart would render here</div>
-                <div className="text-sm text-gray-500">
-                  Showing {historical_data.length} data points over time
+            {/* Real Historical Chart */}
+            <div className="h-64">
+              {historical_data.length > 0 ? (
+                <Line
+                  data={{
+                    labels: historical_data.map(point => 
+                      new Date(point.date).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        year: '2-digit' 
+                      })
+                    ),
+                    datasets: [
+                      {
+                        label: factor.name || 'Factor Value',
+                        data: historical_data.map(point => point.value),
+                        borderColor: '#1e3a8a',
+                        backgroundColor: 'rgba(30, 58, 138, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#1e3a8a',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                      }
+                    ]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: false
+                      },
+                      tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#1e3a8a',
+                        borderWidth: 1
+                      }
+                    },
+                    scales: {
+                      x: {
+                        display: true,
+                        grid: {
+                          display: false
+                        },
+                        border: {
+                          display: false
+                        }
+                      },
+                      y: {
+                        display: true,
+                        grid: {
+                          color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        border: {
+                          display: false
+                        }
+                      }
+                    },
+                    interaction: {
+                      mode: 'nearest',
+                      axis: 'x',
+                      intersect: false
+                    }
+                  }}
+                />
+              ) : (
+                <div className="h-full bg-gray-50 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <div className="text-gray-600">No historical data available</div>
+                    <div className="text-sm text-gray-500">
+                      Real historical data will appear here when available
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Recent Data Table */}
@@ -382,16 +478,85 @@ export const FactorDetails: React.FC<FactorDetailsProps> = ({
               </div>
             </div>
             
-            {/* Forecast Chart Placeholder */}
-            <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <div className="text-gray-600">Forecast chart would render here</div>
-                <div className="text-sm text-gray-500">
-                  Showing predictions with confidence intervals
+            {/* Real Forecast Chart - Only show if forecast data exists */}
+            {forecast && forecast.length > 0 ? (
+              <div className="h-64">
+                <Line
+                  data={{
+                    labels: forecast.map(point => 
+                      new Date(point.date).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        year: '2-digit' 
+                      })
+                    ),
+                    datasets: [
+                      {
+                        label: 'Forecast',
+                        data: forecast.map(point => point.predicted_value),
+                        borderColor: '#dc2626',
+                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderDash: [5, 5],
+                        pointBackgroundColor: '#dc2626',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                      }
+                    ]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: false
+                      },
+                      tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#dc2626',
+                        borderWidth: 1
+                      }
+                    },
+                    scales: {
+                      x: {
+                        display: true,
+                        grid: {
+                          display: false
+                        },
+                        border: {
+                          display: false
+                        }
+                      },
+                      y: {
+                        display: true,
+                        grid: {
+                          color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        border: {
+                          display: false
+                        }
+                      }
+                    }
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <Activity className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                  <div className="text-gray-600">No forecast data available</div>
+                  <div className="text-sm text-gray-500">
+                    Only real historical data is displayed - no predictions
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Forecast Table */}
             <div className="overflow-x-auto">

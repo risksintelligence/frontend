@@ -3,14 +3,17 @@ import Head from 'next/head';
 import Layout from '../../components/common/Layout';
 import { FactorAnalysis } from '../../components/risk/FactorAnalysis';
 import { FactorDetails } from '../../components/risk/FactorDetails';
-import { RiskFactor } from '../../hooks/useRiskFactors';
+import { RiskFactor, useRiskFactors } from '../../hooks/useRiskFactors';
 
 const RiskFactors: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedFactor, setSelectedFactor] = useState<RiskFactor | null>(null);
   
   // API URL from environment or default
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+  
+  // Fetch all factors to calculate category counts
+  const { riskFactors, loading: factorsLoading } = useRiskFactors(apiUrl);
 
   const handleFactorSelect = (factor: RiskFactor) => {
     setSelectedFactor(factor);
@@ -28,6 +31,13 @@ const RiskFactors: React.FC = () => {
     { id: 'geopolitical', label: 'Geopolitical', description: 'Political and regulatory risks' },
     { id: 'environmental', label: 'Environmental', description: 'Climate and natural disaster risks' }
   ] as const;
+
+  // Calculate real category counts from fetched factors
+  const getCategoryCount = (categoryId: string): number => {
+    if (!riskFactors || riskFactors.length === 0) return 0;
+    if (categoryId === 'all') return riskFactors.length;
+    return riskFactors.filter((factor: RiskFactor) => factor.category === categoryId).length;
+  };
 
   return (
     <>
@@ -112,7 +122,9 @@ const RiskFactors: React.FC = () => {
                   key={category.id}
                   className="text-center p-4 bg-gray-50 rounded-lg"
                 >
-                  <div className="text-2xl font-bold text-gray-900 mb-1">--</div>
+                  <div className="text-2xl font-bold text-gray-900 mb-1">
+                    {factorsLoading ? '...' : getCategoryCount(category.id)}
+                  </div>
                   <div className="text-sm font-medium text-gray-700">{category.label}</div>
                   <div className="text-xs text-gray-500 mt-1">Factors</div>
                 </div>
