@@ -1,39 +1,160 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useWebSocket } from './useWebSocket';
-import {
-  HealthUpdateMessage,
-  HealthUpdateData,
-  RealTimeHealthState,
-  WebSocketConfig,
-  RealTimeAlert
-} from '../types/realtime';
+import { useState, useCallback, useEffect } from 'react';
 
-interface UseSystemHealthOptions extends WebSocketConfig {
-  onSystemAlert?: (alert: RealTimeAlert) => void;
-  healthThresholds?: {
-    cpu_critical: number;
-    memory_critical: number;
-    connection_warning: number;
+export interface HealthCheck {
+  service: string;
+  status: 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
+  response_time_ms: number;
+  last_checked: string;
+  details?: {
+    version?: string;
+    uptime_seconds?: number;
+    dependencies?: Array<{
+      name: string;
+      status: 'healthy' | 'degraded' | 'unhealthy';
+      response_time_ms: number;
+    }>;
+  };
+  error_message?: string;
+}
+
+export interface SystemHealth {
+  overall_status: 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
+  timestamp: string;
+  checks: HealthCheck[];
+  summary: {
+    total_services: number;
+    healthy_services: number;
+    degraded_services: number;
+    unhealthy_services: number;
+    unknown_services: number;
   };
 }
 
-interface UseSystemHealthResult {
-  healthState: RealTimeHealthState;
-  currentHealth: HealthUpdateData | null;
-  healthHistory: HealthUpdateData[];
-  isConnected: boolean;
-  connectionState: 'connecting' | 'connected' | 'disconnected' | 'error';
-  lastUpdate: string | null;
-  subscribe: () => void;
-  unsubscribe: () => void;
-  clearHistory: () => void;
-  getOverallStatus: () => 'healthy' | 'degraded' | 'critical' | 'unknown';
-  getServiceHealth: () => {
-    api: 'healthy' | 'degraded' | 'critical';
-    cache: 'operational' | 'degraded' | 'unavailable';
-    database: 'operational' | 'degraded' | 'unavailable';
-    pipeline: 'active' | 'inactive' | 'error';
+export interface DatabaseHealth {
+  connection_status: 'connected' | 'disconnected' | 'degraded';
+  connection_pool: {
+    active_connections: number;
+    idle_connections: number;
+    max_connections: number;
+    utilization_percentage: number;
   };
+  query_performance: {
+    average_query_time_ms: number;
+    slow_queries_count: number;
+    queries_per_second: number;
+  };
+  storage: {
+    database_size_mb: number;
+    free_space_mb: number;
+    utilization_percentage: number;
+  };
+  replication?: {
+    status: 'active' | 'inactive' | 'lag';
+    lag_seconds?: number;
+  };
+}
+
+export interface CacheHealth {
+  redis_status: 'connected' | 'disconnected' | 'degraded';
+  memory_usage: {
+    used_memory_mb: number;
+    max_memory_mb: number;
+    utilization_percentage: number;
+  };
+  performance: {
+    hit_rate_percentage: number;
+    miss_rate_percentage: number;
+    operations_per_second: number;
+    average_response_time_ms: number;
+  };
+  key_statistics: {
+    total_keys: number;
+    expired_keys: number;
+    evicted_keys: number;
+  };
+}
+
+export interface APIHealth {
+  endpoint_status: Record<string, {
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    response_time_ms: number;
+    success_rate_percentage: number;
+    last_checked: string;
+  }>;
+  overall_metrics: {
+    total_requests: number;
+    error_rate_percentage: number;
+    average_response_time_ms: number;
+    p95_response_time_ms: number;
+    p99_response_time_ms: number;
+  };
+  rate_limiting: {
+    current_rps: number;
+    limit_rps: number;
+    throttled_requests: number;
+  };
+}
+
+export interface ExternalDependencies {
+  data_sources: Array<{
+    name: string;
+    url: string;
+    status: 'available' | 'unavailable' | 'degraded';
+    last_successful_fetch: string;
+    response_time_ms: number;
+    error_count_24h: number;
+  }>;
+  third_party_apis: Array<{
+    name: string;
+    status: 'available' | 'unavailable' | 'rate_limited';
+    response_time_ms: number;
+    rate_limit_remaining: number;
+    last_checked: string;
+  }>;
+}
+
+export interface SystemDiagnostics {
+  timestamp: string;
+  system_health: SystemHealth;
+  database_health: DatabaseHealth;
+  cache_health: CacheHealth;
+  api_health: APIHealth;
+  external_dependencies: ExternalDependencies;
+  recommendations: Array<{
+    severity: 'info' | 'warning' | 'critical';
+    component: string;
+    message: string;
+    suggested_action: string;
+  }>;
+}
+
+interface UseSystemHealthOptions {
+  refreshInterval?: number;
+  onError?: (error: Error) => void;
+  enableRealTimeUpdates?: boolean;
+}
+
+interface UseSystemHealthResult {
+  loading: boolean;
+  error: string | null;
+  
+  systemHealth: SystemHealth | null;
+  databaseHealth: DatabaseHealth | null;
+  cacheHealth: CacheHealth | null;
+  apiHealth: APIHealth | null;
+  externalDependencies: ExternalDependencies | null;
+  systemDiagnostics: SystemDiagnostics | null;
+  
+  fetchSystemHealth: () => Promise<SystemHealth>;
+  fetchDatabaseHealth: () => Promise<DatabaseHealth>;
+  fetchCacheHealth: () => Promise<CacheHealth>;
+  fetchAPIHealth: () => Promise<APIHealth>;
+  fetchExternalDependencies: () => Promise<ExternalDependencies>;
+  fetchSystemDiagnostics: () => Promise<SystemDiagnostics>;
+  
+  runHealthCheck: (service?: string) => Promise<HealthCheck[]>;
+  refreshAllHealth: () => Promise<void>;
+  clearError: () => void;
 }
 
 export function useSystemHealth(
@@ -41,307 +162,191 @@ export function useSystemHealth(
   options: UseSystemHealthOptions = {}
 ): UseSystemHealthResult {
   const {
-    autoConnect = true,
-    reconnectAttempts = 5,
-    reconnectInterval = 15000,
-    historyLimit = 30,
-    onSystemAlert,
-    healthThresholds = {
-      cpu_critical: 90,
-      memory_critical: 90,
-      connection_warning: 50
-    },
-    onConnect,
-    onDisconnect,
-    onError
+    refreshInterval = 60000,
+    onError,
+    enableRealTimeUpdates = true
   } = options;
 
-  const [healthState, setHealthState] = useState<RealTimeHealthState>({
-    currentHealth: null,
-    history: [],
-    lastUpdate: null,
-    connectionState: {
-      status: 'disconnected',
-      reconnectAttempts: 0,
-      maxReconnectAttempts: reconnectAttempts
-    },
-    isSubscribed: false
-  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
+  const [databaseHealth, setDatabaseHealth] = useState<DatabaseHealth | null>(null);
+  const [cacheHealth, setCacheHealth] = useState<CacheHealth | null>(null);
+  const [apiHealth, setAPIHealth] = useState<APIHealth | null>(null);
+  const [externalDependencies, setExternalDependencies] = useState<ExternalDependencies | null>(null);
+  const [systemDiagnostics, setSystemDiagnostics] = useState<SystemDiagnostics | null>(null);
 
-  const wsUrl = `${apiUrl.replace('http', 'ws')}/ws/system-health`;
-
-  const handleMessage = useCallback((message: any) => {
-    try {
-      if (message.type === 'health_update' && message.data) {
-        const healthUpdate = message as HealthUpdateMessage;
-        const newHealthData = healthUpdate.data;
-
-        setHealthState(prev => {
-          const newHistory = [...prev.history, newHealthData];
-          if (newHistory.length > historyLimit) {
-            newHistory.shift();
-          }
-
-          return {
-            ...prev,
-            currentHealth: newHealthData,
-            history: newHistory,
-            lastUpdate: message.timestamp,
-            connectionState: {
-              ...prev.connectionState,
-              status: 'connected'
-            }
-          };
-        });
-
-        // Check system health thresholds and generate alerts
-        const { system_resources, api_status, cache_status, database_status } = newHealthData;
-        
-        // Critical system resource alerts
-        if (system_resources.cpu_percent >= healthThresholds.cpu_critical) {
-          const alert: RealTimeAlert = {
-            id: `cpu-critical-${Date.now()}`,
-            type: 'system',
-            severity: 'critical',
-            title: 'Critical CPU Usage',
-            message: `System CPU usage has reached ${system_resources.cpu_percent.toFixed(1)}%`,
-            timestamp: message.timestamp,
-            source: 'system_health_monitor',
-            data: { metric: 'cpu', value: system_resources.cpu_percent },
-            actions: [
-              { label: 'View Details', action: 'view_system_details', style: 'primary' },
-              { label: 'Acknowledge', action: 'acknowledge_alert', style: 'secondary' }
-            ]
-          };
-          onSystemAlert?.(alert);
-        }
-
-        if (system_resources.memory_percent >= healthThresholds.memory_critical) {
-          const alert: RealTimeAlert = {
-            id: `memory-critical-${Date.now()}`,
-            type: 'system',
-            severity: 'critical',
-            title: 'Critical Memory Usage',
-            message: `System memory usage has reached ${system_resources.memory_percent.toFixed(1)}%`,
-            timestamp: message.timestamp,
-            source: 'system_health_monitor',
-            data: { metric: 'memory', value: system_resources.memory_percent }
-          };
-          onSystemAlert?.(alert);
-        }
-
-        // Service status alerts
-        if (api_status === 'stressed' || api_status === 'error') {
-          const alert: RealTimeAlert = {
-            id: `api-status-${Date.now()}`,
-            type: 'system',
-            severity: api_status === 'error' ? 'critical' : 'high',
-            title: `API Service ${api_status === 'error' ? 'Error' : 'Stress'}`,
-            message: `API service status: ${api_status}`,
-            timestamp: message.timestamp,
-            source: 'system_health_monitor',
-            data: { service: 'api', status: api_status }
-          };
-          onSystemAlert?.(alert);
-        }
-
-        if (cache_status === 'error' || database_status === 'unavailable') {
-          const alert: RealTimeAlert = {
-            id: `infrastructure-${Date.now()}`,
-            type: 'system',
-            severity: 'high',
-            title: 'Infrastructure Service Issue',
-            message: `Service issues detected - Cache: ${cache_status}, Database: ${database_status}`,
-            timestamp: message.timestamp,
-            source: 'system_health_monitor',
-            data: { cache_status, database_status }
-          };
-          onSystemAlert?.(alert);
-        }
-
-        // Connection health warning
-        if (newHealthData.active_connections >= healthThresholds.connection_warning) {
-          const alert: RealTimeAlert = {
-            id: `connections-warning-${Date.now()}`,
-            type: 'system',
-            severity: 'medium',
-            title: 'High Connection Load',
-            message: `Active connections: ${newHealthData.active_connections}`,
-            timestamp: message.timestamp,
-            source: 'system_health_monitor',
-            data: { metric: 'connections', value: newHealthData.active_connections }
-          };
-          onSystemAlert?.(alert);
-        }
-
-      } else if (message.type === 'error') {
-        console.error('System health WebSocket error:', message.message);
-        setHealthState(prev => ({
-          ...prev,
-          connectionState: {
-            ...prev.connectionState,
-            status: 'error',
-            lastError: message.message
-          }
-        }));
-      }
-    } catch (error) {
-      console.error('Error processing health update:', error);
-    }
-  }, [historyLimit, onSystemAlert, healthThresholds]);
-
-  const handleConnect = useCallback(() => {
-    setHealthState(prev => ({
-      ...prev,
-      connectionState: {
-        ...prev.connectionState,
-        status: 'connected',
-        lastConnected: new Date().toISOString(),
-        reconnectAttempts: 0
-      },
-      isSubscribed: true
-    }));
-    onConnect?.();
-  }, [onConnect]);
-
-  const handleDisconnect = useCallback(() => {
-    setHealthState(prev => ({
-      ...prev,
-      connectionState: {
-        ...prev.connectionState,
-        status: 'disconnected'
-      },
-      isSubscribed: false
-    }));
-    onDisconnect?.();
-  }, [onDisconnect]);
-
-  const handleError = useCallback((error: any) => {
-    setHealthState(prev => ({
-      ...prev,
-      connectionState: {
-        ...prev.connectionState,
-        status: 'error',
-        lastError: error.message || 'Connection error',
-        reconnectAttempts: prev.connectionState.reconnectAttempts + 1
-      }
-    }));
-    onError?.(error);
-  }, [onError]);
-
-  const {
-    isConnected,
-    connectionState,
-    connect,
-    disconnect
-  } = useWebSocket(wsUrl, {
-    reconnectAttempts,
-    reconnectInterval,
-    onMessage: handleMessage,
-    onConnect: handleConnect,
-    onDisconnect: handleDisconnect,
-    onError: handleError
-  });
-
-  const subscribe = useCallback(() => {
-    connect();
-  }, [connect]);
-
-  const unsubscribe = useCallback(() => {
-    disconnect();
-  }, [disconnect]);
-
-  const clearHistory = useCallback(() => {
-    setHealthState(prev => ({
-      ...prev,
-      history: []
-    }));
+  const clearError = useCallback(() => {
+    setError(null);
   }, []);
 
-  const getOverallStatus = useCallback((): 'healthy' | 'degraded' | 'critical' | 'unknown' => {
-    if (!healthState.currentHealth) return 'unknown';
-    
-    const { api_status, system_resources } = healthState.currentHealth;
-    
-    // Critical conditions
-    if (api_status === 'stressed' || 
-        system_resources.cpu_percent >= healthThresholds.cpu_critical ||
-        system_resources.memory_percent >= healthThresholds.memory_critical) {
-      return 'critical';
-    }
-    
-    // Degraded conditions
-    if (api_status === 'degraded' ||
-        system_resources.cpu_percent >= 70 ||
-        system_resources.memory_percent >= 70) {
-      return 'degraded';
-    }
-    
-    return 'healthy';
-  }, [healthState.currentHealth, healthThresholds]);
+  const makeRequest = useCallback(async <T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> => {
+    const response = await fetch(`${apiUrl}${endpoint}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    });
 
-  const getServiceHealth = useCallback(() => {
-    if (!healthState.currentHealth) {
-      return {
-        api: 'critical' as const,
-        cache: 'unavailable' as const,
-        database: 'unavailable' as const,
-        pipeline: 'inactive' as const
-      };
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const { api_status, cache_status, database_status, data_pipeline_status } = healthState.currentHealth;
-    
-    // Map API status
-    let apiHealth: 'healthy' | 'degraded' | 'critical' = 'healthy';
-    if (api_status === 'stressed') apiHealth = 'critical';
-    else if (api_status === 'degraded') apiHealth = 'degraded';
-    
-    // Map cache status
-    let cacheHealth: 'operational' | 'degraded' | 'unavailable' = 'operational';
-    if (cache_status === 'unavailable') cacheHealth = 'unavailable';
-    else if (cache_status === 'degraded') cacheHealth = 'degraded';
-    
-    // Map database status
-    let dbHealth: 'operational' | 'degraded' | 'unavailable' = 'operational';
-    if (database_status === 'unavailable') dbHealth = 'unavailable';
-    else if (database_status === 'degraded') dbHealth = 'degraded';
-    
-    // Map pipeline status
-    let pipelineHealth: 'active' | 'inactive' | 'error' = 'active';
-    if (data_pipeline_status === 'error') pipelineHealth = 'error';
-    else if (data_pipeline_status === 'inactive') pipelineHealth = 'inactive';
+    return response.json();
+  }, [apiUrl]);
 
-    return {
-      api: apiHealth,
-      cache: cacheHealth,
-      database: dbHealth,
-      pipeline: pipelineHealth
-    };
-  }, [healthState.currentHealth]);
+  const handleError = useCallback((err: any, context: string) => {
+    const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+    const fullError = new Error(`${context}: ${errorMessage}`);
+    setError(fullError.message);
+    onError?.(fullError);
+    console.error(`System health ${context} error:`, err);
+  }, [onError]);
 
-  // Auto-connect on mount if enabled
+  const fetchSystemHealth = useCallback(async (): Promise<SystemHealth> => {
+    try {
+      const data = await makeRequest<SystemHealth>('/api/v1/health');
+      setSystemHealth(data);
+      return data;
+    } catch (err) {
+      handleError(err, 'Failed to fetch system health');
+      throw err;
+    }
+  }, [makeRequest, handleError]);
+
+  const fetchDatabaseHealth = useCallback(async (): Promise<DatabaseHealth> => {
+    try {
+      const data = await makeRequest<DatabaseHealth>('/api/v1/health/database');
+      setDatabaseHealth(data);
+      return data;
+    } catch (err) {
+      handleError(err, 'Failed to fetch database health');
+      throw err;
+    }
+  }, [makeRequest, handleError]);
+
+  const fetchCacheHealth = useCallback(async (): Promise<CacheHealth> => {
+    try {
+      const data = await makeRequest<CacheHealth>('/api/v1/health/cache');
+      setCacheHealth(data);
+      return data;
+    } catch (err) {
+      handleError(err, 'Failed to fetch cache health');
+      throw err;
+    }
+  }, [makeRequest, handleError]);
+
+  const fetchAPIHealth = useCallback(async (): Promise<APIHealth> => {
+    try {
+      const data = await makeRequest<APIHealth>('/api/v1/health/api');
+      setAPIHealth(data);
+      return data;
+    } catch (err) {
+      handleError(err, 'Failed to fetch API health');
+      throw err;
+    }
+  }, [makeRequest, handleError]);
+
+  const fetchExternalDependencies = useCallback(async (): Promise<ExternalDependencies> => {
+    try {
+      const data = await makeRequest<ExternalDependencies>('/api/v1/health/dependencies');
+      setExternalDependencies(data);
+      return data;
+    } catch (err) {
+      handleError(err, 'Failed to fetch external dependencies');
+      throw err;
+    }
+  }, [makeRequest, handleError]);
+
+  const fetchSystemDiagnostics = useCallback(async (): Promise<SystemDiagnostics> => {
+    try {
+      const data = await makeRequest<SystemDiagnostics>('/api/v1/health/diagnostics');
+      setSystemDiagnostics(data);
+      return data;
+    } catch (err) {
+      handleError(err, 'Failed to fetch system diagnostics');
+      throw err;
+    }
+  }, [makeRequest, handleError]);
+
+  const runHealthCheck = useCallback(async (service?: string): Promise<HealthCheck[]> => {
+    try {
+      const endpoint = service 
+        ? `/api/v1/health/check/${service}` 
+        : '/api/v1/health/check';
+      
+      const data = await makeRequest<HealthCheck[]>(endpoint, {
+        method: 'POST'
+      });
+      
+      return data;
+    } catch (err) {
+      handleError(err, 'Failed to run health check');
+      throw err;
+    }
+  }, [makeRequest, handleError]);
+
+  const refreshAllHealth = useCallback(async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await Promise.all([
+        fetchSystemHealth(),
+        fetchDatabaseHealth(),
+        fetchCacheHealth(),
+        fetchAPIHealth(),
+        fetchExternalDependencies(),
+        fetchSystemDiagnostics()
+      ]);
+    } catch (err) {
+      handleError(err, 'Failed to refresh health data');
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    fetchSystemHealth,
+    fetchDatabaseHealth,
+    fetchCacheHealth,
+    fetchAPIHealth,
+    fetchExternalDependencies,
+    fetchSystemDiagnostics,
+    handleError
+  ]);
+
   useEffect(() => {
-    if (autoConnect) {
-      subscribe();
+    if (enableRealTimeUpdates) {
+      refreshAllHealth();
+      const interval = setInterval(refreshAllHealth, refreshInterval);
+      return () => clearInterval(interval);
     }
-    
-    return () => {
-      unsubscribe();
-    };
-  }, [autoConnect, subscribe, unsubscribe]);
+    return () => {};
+  }, [enableRealTimeUpdates, refreshAllHealth, refreshInterval]);
 
   return {
-    healthState,
-    currentHealth: healthState.currentHealth,
-    healthHistory: healthState.history,
-    isConnected,
-    connectionState,
-    lastUpdate: healthState.lastUpdate,
-    subscribe,
-    unsubscribe,
-    clearHistory,
-    getOverallStatus,
-    getServiceHealth
+    loading,
+    error,
+    
+    systemHealth,
+    databaseHealth,
+    cacheHealth,
+    apiHealth,
+    externalDependencies,
+    systemDiagnostics,
+    
+    fetchSystemHealth,
+    fetchDatabaseHealth,
+    fetchCacheHealth,
+    fetchAPIHealth,
+    fetchExternalDependencies,
+    fetchSystemDiagnostics,
+    
+    runHealthCheck,
+    refreshAllHealth,
+    clearError
   };
 }

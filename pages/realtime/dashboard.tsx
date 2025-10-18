@@ -247,7 +247,6 @@ const RealtimeDashboard: React.FC = () => {
               <div className="lg:col-span-1">
                 <HealthMonitor 
                   apiUrl={apiUrl} 
-                  onAlert={handleAlert}
                   className="h-full"
                 />
               </div>
