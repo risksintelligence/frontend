@@ -124,16 +124,26 @@ export function useSimulation(
     }
   }, [apiUrl, makeRequest, handleError]);
 
-  const loadPolicyTemplates = useCallback(async (): Promise<PolicyTemplate[]> => {
+  const loadPolicyTemplates = useCallback(async (): Promise<any> => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await makeRequest<PolicyTemplate[]>(
+      const data = await makeRequest<any>(
         `${apiUrl}/api/v1/simulation/templates/policies`
       );
       
-      setPolicyTemplates(data);
+      // Handle both old and new response formats
+      if (Array.isArray(data)) {
+        setPolicyTemplates(data);
+      } else if (data.policy_parameters) {
+        setPolicyTemplates(data.policy_parameters);
+      } else {
+        // Convert old format to new format for storage
+        const convertedTemplates = data.templates ? Object.values(data.templates) : [];
+        setPolicyTemplates(convertedTemplates as PolicyTemplate[]);
+      }
+      
       return data;
     } catch (err) {
       handleError(err, 'Failed to load policy templates');

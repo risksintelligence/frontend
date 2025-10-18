@@ -48,36 +48,21 @@ export default function NetworkGraph({
   const [selectedNode, setSelectedNode] = useState<NetworkNode | null>(null);
   const [simulationRunning, setSimulationRunning] = useState(false);
 
-  // Default sample data for demonstration
-  const defaultData: NetworkData = {
-    nodes: [
-      { id: 'fed', name: 'Federal Reserve', category: 'government', riskLevel: 35, systemicImportance: 95, description: 'Central banking system of the United States' },
-      { id: 'jpmorgan', name: 'JPMorgan Chase', category: 'financial', riskLevel: 42, systemicImportance: 88, description: 'Major investment bank and financial services company' },
-      { id: 'goldman', name: 'Goldman Sachs', category: 'financial', riskLevel: 48, systemicImportance: 82, description: 'Global investment banking and securities firm' },
-      { id: 'treasury', name: 'US Treasury', category: 'government', riskLevel: 28, systemicImportance: 90, description: 'Executive department responsible for federal finances' },
-      { id: 'apple', name: 'Apple Inc', category: 'supply_chain', riskLevel: 38, systemicImportance: 75, description: 'Technology company with global supply chain exposure' },
-      { id: 'amazon', name: 'Amazon', category: 'supply_chain', riskLevel: 45, systemicImportance: 78, description: 'E-commerce and cloud services with logistics networks' },
-      { id: 'labor_market', name: 'Labor Market', category: 'economic', riskLevel: 52, systemicImportance: 85, description: 'Employment conditions and workforce dynamics' },
-      { id: 'housing', name: 'Housing Market', category: 'economic', riskLevel: 39, systemicImportance: 70, description: 'Residential real estate sector' },
-      { id: 'china_trade', name: 'China Trade', category: 'supply_chain', riskLevel: 65, systemicImportance: 80, description: 'Trade relationship and supply dependencies with China' },
-      { id: 'energy', name: 'Energy Sector', category: 'supply_chain', riskLevel: 58, systemicImportance: 85, description: 'Oil, gas, and renewable energy infrastructure' }
-    ],
-    links: [
-      { source: 'fed', target: 'jpmorgan', strength: 0.8, riskPropagation: 0.7, type: 'regulatory' },
-      { source: 'fed', target: 'goldman', strength: 0.7, riskPropagation: 0.6, type: 'regulatory' },
-      { source: 'fed', target: 'treasury', strength: 0.9, riskPropagation: 0.8, type: 'regulatory' },
-      { source: 'jpmorgan', target: 'apple', strength: 0.5, riskPropagation: 0.4, type: 'financial' },
-      { source: 'goldman', target: 'amazon', strength: 0.6, riskPropagation: 0.5, type: 'financial' },
-      { source: 'apple', target: 'china_trade', strength: 0.9, riskPropagation: 0.8, type: 'supply' },
-      { source: 'amazon', target: 'china_trade', strength: 0.7, riskPropagation: 0.6, type: 'supply' },
-      { source: 'labor_market', target: 'housing', strength: 0.6, riskPropagation: 0.5, type: 'trade' },
-      { source: 'energy', target: 'china_trade', strength: 0.8, riskPropagation: 0.7, type: 'supply' },
-      { source: 'treasury', target: 'labor_market', strength: 0.4, riskPropagation: 0.3, type: 'regulatory' }
-    ],
-    timestamp: new Date().toISOString()
-  };
+  // No default data - component must receive real data from API
 
-  const networkData = data || defaultData;
+  // Component requires real data - no fallback to sample data
+  if (!data) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center bg-gray-50 border rounded-lg">
+        <div className="text-center">
+          <div className="text-gray-500 mb-2">No network data available</div>
+          <div className="text-sm text-gray-400">Please ensure backend API is connected</div>
+        </div>
+      </div>
+    );
+  }
+  
+  const networkData = data;
 
   const getNodeColor = (category: string, riskLevel: number): string => {
     const baseColors = {

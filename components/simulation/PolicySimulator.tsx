@@ -1,65 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Play, RotateCcw, TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useSimulation } from '../../hooks/useSimulation';
 import { PolicyParameter, SimulationResult, PolicyTemplate } from '../../types/simulation';
 
-const mockPolicyParameters: PolicyParameter[] = [
-  {
-    id: 'fed_rate',
-    name: 'Federal Funds Rate',
-    description: 'Target federal funds rate set by the Federal Reserve',
-    currentValue: 5.25,
-    minValue: 0,
-    maxValue: 10,
-    unit: '%',
-    category: 'monetary',
-    defaultValue: 5.25,
-  },
-  {
-    id: 'government_spending',
-    name: 'Government Spending',
-    description: 'Federal government expenditure as percentage of GDP',
-    currentValue: 23.5,
-    minValue: 15,
-    maxValue: 35,
-    unit: '% of GDP',
-    category: 'fiscal',
-    defaultValue: 23.5,
-  },
-  {
-    id: 'corporate_tax',
-    name: 'Corporate Tax Rate',
-    description: 'Federal corporate income tax rate',
-    currentValue: 21,
-    minValue: 10,
-    maxValue: 35,
-    unit: '%',
-    category: 'fiscal',
-    defaultValue: 21,
-  },
-  {
-    id: 'reserve_requirement',
-    name: 'Bank Reserve Requirement',
-    description: 'Minimum reserves banks must hold against deposits',
-    currentValue: 10,
-    minValue: 5,
-    maxValue: 20,
-    unit: '%',
-    category: 'regulatory',
-    defaultValue: 10,
-  },
-  {
-    id: 'tariff_rate',
-    name: 'Average Tariff Rate',
-    description: 'Average tariff rate on imported goods',
-    currentValue: 7.5,
-    minValue: 0,
-    maxValue: 25,
-    unit: '%',
-    category: 'trade',
-    defaultValue: 7.5,
-  },
-];
 
 interface PolicySimulatorProps {
   onSimulationComplete?: (results: SimulationResult[]) => void;
@@ -71,11 +14,53 @@ export default function PolicySimulator({
   onSimulationComplete, 
   apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 }: PolicySimulatorProps) {
-  const { runPolicySimulation, loading, error, clearError } = useSimulation(apiUrl);
+  const { runPolicySimulation, loadPolicyTemplates, loading, error, clearError } = useSimulation(apiUrl);
   
-  const [parameters, setParameters] = useState<PolicyParameter[]>(mockPolicyParameters);
+  const [parameters, setParameters] = useState<PolicyParameter[]>([]);
   const [results, setResults] = useState<SimulationResult[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [templatesLoading, setTemplatesLoading] = useState(true);
+
+  // Load real policy templates from API on component mount
+  useEffect(() => {
+    const loadTemplates = async () => {
+      try {
+        setTemplatesLoading(true);
+        const templates = await loadPolicyTemplates() as any;
+        
+        // Handle different response formats from API
+        let policyParams: PolicyParameter[] = [];
+        
+        if (templates.policy_parameters && Array.isArray(templates.policy_parameters)) {
+          // New format with policy_parameters array
+          policyParams = templates.policy_parameters;
+        } else if (templates.templates) {
+          // Old format with templates object - convert to array
+          policyParams = Object.values(templates.templates).map((template: any) => ({
+            id: template.name?.toLowerCase().replace(/\s+/g, '_') || 'unknown',
+            name: template.name || 'Unknown Policy',
+            description: template.description || '',
+            currentValue: template.parameters?.intensity?.default || 1.0,
+            minValue: template.parameters?.intensity?.range?.[0] || 0,
+            maxValue: template.parameters?.intensity?.range?.[1] || 10,
+            unit: template.parameters?.intensity?.unit || '',
+            category: template.type || 'general',
+            defaultValue: template.parameters?.intensity?.default || 1.0,
+          }));
+        }
+        
+        if (policyParams.length > 0) {
+          setParameters(policyParams);
+        }
+      } catch (err) {
+        console.error('Failed to load policy templates:', err);
+      } finally {
+        setTemplatesLoading(false);
+      }
+    };
+
+    loadTemplates();
+  }, [loadPolicyTemplates]);
 
   const handleParameterChange = (id: string, value: number) => {
     setParameters(prev => 
@@ -86,7 +71,10 @@ export default function PolicySimulator({
   };
 
   const resetToDefaults = () => {
-    setParameters(mockPolicyParameters);
+    setParameters(prev => prev.map(param => ({
+      ...param,
+      currentValue: param.defaultValue
+    })));
     setResults([]);
   };
 
@@ -119,6 +107,34 @@ export default function PolicySimulator({
       default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
+
+  // Show loading state while templates are being fetched
+  if (templatesLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow border">
+          <div className="p-6 text-center">
+            <div className="text-gray-500 mb-2">Loading policy templates...</div>
+            <div className="text-sm text-gray-400">Fetching real economic data from API</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if no parameters loaded
+  if (!templatesLoading && parameters.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow border">
+          <div className="p-6 text-center">
+            <div className="text-red-500 mb-2">Failed to load policy templates</div>
+            <div className="text-sm text-gray-400">Please ensure backend API is connected</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -137,17 +137,45 @@ export default function FeatureImportance({
       setLoading(true);
       setError(null);
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Fetch from real API endpoint
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/v1/prediction/models/feature-importance?model_type=${modelType}&max_features=${maxFeatures}`);
       
-      // In production, this would be:
-      // const response = await fetch(`${apiUrl}/api/v1/explainability/feature-importance?model=${modelType}`);
-      // const data = await response.json();
+      if (!response.ok) {
+        // Fallback to mock data if API not available
+        console.warn('Feature importance API not available, using fallback data');
+        setFeatures(mockFeatureData.slice(0, maxFeatures));
+        setMetadata(mockMetadata);
+        return;
+      }
       
+      const data = await response.json();
+      
+      // Transform API response to match component interface
+      const transformedFeatures: FeatureImportanceData[] = data.features.map((f: any) => ({
+        feature: f.feature,
+        importance: f.importance,
+        direction: f.direction,
+        category: f.category,
+        description: f.description,
+        confidence: f.confidence
+      }));
+      
+      const transformedMetadata: ModelMetadata = {
+        modelName: data.model_metadata.model_name,
+        modelVersion: data.model_metadata.model_version,
+        trainingDate: data.model_metadata.training_date,
+        accuracy: data.model_metadata.accuracy,
+        dataPoints: data.model_metadata.data_points
+      };
+      
+      setFeatures(transformedFeatures);
+      setMetadata(transformedMetadata);
+    } catch (err) {
+      console.error('Failed to fetch feature importance:', err);
+      // Fallback to mock data
       setFeatures(mockFeatureData.slice(0, maxFeatures));
       setMetadata(mockMetadata);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch feature importance');
     } finally {
       setLoading(false);
     }

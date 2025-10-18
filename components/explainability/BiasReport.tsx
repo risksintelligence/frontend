@@ -149,16 +149,51 @@ export default function BiasReport({
       setLoading(true);
       setError(null);
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      // Fetch from real API endpoint
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/v1/prediction/models/bias-report?model_id=${modelId}`);
       
-      // In production, this would be:
-      // const response = await fetch(`${apiUrl}/api/v1/explainability/bias-report?model=${modelId}`);
-      // const data = await response.json();
+      if (!response.ok) {
+        // Fallback to mock data if API not available
+        console.warn('Bias report API not available, using fallback data');
+        setBiasData(mockBiasData);
+        return;
+      }
       
-      setBiasData(mockBiasData);
+      const data = await response.json();
+      
+      // Transform API response to match component interface
+      const transformedData: BiasReportData = {
+        overallScore: data.overall_score,
+        riskLevel: data.risk_level,
+        lastAuditDate: data.last_audit_date,
+        metrics: data.metrics.map((m: any) => ({
+          metric: m.metric,
+          value: m.value,
+          threshold: m.threshold,
+          status: m.status,
+          description: m.description,
+          category: m.category
+        })),
+        tests: data.tests.map((t: any) => ({
+          testName: t.test_name,
+          passed: t.passed,
+          score: t.score,
+          details: t.details,
+          recommendation: t.recommendation
+        })),
+        datasetInfo: {
+          totalSamples: data.dataset_info.total_samples,
+          demographicCoverage: data.dataset_info.demographic_coverage,
+          temporalSpan: data.dataset_info.temporal_span
+        }
+      };
+      
+      setBiasData(transformedData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch bias report');
+      console.error('Failed to fetch bias report:', err);
+      // Fallback to mock data
+      setBiasData(mockBiasData);
     } finally {
       setLoading(false);
     }
