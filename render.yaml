@@ -4,7 +4,6 @@ services:
     buildCommand: |
       npm ci
       npm run build
-      npm run export
     publishPath: ./out
     envVars:
       - key: NEXT_PUBLIC_API_URL
