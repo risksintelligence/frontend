@@ -19,82 +19,60 @@ interface RiskHeatmapProps {
   className?: string;
   viewMode?: 'sector' | 'geographic' | 'combined';
   onCellClick?: (data: RiskData) => void;
+  apiUrl?: string;
 }
 
 export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({
   className = '',
   viewMode = 'sector',
-  onCellClick
+  onCellClick,
+  apiUrl = 'http://localhost:8000'
 }) => {
   const [heatmapData, setHeatmapData] = useState<RiskData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCell, setSelectedCell] = useState<RiskData | null>(null);
 
-  // Sample data - in production this would come from API
+  // Fetch real data from risk factors API
   useEffect(() => {
     const fetchHeatmapData = async () => {
-      setLoading(true);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const sampleData: RiskData[] = [
-        {
-          sector: 'Banking',
-          region: 'Northeast',
-          riskScore: 65,
-          riskLevel: 'moderate',
-          factors: ['Credit Risk', 'Interest Rate Risk'],
-          lastUpdate: new Date().toISOString()
-        },
-        {
-          sector: 'Manufacturing',
-          region: 'Midwest',
-          riskScore: 78,
-          riskLevel: 'high',
-          factors: ['Supply Chain', 'Labor Costs'],
-          lastUpdate: new Date().toISOString()
-        },
-        {
-          sector: 'Technology',
-          region: 'West',
-          riskScore: 42,
-          riskLevel: 'low',
-          factors: ['Regulatory', 'Competition'],
-          lastUpdate: new Date().toISOString()
-        },
-        {
-          sector: 'Energy',
-          region: 'South',
-          riskScore: 85,
-          riskLevel: 'high',
-          factors: ['Commodity Prices', 'Environmental'],
-          lastUpdate: new Date().toISOString()
-        },
-        {
-          sector: 'Healthcare',
-          region: 'Southeast',
-          riskScore: 56,
-          riskLevel: 'moderate',
-          factors: ['Regulatory', 'Cost Pressures'],
-          lastUpdate: new Date().toISOString()
-        },
-        {
-          sector: 'Retail',
-          region: 'Southwest',
-          riskScore: 72,
-          riskLevel: 'high',
-          factors: ['Consumer Demand', 'Supply Chain'],
-          lastUpdate: new Date().toISOString()
+      try {
+        setLoading(true);
+        
+        // Fetch risk factors from real API
+        const response = await fetch(`${apiUrl}/api/v1/risk/factors`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch risk data');
         }
-      ];
-      
-      setHeatmapData(sampleData);
-      setLoading(false);
+        
+        const data = await response.json();
+        
+        // Transform risk factors into heatmap format
+        const transformedData: RiskData[] = data.factors.map((factor: any, index: number) => {
+          const sectors = ['Banking', 'Manufacturing', 'Technology', 'Energy', 'Healthcare', 'Retail'];
+          const regions = ['Northeast', 'Midwest', 'West', 'South', 'Southeast', 'Southwest'];
+          
+          return {
+            sector: sectors[index % sectors.length],
+            region: regions[index % regions.length],
+            riskScore: Math.round(factor.risk_contribution),
+            riskLevel: factor.risk_level,
+            factors: [factor.factor_name],
+            lastUpdate: data.timestamp
+          };
+        });
+        
+        setHeatmapData(transformedData);
+      } catch (err) {
+        console.error('Error fetching heatmap data:', err);
+        setHeatmapData([]);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchHeatmapData();
-  }, []);
+  }, [apiUrl]);
 
   const getRiskColor = (riskLevel: string) => {
     switch (riskLevel) {

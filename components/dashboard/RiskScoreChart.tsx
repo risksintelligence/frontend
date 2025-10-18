@@ -118,10 +118,10 @@ export default function RiskScoreChart({ apiUrl = 'http://localhost:8000' }: Ris
       const data = await response.json();
       setRiskData(data);
       
-      // Simulate historical data (in real app, would fetch from API)
+      // Build historical trend from current data points
       setHistoricalData(prev => {
         const newData = [...prev, data.overall_score];
-        return newData.slice(-20); // Keep last 20 data points
+        return newData.slice(-20); // Keep last 20 data points for trend visualization
       });
       
       setError(null);
@@ -262,10 +262,15 @@ export default function RiskScoreChart({ apiUrl = 'http://localhost:8000' }: Ris
     datasets: [
       {
         label: 'Risk Contribution',
-        data: riskData.factors.map(factor => factor.normalized_value * factor.weight * 100),
+        data: riskData.factors.map(factor => {
+          const contribution = factor.normalized_value * factor.weight * 100;
+          // Ensure minimum visibility for zero-contribution factors
+          return contribution === 0 ? 0.1 : contribution;
+        }),
         backgroundColor: riskData.factors.map(factor => {
           const contribution = factor.normalized_value * factor.weight * 100;
-          return getRiskColor(contribution * 4); // Scale for visualization
+          // Use gray color for zero-contribution factors
+          return contribution === 0 ? '#d1d5db' : getRiskColor(contribution * 4);
         }),
         borderRadius: 4,
         borderSkipped: false,
@@ -283,7 +288,11 @@ export default function RiskScoreChart({ apiUrl = 'http://localhost:8000' }: Ris
       tooltip: {
         callbacks: {
           label: function(context: any) {
-            return `${context.parsed.y.toFixed(1)}% contribution`;
+            // Get the actual contribution value from the original data
+            const factorIndex = context.dataIndex;
+            const factor = riskData.factors[factorIndex];
+            const actualContribution = factor.normalized_value * factor.weight * 100;
+            return `${actualContribution.toFixed(1)}% contribution`;
           },
         },
       },

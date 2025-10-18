@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Activity, AlertCircle, CheckCircle, RefreshCw, BarChart3, Settings, Info } from 'lucide-react';
+import { Activity, AlertCircle, CheckCircle, RefreshCw, BarChart3, Settings, Info, TrendingDown } from 'lucide-react';
 
 interface HeaderProps {
   apiUrl?: string;
@@ -16,6 +16,7 @@ interface SystemStatus {
 export default function Header({ apiUrl = 'http://localhost:8000' }: HeaderProps) {
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [statusLoading, setStatusLoading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
   useEffect(() => {
     checkSystemStatus();
@@ -23,6 +24,20 @@ export default function Header({ apiUrl = 'http://localhost:8000' }: HeaderProps
     const interval = setInterval(checkSystemStatus, 2 * 60 * 1000);
     return () => clearInterval(interval);
   }, [apiUrl]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownOpen && !(event.target as Element).closest('.relative')) {
+        setDropdownOpen(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   const checkSystemStatus = async () => {
     try {
@@ -67,6 +82,58 @@ export default function Header({ apiUrl = 'http://localhost:8000' }: HeaderProps
     return systemStatus.status === 'healthy' ? 'text-green-600' : 'text-amber-600';
   };
 
+  const navigationGroups = [
+    {
+      name: 'Risk',
+      items: [
+        { name: 'Risk Factors', href: '/risk/factors' },
+        { name: 'Risk Methodology', href: '/risk/methodology' },
+        { name: 'Network Risk', href: '/risk/network' }
+      ]
+    },
+    {
+      name: 'Analytics',
+      items: [
+        { name: 'Analytics Overview', href: '/analytics/overview' },
+        { name: 'Risk Forecast', href: '/predictions/forecast' },
+        { name: 'Real-time Dashboard', href: '/realtime/dashboard' }
+      ]
+    },
+    {
+      name: 'Network',
+      items: [
+        { name: 'Network Centrality', href: '/network/centrality' },
+        { name: 'Critical Paths', href: '/network/critical-paths' },
+        { name: 'Vulnerability Assessment', href: '/network/vulnerability' }
+      ]
+    },
+    {
+      name: 'Simulation',
+      items: [
+        { name: 'Advanced Simulation', href: '/simulation/advanced' },
+        { name: 'Policy Simulation', href: '/simulation/policy' }
+      ]
+    },
+    {
+      name: 'System',
+      items: [
+        { name: 'Data Management', href: '/data/management' },
+        { name: 'Model Insights', href: '/explainability/insights' },
+        { name: 'Model Transparency', href: '/explainability/models' },
+        { name: 'System Monitoring', href: '/monitoring/system' },
+        { name: 'Health Diagnostics', href: '/health/diagnostics' }
+      ]
+    }
+  ];
+
+  const handleDropdownToggle = (groupName: string) => {
+    setDropdownOpen(dropdownOpen === groupName ? null : groupName);
+  };
+
+  const handleDropdownClose = () => {
+    setDropdownOpen(null);
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 shadow-professional">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -85,31 +152,49 @@ export default function Header({ apiUrl = 'http://localhost:8000' }: HeaderProps
           </div>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-1">
+            {/* Dashboard Link */}
             <Link
               href="/"
               className="text-gray-700 hover:text-primary-900 px-3 py-2 text-sm font-medium transition-colors"
             >
               Dashboard
             </Link>
-            <Link
-              href="/risk/network"
-              className="text-gray-700 hover:text-primary-900 px-3 py-2 text-sm font-medium transition-colors"
-            >
-              Network Analysis
-            </Link>
-            <Link
-              href="/simulation/policy"
-              className="text-gray-700 hover:text-primary-900 px-3 py-2 text-sm font-medium transition-colors"
-            >
-              Policy Simulation
-            </Link>
-            <Link
-              href="/explainability/models"
-              className="text-gray-700 hover:text-primary-900 px-3 py-2 text-sm font-medium transition-colors"
-            >
-              Model Transparency
-            </Link>
+
+            {/* Dropdown Navigation Groups */}
+            {navigationGroups.map((group) => (
+              <div key={group.name} className="relative">
+                <button
+                  onClick={() => handleDropdownToggle(group.name)}
+                  className="flex items-center space-x-1 text-gray-700 hover:text-primary-900 px-3 py-2 text-sm font-medium transition-colors"
+                >
+                  <span>{group.name}</span>
+                  <TrendingDown 
+                    className={`w-4 h-4 transition-transform ${
+                      dropdownOpen === group.name ? 'rotate-180' : ''
+                    }`} 
+                  />
+                </button>
+
+                {/* Dropdown Menu */}
+                {dropdownOpen === group.name && (
+                  <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                    <div className="py-1">
+                      {group.items.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={handleDropdownClose}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary-900 transition-colors"
+                        >
+                          {item.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </nav>
 
           {/* Status and Actions */}
