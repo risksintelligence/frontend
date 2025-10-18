@@ -78,40 +78,72 @@ export interface VulnerabilityAssessment {
     node_id: string;
     node_name: string;
     vulnerability_score: number;
+    current_value: number;
+    critical_threshold: number;
+    threshold_proximity: number;
+    systemic_impact: string;
     risk_factors: string[];
     mitigation_strategies: string[];
-    cascading_risk_potential: number;
   }>;
-  critical_vulnerabilities: string[];
-  system_resilience_score: number;
-  weak_links: Array<{
-    edge_id: string;
-    source: string;
-    target: string;
-    weakness_score: number;
-    failure_impact: number;
+  overall_vulnerability_score: number;
+  most_vulnerable: Array<{
+    node_id: string;
+    node_name: string;
+    vulnerability_score: number;
+    current_value: number;
+    systemic_impact: string;
   }>;
-  assessment_date: string;
+  category_analysis: Record<string, {
+    avgVulnerabilityScore: number;
+    nodeCount: number;
+    totalVulnerability: number;
+  }>;
+  risk_distribution: {
+    low: number;
+    medium: number;
+    high: number;
+    critical: number;
+  };
+  network_metrics: {
+    total_nodes: number;
+    avg_vulnerability: number;
+    high_vulnerability_nodes: number;
+    critical_nodes: number;
+  };
+  systemic_vulnerabilities: Array<{
+    area: string;
+    risk_level: string;
+    description: string;
+  }>;
+  recommendations: string[];
+  analysis_timestamp: string;
+  methodology: {
+    description: string;
+    data_sources: string[];
+    calculation_method: string;
+  };
 }
 
 export interface CriticalPath {
-  path_id: string;
-  path_name: string;
-  nodes: string[];
-  edges: string[];
-  path_length: number;
-  total_risk: number;
-  bottlenecks: Array<{
-    node_id: string;
-    bottleneck_score: number;
-    capacity_utilization: number;
+  pathId: number;
+  path: string[];
+  pathDetails: Array<{
+    nodeId: string;
+    nodeName: string;
+    category: string;
+    riskLevel: number;
+    currentValue: number;
+    riskContribution: number;
+    description: string;
   }>;
-  alternative_paths: Array<{
-    path_id: string;
-    nodes: string[];
-    cost_multiplier: number;
-    reliability_score: number;
-  }>;
+  avgRiskLevel: number;
+  pathLength: number;
+  criticalityScore: number;
+  riskCategory: string;
+  pathType: string;
+  description: string;
+  mechanism: string;
+  totalRisk: number;
 }
 
 export interface ShockSimulation {
@@ -255,12 +287,28 @@ export function useNetworkAnalysis(
     setError(null);
 
     try {
-      const data = await makeRequest<CentralityAnalysis>(
+      const data = await makeRequest<any>(
         `${apiUrl}/api/v1/network/centrality`
       );
       
-      setCentralityAnalysis(data);
-      return data;
+      // Transform backend response to match frontend interface
+      const transformedData: CentralityAnalysis = {
+        node_rankings: data.centrality?.map((item: any, index: number) => ({
+          node_id: item.nodeId,
+          node_name: item.nodeName,
+          centrality_type: 'eigenvector' as const, // Default type since backend doesn't specify
+          score: item.centralityScore || item.combinedScore,
+          rank: index + 1,
+          interpretation: `${item.nodeName} has high network centrality with score ${(item.centralityScore || 0).toFixed(3)}`
+        })) || [],
+        top_influential: data.topNodes?.map((item: any) => item.nodeId) || [],
+        top_vulnerable: data.centrality?.filter((item: any) => item.riskLevel > 60).map((item: any) => item.nodeId) || [],
+        critical_connectors: data.centrality?.filter((item: any) => item.systemicImportance > 0.8).map((item: any) => item.nodeId) || [],
+        analysis_date: new Date().toISOString()
+      };
+      
+      setCentralityAnalysis(transformedData);
+      return transformedData;
     } catch (err) {
       handleError(err, 'Failed to fetch centrality analysis');
       throw err;
@@ -293,12 +341,13 @@ export function useNetworkAnalysis(
     setError(null);
 
     try {
-      const data = await makeRequest<CriticalPath[]>(
+      const data = await makeRequest<{criticalPaths: CriticalPath[]}>(
         `${apiUrl}/api/v1/network/critical-paths`
       );
       
-      setCriticalPaths(data);
-      return data;
+      const paths = data.criticalPaths || [];
+      setCriticalPaths(paths);
+      return paths;
     } catch (err) {
       handleError(err, 'Failed to fetch critical paths');
       return [];

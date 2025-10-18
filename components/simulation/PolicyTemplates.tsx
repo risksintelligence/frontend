@@ -19,15 +19,56 @@ export const PolicyTemplates: React.FC<PolicyTemplatesProps> = ({
   const [selectedTemplate, setSelectedTemplate] = useState<PolicyTemplate | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
+  const [templates, setTemplates] = useState<any[]>([]);
+  
   useEffect(() => {
-    loadPolicyTemplates();
-  }, [loadPolicyTemplates]);
+    const loadTemplates = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/api/v1/simulation/templates/policies`);
+        if (!response.ok) {
+          throw new Error('Failed to load templates');
+        }
+        const data = await response.json();
+        
+        // Convert backend format to frontend format
+        if (data.policy_parameters) {
+          const convertedTemplates = data.policy_parameters.map((param: any) => ({
+            id: param.id,
+            name: param.name,
+            description: param.description,
+            category: param.category === 'monetary' ? 'stability_measures' : 
+                     param.category === 'fiscal' ? 'growth_stimulus' :
+                     param.category === 'regulatory' ? 'crisis_response' : 'inflation_control',
+            parameters: [{
+              id: param.id,
+              name: param.name,
+              description: param.description,
+              currentValue: param.currentValue,
+              minValue: param.minValue,
+              maxValue: param.maxValue,
+              unit: param.unit,
+              category: param.category,
+              defaultValue: param.defaultValue
+            }],
+            expectedOutcomes: param.expected_impacts || [],
+            historicalUsage: [],
+            tags: [param.category, param.unit]
+          }));
+          setTemplates(convertedTemplates);
+        }
+      } catch (err) {
+        console.error('Failed to load policy templates:', err);
+      }
+    };
+    
+    loadTemplates();
+  }, [apiUrl]);
 
-  const filteredTemplates = policyTemplates
+  const filteredTemplates = templates
     .filter(template => 
       template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       template.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      template.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      template.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
     )
     .filter(template => 
       selectedCategory === 'all' || template.category === selectedCategory

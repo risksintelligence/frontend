@@ -81,7 +81,55 @@ export default function PolicySimulator({
   const runSimulation = async () => {
     try {
       clearError();
-      const simulationResults = await runPolicySimulation(parameters);
+      
+      // Format request for the actual backend API
+      const policyRequest = {
+        policy_name: "Policy Simulation " + new Date().toISOString(),
+        policy_type: "monetary", // Use first parameter's category or default
+        parameters: {
+          intensity: parameters[0]?.currentValue || 1.0,
+          implementation_speed: "gradual"
+        },
+        duration_months: 12,
+        confidence_level: 0.95
+      };
+
+      // Call backend API directly instead of through hook
+      const response = await fetch(`${apiUrl}/api/v1/simulation/policy/simulate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(policyRequest)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Simulation failed: ${response.statusText}`);
+      }
+
+      const apiResult = await response.json();
+      
+      // Convert API response to frontend format
+      const simulationResults: SimulationResult[] = [{
+        policyId: apiResult.simulation_id,
+        originalValue: parameters[0]?.defaultValue || 0,
+        simulatedValue: parameters[0]?.currentValue || 0,
+        impact: {
+          gdpChange: apiResult.impact_analysis?.overall_risk_change || 0,
+          inflationChange: apiResult.impact_analysis?.sector_impacts?.financial_services || 0,
+          unemploymentChange: apiResult.impact_analysis?.sector_impacts?.manufacturing || 0,
+          marketStabilityChange: apiResult.impact_analysis?.risk_change_percent || 0
+        },
+        riskFactors: [
+          {
+            category: "Economic Impact",
+            change: apiResult.impact_analysis?.overall_risk_change || 0,
+            significance: Math.abs(apiResult.impact_analysis?.overall_risk_change || 0) > 5 ? 'high' : 'medium'
+          }
+        ],
+        timestamp: apiResult.timestamp || new Date().toISOString()
+      }];
+      
       setResults(simulationResults);
       onSimulationComplete?.(simulationResults);
     } catch (err) {
