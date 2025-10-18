@@ -405,7 +405,7 @@ export const ModelTransparency: React.FC<ModelTransparencyProps> = ({
                     <ul className="text-sm text-red-600 space-y-1">
                       {transparencyReport.ethical_considerations.bias_testing.potential_biases.map((bias, index) => (
                         <li key={index} className="flex items-start">
-                          <span className="mr-2">⚠</span>
+                          <span className="mr-2">!</span>
                           {bias}
                         </li>
                       ))}

@@ -351,7 +351,7 @@ export const SHAPAnalysis: React.FC<SHAPAnalysisProps> = ({
           <ul className="text-sm text-gray-700 space-y-1">
             {explanation.model_limitations.map((limitation, index) => (
               <li key={index} className="flex items-start">
-                <span className="text-yellow-600 mr-2">⚠</span>
+                <span className="text-yellow-600 mr-2">!</span>
                 {limitation}
               </li>
             ))}

@@ -173,7 +173,7 @@ export const SimulationComparison: React.FC<SimulationComparisonProps> = ({
               onClick={clearError}
               className="text-red-600 hover:text-red-800"
             >
-              ✕
+              X
             </button>
           </div>
         </div>

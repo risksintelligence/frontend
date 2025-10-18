@@ -214,7 +214,7 @@ const RealtimeDashboard: React.FC = () => {
                           onClick={() => dismissNotification(notification.id)}
                           className="text-gray-400 hover:text-gray-600"
                         >
-                          ✕
+                          X
                         </button>
                       </div>
                     </div>
@@ -300,7 +300,7 @@ const RealtimeDashboard: React.FC = () => {
                               onClick={() => dismissAlert(alert.id)}
                               className="text-gray-400 hover:text-gray-600"
                             >
-                              ✕
+                              X
                             </button>
                           </div>
                         </div>
@@ -334,7 +334,7 @@ const RealtimeDashboard: React.FC = () => {
                       onClick={() => setSelectedAlert(null)}
                       className="text-gray-400 hover:text-gray-600"
                     >
-                      ✕
+                      X
                     </button>
                   </div>
                 </div>

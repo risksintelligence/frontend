@@ -260,7 +260,7 @@ export const PolicyTemplates: React.FC<PolicyTemplatesProps> = ({
                     onClick={() => setShowDetails(false)}
                     className="text-gray-400 hover:text-gray-600"
                   >
-                    ✕
+                    X
                   </button>
                 </div>
               </div>

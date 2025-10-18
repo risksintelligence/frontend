@@ -90,7 +90,7 @@ const RiskFactors: React.FC = () => {
                 <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
                   <div className="p-6">
                     <div className="text-center py-12">
-                      <div className="text-6xl mb-4">📊</div>
+                      <div className="text-6xl mb-4 text-gray-400">[CHART]</div>
                       <h3 className="text-lg font-medium text-gray-900 mb-2">Select a Risk Factor</h3>
                       <p className="text-gray-600">
                         Click on any risk factor from the left panel to view detailed analysis including 

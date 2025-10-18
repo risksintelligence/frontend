@@ -50,11 +50,11 @@ const ExplainabilityInsights: React.FC = () => {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'feature_importance': return '📊';
-      case 'bias_detection': return '⚖️';
-      case 'model_drift': return '📈';
-      case 'performance_alert': return '🚨';
-      default: return '💡';
+      case 'feature_importance': return 'CHART';
+      case 'bias_detection': return 'SCALE';
+      case 'model_drift': return 'TREND';
+      case 'performance_alert': return 'ALERT';
+      default: return 'INFO';
     }
   };
 
@@ -183,7 +183,7 @@ const ExplainabilityInsights: React.FC = () => {
                     />
                   ) : (
                     <div className="text-center py-12 text-gray-500">
-                      <div className="text-6xl mb-4">📊</div>
+                      <div className="text-6xl mb-4 text-gray-400">[CHART]</div>
                       <h3 className="text-lg font-medium mb-2">No Prediction Selected</h3>
                       <p>Enter a prediction ID above to view detailed SHAP analysis and feature importance.</p>
                     </div>
@@ -264,22 +264,22 @@ const ExplainabilityInsights: React.FC = () => {
             <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <button className="p-4 text-left border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
-                <div className="text-2xl mb-2">📋</div>
+                <div className="text-2xl mb-2 text-gray-400">[LIST]</div>
                 <div className="font-medium">Download Report</div>
                 <div className="text-sm text-gray-600">Export analysis as PDF</div>
               </button>
               <button className="p-4 text-left border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
-                <div className="text-2xl mb-2">🔄</div>
+                <div className="text-2xl mb-2 text-gray-400">[CYCLE]</div>
                 <div className="font-medium">Refresh Data</div>
                 <div className="text-sm text-gray-600">Update all metrics</div>
               </button>
               <button className="p-4 text-left border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
-                <div className="text-2xl mb-2">⚙️</div>
+                <div className="text-2xl mb-2 text-gray-400">[GEAR]</div>
                 <div className="font-medium">Model Settings</div>
                 <div className="text-sm text-gray-600">Configure thresholds</div>
               </button>
               <button className="p-4 text-left border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
-                <div className="text-2xl mb-2">📧</div>
+                <div className="text-2xl mb-2 text-gray-400">[MAIL]</div>
                 <div className="font-medium">Alert Setup</div>
                 <div className="text-sm text-gray-600">Manage notifications</div>
               </button>

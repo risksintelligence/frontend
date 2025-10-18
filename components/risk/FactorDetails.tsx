@@ -155,7 +155,7 @@ export const FactorDetails: React.FC<FactorDetailsProps> = ({
                 onClick={onClose}
                 className="text-gray-400 hover:text-gray-600"
               >
-                ✕
+                X
               </button>
             )}
           </div>

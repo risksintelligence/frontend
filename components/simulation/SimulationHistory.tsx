@@ -105,11 +105,11 @@ export const SimulationHistory: React.FC<SimulationHistoryProps> = ({
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'policy':
-        return '🏛️';
+        return 'GOV';
       case 'monte_carlo':
-        return '📊';
+        return 'CHART';
       default:
-        return '📋';
+        return 'LIST';
     }
   };
 

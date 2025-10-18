@@ -243,7 +243,7 @@ const AdvancedSimulation: React.FC = () => {
                 onClick={() => setActiveTab('policy')}
                 className="p-4 text-left border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
               >
-                <div className="text-2xl mb-2">🏛️</div>
+                <div className="text-2xl mb-2 text-gray-400">[GOV]</div>
                 <div className="font-medium">New Policy Simulation</div>
                 <div className="text-sm text-gray-600">Analyze policy impacts</div>
               </button>
@@ -252,7 +252,7 @@ const AdvancedSimulation: React.FC = () => {
                 onClick={() => setActiveTab('monte_carlo')}
                 className="p-4 text-left border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
               >
-                <div className="text-2xl mb-2">📊</div>
+                <div className="text-2xl mb-2 text-gray-400">[CHART]</div>
                 <div className="font-medium">Monte Carlo Analysis</div>
                 <div className="text-sm text-gray-600">Statistical modeling</div>
               </button>
@@ -261,7 +261,7 @@ const AdvancedSimulation: React.FC = () => {
                 onClick={() => setActiveTab('templates')}
                 className="p-4 text-left border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
               >
-                <div className="text-2xl mb-2">📋</div>
+                <div className="text-2xl mb-2 text-gray-400">[LIST]</div>
                 <div className="font-medium">Browse Templates</div>
                 <div className="text-sm text-gray-600">Pre-built scenarios</div>
               </button>
@@ -270,7 +270,7 @@ const AdvancedSimulation: React.FC = () => {
                 onClick={() => setActiveTab('comparison')}
                 className="p-4 text-left border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
               >
-                <div className="text-2xl mb-2">⚖️</div>
+                <div className="text-2xl mb-2 text-gray-400">[SCALE]</div>
                 <div className="font-medium">Compare Results</div>
                 <div className="text-sm text-gray-600">Side-by-side analysis</div>
               </button>
