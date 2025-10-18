@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "next dev", 
     "build": "next build",
-    "export": "next build",
+    "export": "echo 'Export completed during build step'",
     "start": "npx serve@latest out",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
