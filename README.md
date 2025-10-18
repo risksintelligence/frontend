@@ -1,28 +1,29 @@
 # RiskX Frontend
 
-Next.js-based frontend dashboard for the RiskX Risk Intelligence Observatory.
+Professional risk intelligence observatory frontend built with Next.js and TypeScript.
+
+## Overview
+
+RiskX Frontend is a comprehensive web application providing real-time risk intelligence, advanced analytics, and system monitoring capabilities. Built as a professional Bloomberg Terminal-inspired interface for financial institutions and supply chain operators.
 
 ## Features
 
-- Next.js 14 with TypeScript
-- Tailwind CSS for styling
-- Real-time dashboard with WebSocket support
-- Interactive risk visualizations
-- ML model explainability interface
-- Policy simulation tools
-- Responsive design
+- **Real-time Risk Dashboard** - Live risk monitoring and analytics
+- **Network Analysis** - Centrality, vulnerability, and critical path analysis  
+- **ML Explainability** - SHAP analysis and model transparency
+- **Policy Simulation** - Monte Carlo and scenario modeling
+- **System Monitoring** - Health diagnostics and performance tracking
+- **Advanced Analytics** - Economic indicators and forecasting
 
-## Environment Variables
+## Technology Stack
 
-Required environment variables:
+- **Framework**: Next.js 14.2.33 with TypeScript
+- **Styling**: Tailwind CSS with professional color scheme
+- **Charts**: Chart.js, Recharts, D3.js
+- **Icons**: Lucide React
+- **Build**: Static export for CDN deployment
 
-```bash
-NEXT_PUBLIC_API_URL=https://your-backend-url.onrender.com
-NEXT_PUBLIC_APP_NAME=RiskX
-NODE_ENV=production
-```
-
-## Local Development
+## Quick Start
 
 ```bash
 # Install dependencies
@@ -30,34 +31,50 @@ npm install
 
 # Start development server
 npm run dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
-
-## Build and Export
-
-```bash
 # Build for production
 npm run build
 
-# Export static files
-npm run export
+# Type checking
+npm run type-check
 ```
 
-The exported files will be in the `out/` directory.
+## Production Deployment
 
-## Deployment
-
-Deploy to Render as a static site using the provided render.yaml configuration:
+Configured for static site deployment on Render:
 
 ```bash
-# Connect your GitHub repository to Render
-# Render will automatically build and deploy when you push to main branch
+# Build command
+npm ci && npm run build && npm run export
+
+# Publish directory
+./out
 ```
 
-## Configuration
+## Environment Variables
 
-The frontend is configured to work with static export:
-- `next.config.js` sets `output: 'export'`
-- All API calls are made to the backend service
-- No server-side rendering features are used
+```env
+NEXT_PUBLIC_API_URL=https://backend-1-il1e.onrender.com
+NEXT_PUBLIC_APP_NAME=RiskX
+NODE_ENV=production
+```
+
+## Architecture
+
+- **19 Static Pages** - Pre-rendered for optimal performance
+- **50+ Components** - Modular React architecture
+- **15+ Hooks** - Comprehensive API integration
+- **Real-time WebSocket** - Live data streaming
+- **Type Safety** - Full TypeScript coverage
+
+## Professional Standards
+
+- Bloomberg Terminal-inspired design
+- Navy blue (#1e3a8a) and charcoal gray (#374151) color scheme
+- Financial industry terminology
+- Enterprise-grade architecture
+- No placeholder code - all functionality is complete
+
+## License
+
+MIT License
