@@ -406,7 +406,9 @@ export default function NetworkGraph({
         </div>
         <div className="p-3 bg-white border rounded-lg">
           <div className="text-lg font-semibold text-gray-900">
-            {Math.round(networkData.nodes.reduce((sum, n) => sum + n.riskLevel, 0) / networkData.nodes.length)}%
+            {networkData.nodes.length > 0 
+              ? Math.round(networkData.nodes.reduce((sum, n) => sum + n.riskLevel, 0) / networkData.nodes.length)
+              : 0}%
           </div>
           <div className="text-xs text-gray-600">Avg Risk</div>
         </div>

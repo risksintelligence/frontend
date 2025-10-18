@@ -1,12 +1,11 @@
-# Dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Production builds
+# Build outputs
 .next/
 out/
+build/
+dist/
+
+# Dependencies
+node_modules/
 
 # Environment variables
 .env
@@ -17,37 +16,22 @@ out/
 
 # Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDE files
+# IDE
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# Build info
-.next/
-.vercel
-.netlify/
+# OS
+.DS_Store
+Thumbs.db
 
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
+# Testing
+coverage/
+.nyc_output
 
-# Documentation files  
-*.md
-!README.md
+# Temporary files
+*.tmp
+*.temp

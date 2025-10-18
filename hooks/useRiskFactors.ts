@@ -15,6 +15,26 @@ export interface RiskFactor {
   alert_level: 'low' | 'medium' | 'high' | 'critical';
 }
 
+interface ApiRiskFactor {
+  factor_name: string;
+  category: string;
+  current_value: number;
+  normalized_risk: number;
+  weight: number;
+  risk_contribution: number;
+  description: string;
+  confidence: number;
+  risk_level: string;
+  explanation: string;
+}
+
+interface ApiFactorsResponse {
+  factors: ApiRiskFactor[];
+  total_factors: number;
+  category_filter: string | null;
+  timestamp: string;
+}
+
 export interface RiskFactorDetails {
   factor: RiskFactor;
   historical_data: Array<{
@@ -163,17 +183,58 @@ export function useRiskFactors(
     console.error(`Risk factors ${context} error:`, err);
   }, [onError]);
 
+  const mapApiCategory = (category: string): 'economic' | 'financial' | 'supply_chain' | 'geopolitical' | 'environmental' => {
+    const categoryMap: { [key: string]: 'economic' | 'financial' | 'supply_chain' | 'geopolitical' | 'environmental' } = {
+      'employment': 'economic',
+      'inflation': 'economic', 
+      'interest_rates': 'financial',
+      'financial_stress': 'financial',
+      'economic_growth': 'economic',
+      'gdp': 'economic',
+      'trade': 'supply_chain',
+      'supply_chain': 'supply_chain',
+      'logistics': 'supply_chain',
+      'political': 'geopolitical',
+      'regulatory': 'geopolitical',
+      'geopolitical': 'geopolitical',
+      'climate': 'environmental',
+      'weather': 'environmental',
+      'natural_disaster': 'environmental',
+      'environmental': 'environmental'
+    };
+    
+    return categoryMap[category.toLowerCase()] || 'economic';
+  };
+
+  const transformApiFactor = (apiFactor: ApiRiskFactor): RiskFactor => {
+    return {
+      id: apiFactor.factor_name,
+      name: apiFactor.factor_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      category: mapApiCategory(apiFactor.category),
+      current_value: apiFactor.current_value,
+      historical_average: apiFactor.current_value * 0.9, // Estimated from current value
+      volatility: apiFactor.normalized_risk * 0.5, // Estimated volatility
+      contribution_to_risk: apiFactor.risk_contribution,
+      last_updated: new Date().toISOString(),
+      data_source: 'FRED Economic Data',
+      description: apiFactor.description,
+      trend: apiFactor.normalized_risk > 0.6 ? 'increasing' : apiFactor.normalized_risk < 0.3 ? 'decreasing' : 'stable',
+      alert_level: apiFactor.risk_level as 'low' | 'medium' | 'high' | 'critical'
+    };
+  };
+
   const fetchRiskFactors = useCallback(async (): Promise<RiskFactor[]> => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await makeRequest<RiskFactor[]>(
+      const data = await makeRequest<ApiFactorsResponse>(
         `${apiUrl}/api/v1/risk/factors`
       );
       
-      setRiskFactors(data);
-      return data;
+      const transformedFactors = data.factors.map(transformApiFactor);
+      setRiskFactors(transformedFactors);
+      return transformedFactors;
     } catch (err) {
       handleError(err, 'Failed to fetch risk factors');
       return [];

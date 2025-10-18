@@ -163,7 +163,9 @@ export const CriticalPaths: React.FC<CriticalPathsProps> = ({
             </div>
             <div className="bg-gray-50 p-4 rounded-lg text-center">
               <div className="text-2xl font-bold text-gray-900">
-                {(criticalPaths.reduce((sum, p) => sum + p.path_length, 0) / criticalPaths.length).toFixed(1)}
+                {criticalPaths.length > 0 
+                  ? (criticalPaths.reduce((sum, p) => sum + p.path_length, 0) / criticalPaths.length).toFixed(1)
+                  : '0.0'}
               </div>
               <div className="text-sm text-gray-600">Avg Path Length</div>
             </div>

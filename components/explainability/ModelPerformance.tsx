@@ -376,7 +376,7 @@ export const ModelPerformance: React.FC<ModelPerformanceProps> = ({
                   </div>
                   <div className="flex justify-between text-xs text-gray-500 mt-2">
                     <span>Volume</span>
-                    <span>Avg: {Math.round(performanceTrends.reduce((acc, t) => acc + t.predictions_count, 0) / performanceTrends.length)}/day</span>
+                    <span>Avg: {performanceTrends.length > 0 ? Math.round(performanceTrends.reduce((acc, t) => acc + t.predictions_count, 0) / performanceTrends.length) : 0}/day</span>
                   </div>
                 </div>
               </div>

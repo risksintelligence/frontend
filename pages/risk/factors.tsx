@@ -27,7 +27,7 @@ const RiskFactors: React.FC = () => {
     { id: 'supply_chain', label: 'Supply Chain', description: 'Logistics and production disruptions' },
     { id: 'geopolitical', label: 'Geopolitical', description: 'Political and regulatory risks' },
     { id: 'environmental', label: 'Environmental', description: 'Climate and natural disaster risks' }
-  ];
+  ] as const;
 
   return (
     <>

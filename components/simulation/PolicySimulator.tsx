@@ -249,7 +249,9 @@ export default function PolicySimulator({
                 <h4 className="font-medium text-gray-900 mb-4">Economic Impact Summary</h4>
                 <div className="space-y-3">
                   {['gdpChange', 'inflationChange', 'unemploymentChange', 'marketStabilityChange'].map((metric) => {
-                    const avgChange = results.reduce((sum, result) => sum + result.impact[metric as keyof typeof result.impact], 0) / results.length;
+                    const avgChange = results.length > 0 
+                      ? results.reduce((sum, result) => sum + result.impact[metric as keyof typeof result.impact], 0) / results.length
+                      : 0;
                     const metricName = metric.replace('Change', '').replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
                     
                     return (

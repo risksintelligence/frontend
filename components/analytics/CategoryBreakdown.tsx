@@ -98,7 +98,9 @@ export default function CategoryBreakdown({ apiUrl = 'http://localhost:8000' }: 
     return {
       totalCategories: categories.length,
       totalIndicators: categories.reduce((sum, cat) => sum + cat.indicator_count, 0),
-      avgRiskScore: categories.reduce((sum, cat) => sum + cat.avg_risk_score, 0) / categories.length,
+      avgRiskScore: categories.length > 0 
+        ? categories.reduce((sum, cat) => sum + cat.avg_risk_score, 0) / categories.length
+        : 0,
       highRiskCategories: categories.filter(cat => cat.avg_risk_score >= 60).length,
       improvingCategories: categories.filter(cat => 
         cat.category_trend.toLowerCase().includes('improving') || 

@@ -12,7 +12,7 @@ export interface WebSocketMessage {
   update_interval?: number;
 }
 
-export interface RiskFactor {
+export interface RealtimeRiskFactor {
   name: string;
   category: string;
   value: number;
@@ -28,7 +28,7 @@ export interface RiskUpdateData {
   confidence: number;
   timestamp: string;
   methodology_version: string;
-  factors: RiskFactor[];
+  factors: RealtimeRiskFactor[];
 }
 
 export interface RiskUpdateMessage extends WebSocketMessage {

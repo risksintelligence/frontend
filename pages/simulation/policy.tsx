@@ -160,9 +160,11 @@ export default function PolicySimulationPage() {
                         <div className="space-y-2">
                           {['GDP', 'Inflation', 'Unemployment', 'Market Stability'].map((metric, index) => {
                             const keys = ['gdpChange', 'inflationChange', 'unemploymentChange', 'marketStabilityChange'];
-                            const avgChange = selectedSimulation.results.reduce((sum, result) => 
-                              sum + result.impact[keys[index] as keyof typeof result.impact], 0
-                            ) / selectedSimulation.results.length;
+                            const avgChange = selectedSimulation.results.length > 0
+                              ? selectedSimulation.results.reduce((sum, result) => 
+                                  sum + result.impact[keys[index] as keyof typeof result.impact], 0
+                                ) / selectedSimulation.results.length
+                              : 0;
                             
                             return (
                               <div key={metric} className="flex justify-between text-sm">
