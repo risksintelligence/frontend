@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Layout from '../../components/common/Layout';
 import { FactorAnalysis } from '../../components/risk/FactorAnalysis';
@@ -10,10 +10,15 @@ const RiskFactors: React.FC = () => {
   const [selectedFactor, setSelectedFactor] = useState<RiskFactor | null>(null);
   
   // API URL from environment or default
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com';
   
   // Fetch all factors to calculate category counts
-  const { riskFactors, loading: factorsLoading } = useRiskFactors(apiUrl);
+  const { riskFactors, loading: factorsLoading, fetchRiskFactors } = useRiskFactors(apiUrl);
+
+  // Auto-fetch risk factors on component mount
+  useEffect(() => {
+    fetchRiskFactors();
+  }, [fetchRiskFactors]);
 
   const handleFactorSelect = (factor: RiskFactor) => {
     setSelectedFactor(factor);
