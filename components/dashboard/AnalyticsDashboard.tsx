@@ -54,13 +54,17 @@ export default function AnalyticsDashboard({ apiUrl = 'http://localhost:8000' }:
 
   useEffect(() => {
     fetchAnalytics();
-    const interval = setInterval(fetchAnalytics, 30000); // Refresh every 30 seconds
+    // Refresh every 10 minutes (analytics data doesn't change frequently)
+    const interval = setInterval(() => fetchAnalytics(false), 10 * 60 * 1000);
     return () => clearInterval(interval);
   }, [apiUrl]);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = async (showLoading: boolean = true) => {
     try {
-      setLoading(true);
+      // Only show loading spinner on initial load or manual refresh
+      if (showLoading) {
+        setLoading(true);
+      }
       const response = await fetch(`${apiUrl}/api/v1/analytics/aggregation`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -72,7 +76,9 @@ export default function AnalyticsDashboard({ apiUrl = 'http://localhost:8000' }:
       console.error('Failed to fetch analytics data:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
@@ -146,8 +152,17 @@ export default function AnalyticsDashboard({ apiUrl = 'http://localhost:8000' }:
       <div className="card">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-primary-900">Economic Intelligence Overview</h2>
-          <div className="text-sm text-gray-500">
-            Updated: {new Date(economic_overview.timestamp).toLocaleString()}
+          <div className="flex items-center space-x-4">
+            <div className="text-sm text-gray-500">
+              Updated: {new Date(economic_overview.timestamp).toLocaleString()}
+            </div>
+            <button
+              onClick={() => fetchAnalytics(true)}
+              disabled={loading}
+              className="px-3 py-1 text-sm bg-primary-600 text-white rounded hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Updating...' : 'Refresh'}
+            </button>
           </div>
         </div>
 
@@ -230,11 +245,26 @@ export default function AnalyticsDashboard({ apiUrl = 'http://localhost:8000' }:
       <div className="card">
         <h3 className="text-lg font-semibold text-primary-900 mb-4">Economic Category Analysis</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {category_summaries.map((category) => (
-            <div key={category.category_name} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+          {category_summaries.map((category) => {
+            // Category display mapping for proper terminology
+            const categoryDisplayMap: Record<string, string> = {
+              "inflation": "Inflation Indicators",
+              "interest_rates": "Interest Rate Environment",
+              "employment": "Employment Conditions", 
+              "economic_growth": "Economic Growth Indicators",
+              "financial_stress": "Financial Stress Indicators",
+              "gdp": "GDP and Economic Output",
+              "credit": "Credit Market Conditions"
+            };
+            
+            const displayName = categoryDisplayMap[category.category_name] || 
+                               category.category_name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            
+            return (
+              <div key={category.category_name} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium text-gray-900 capitalize">
-                  {category.category_name.replace('_', ' ')}
+                <h4 className="font-medium text-gray-900">
+                  {displayName}
                 </h4>
                 {getTrendIcon(category.category_trend)}
               </div>
@@ -263,8 +293,9 @@ export default function AnalyticsDashboard({ apiUrl = 'http://localhost:8000' }:
                   {category.key_indicators.length > 2 && '...'}
                 </div>
               </div>
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
       </div>
 
