@@ -12,3 +12,5 @@ services:
         value: RiskX
       - key: NODE_ENV
         value: production
+      - key: DEPLOYMENT_TIMESTAMP
+        value: "2025-10-18"
