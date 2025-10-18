@@ -36,97 +36,6 @@ export default function FeatureImportance({
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  // Mock data for demonstration - in production this would come from the explainability API
-  const mockFeatureData: FeatureImportanceData[] = [
-    {
-      feature: 'Federal Funds Rate',
-      importance: 0.23,
-      direction: 'negative',
-      category: 'economic',
-      description: 'Short-term interest rate targeted by the Federal Reserve',
-      confidence: 0.94
-    },
-    {
-      feature: 'Credit Spread (BBB-Treasury)',
-      importance: 0.19,
-      direction: 'positive',
-      category: 'financial',
-      description: 'Difference between corporate bond yields and treasury yields',
-      confidence: 0.91
-    },
-    {
-      feature: 'Supply Chain Pressure Index',
-      importance: 0.16,
-      direction: 'positive',
-      category: 'supply_chain',
-      description: 'Composite measure of global supply chain disruptions',
-      confidence: 0.88
-    },
-    {
-      feature: 'Unemployment Rate',
-      importance: 0.14,
-      direction: 'positive',
-      category: 'economic',
-      description: 'Percentage of labor force that is unemployed',
-      confidence: 0.85
-    },
-    {
-      feature: 'Term Spread (10Y-2Y)',
-      importance: 0.12,
-      direction: 'negative',
-      category: 'financial',
-      description: 'Yield curve slope indicator',
-      confidence: 0.89
-    },
-    {
-      feature: 'Trade Balance',
-      importance: 0.11,
-      direction: 'negative',
-      category: 'economic',
-      description: 'Difference between exports and imports',
-      confidence: 0.82
-    },
-    {
-      feature: 'Cyber Security Incidents',
-      importance: 0.09,
-      direction: 'positive',
-      category: 'disruption',
-      description: 'Number of reported critical infrastructure cyber incidents',
-      confidence: 0.76
-    },
-    {
-      feature: 'Energy Price Volatility',
-      importance: 0.08,
-      direction: 'positive',
-      category: 'supply_chain',
-      description: 'Standard deviation of oil and gas price changes',
-      confidence: 0.78
-    },
-    {
-      feature: 'GDP Growth Rate',
-      importance: 0.07,
-      direction: 'negative',
-      category: 'economic',
-      description: 'Quarterly real GDP growth rate',
-      confidence: 0.83
-    },
-    {
-      feature: 'Climate Disruption Events',
-      importance: 0.06,
-      direction: 'positive',
-      category: 'disruption',
-      description: 'Number of major weather-related disruptions',
-      confidence: 0.71
-    }
-  ];
-
-  const mockMetadata: ModelMetadata = {
-    modelName: 'Economic Risk Predictor v2.1',
-    modelVersion: '2.1.3',
-    trainingDate: '2024-10-15',
-    accuracy: 0.847,
-    dataPoints: 15420
-  };
 
   useEffect(() => {
     fetchFeatureImportance();
@@ -142,11 +51,7 @@ export default function FeatureImportance({
       const response = await fetch(`${apiUrl}/api/v1/prediction/models/feature-importance?model_type=${modelType}&max_features=${maxFeatures}`);
       
       if (!response.ok) {
-        // Fallback to mock data if API not available
-        console.warn('Feature importance API not available, using fallback data');
-        setFeatures(mockFeatureData.slice(0, maxFeatures));
-        setMetadata(mockMetadata);
-        return;
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
       }
       
       const data = await response.json();
@@ -173,9 +78,7 @@ export default function FeatureImportance({
       setMetadata(transformedMetadata);
     } catch (err) {
       console.error('Failed to fetch feature importance:', err);
-      // Fallback to mock data
-      setFeatures(mockFeatureData.slice(0, maxFeatures));
-      setMetadata(mockMetadata);
+      setError(err instanceof Error ? err.message : 'Failed to load feature importance data');
     } finally {
       setLoading(false);
     }

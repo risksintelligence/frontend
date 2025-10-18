@@ -46,99 +46,6 @@ export default function BiasReport({
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  // Mock data for demonstration - in production this would come from bias testing API
-  const mockBiasData: BiasReportData = {
-    overallScore: 8.4,
-    riskLevel: 'low',
-    lastAuditDate: '2024-10-15',
-    metrics: [
-      {
-        metric: 'Demographic Parity',
-        value: 0.92,
-        threshold: 0.8,
-        status: 'pass',
-        description: 'Equal prediction rates across demographic groups',
-        category: 'fairness'
-      },
-      {
-        metric: 'Equalized Odds',
-        value: 0.89,
-        threshold: 0.8,
-        status: 'pass',
-        description: 'Equal true positive rates across groups',
-        category: 'fairness'
-      },
-      {
-        metric: 'Calibration Score',
-        value: 0.94,
-        threshold: 0.85,
-        status: 'pass',
-        description: 'Prediction probabilities match actual outcomes',
-        category: 'calibration'
-      },
-      {
-        metric: 'Data Representation',
-        value: 0.78,
-        threshold: 0.8,
-        status: 'warning',
-        description: 'Coverage of different demographic groups in training data',
-        category: 'representation'
-      },
-      {
-        metric: 'Feature Correlation',
-        value: 0.85,
-        threshold: 0.7,
-        status: 'pass',
-        description: 'Low correlation between sensitive attributes and features',
-        category: 'representation'
-      },
-      {
-        metric: 'Accuracy Parity',
-        value: 0.91,
-        threshold: 0.8,
-        status: 'pass',
-        description: 'Similar accuracy across different subgroups',
-        category: 'accuracy'
-      }
-    ],
-    tests: [
-      {
-        testName: 'Disparate Impact Test',
-        passed: true,
-        score: 0.88,
-        details: 'No significant disparate impact detected across demographic groups'
-      },
-      {
-        testName: 'Statistical Parity Test',
-        passed: true,
-        score: 0.92,
-        details: 'Model predictions maintain statistical parity across protected classes'
-      },
-      {
-        testName: 'Individual Fairness Test',
-        passed: false,
-        score: 0.74,
-        details: 'Some individual cases show inconsistent treatment',
-        recommendation: 'Implement post-processing calibration to improve individual fairness'
-      },
-      {
-        testName: 'Temporal Stability Test',
-        passed: true,
-        score: 0.86,
-        details: 'Model bias metrics remain stable over time'
-      }
-    ],
-    datasetInfo: {
-      totalSamples: 125460,
-      demographicCoverage: {
-        'Financial Institutions': 0.34,
-        'Small Business': 0.28,
-        'Large Corporations': 0.22,
-        'Government Entities': 0.16
-      },
-      temporalSpan: '2019-2024'
-    }
-  };
 
   useEffect(() => {
     fetchBiasReport();
@@ -154,10 +61,7 @@ export default function BiasReport({
       const response = await fetch(`${apiUrl}/api/v1/prediction/models/bias-report?model_id=${modelId}`);
       
       if (!response.ok) {
-        // Fallback to mock data if API not available
-        console.warn('Bias report API not available, using fallback data');
-        setBiasData(mockBiasData);
-        return;
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
       }
       
       const data = await response.json();
@@ -192,8 +96,7 @@ export default function BiasReport({
       setBiasData(transformedData);
     } catch (err) {
       console.error('Failed to fetch bias report:', err);
-      // Fallback to mock data
-      setBiasData(mockBiasData);
+      setError(err instanceof Error ? err.message : 'Failed to load bias report');
     } finally {
       setLoading(false);
     }
