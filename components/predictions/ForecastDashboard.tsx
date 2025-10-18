@@ -7,7 +7,7 @@ interface ForecastDashboardProps {
   apiUrl?: string;
 }
 
-export default function ForecastDashboard({ apiUrl = 'http://localhost:8000' }: ForecastDashboardProps) {
+export default function ForecastDashboard({ apiUrl = 'https://backend-1-il1e.onrender.com' }: ForecastDashboardProps) {
   const {
     forecast,
     scenarios,

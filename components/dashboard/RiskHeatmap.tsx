@@ -26,7 +26,7 @@ export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({
   className = '',
   viewMode = 'sector',
   onCellClick,
-  apiUrl = 'http://localhost:8000'
+  apiUrl = 'https://backend-1-il1e.onrender.com'
 }) => {
   const [heatmapData, setHeatmapData] = useState<RiskData[]>([]);
   const [loading, setLoading] = useState(true);

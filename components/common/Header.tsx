@@ -13,7 +13,7 @@ interface SystemStatus {
   version: string;
 }
 
-export default function Header({ apiUrl = 'http://localhost:8000' }: HeaderProps) {
+export default function Header({ apiUrl = 'https://backend-1-il1e.onrender.com' }: HeaderProps) {
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [statusLoading, setStatusLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);

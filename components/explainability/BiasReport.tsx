@@ -57,7 +57,7 @@ export default function BiasReport({
       setError(null);
       
       // Fetch from real API endpoint
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com';
       const response = await fetch(`${apiUrl}/api/v1/prediction/models/bias-report?model_id=${modelId}`);
       
       if (!response.ok) {

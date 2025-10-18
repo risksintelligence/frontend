@@ -5,7 +5,7 @@ import { useSystemHealth } from '../../hooks/useSystemHealth';
 import { Activity, Database, Server, Zap, Globe, AlertTriangle, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
 
 const HealthDiagnostics: React.FC = () => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com';
   
   const {
     loading,

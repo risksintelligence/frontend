@@ -17,7 +17,7 @@ const RealtimeDashboard: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // API URL from environment or default
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com';
 
   // Handle alerts from all real-time components
   const handleAlert = useCallback((alert: RealTimeAlert) => {

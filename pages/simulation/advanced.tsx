@@ -19,7 +19,7 @@ const AdvancedSimulation: React.FC = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<PolicyTemplate | null>(null);
   
   // API URL from environment or default
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com';
 
   const handlePolicySimulationComplete = (results: SimulationResult[]) => {
     console.log('Policy simulation completed:', results);

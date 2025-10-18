@@ -34,7 +34,7 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
   maxAlerts = 10,
   showFilters = true,
   onAlertClick,
-  apiUrl = 'http://localhost:8000'
+  apiUrl = 'https://backend-1-il1e.onrender.com'
 }) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);

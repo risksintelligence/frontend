@@ -24,7 +24,7 @@ interface RiskOverviewProps {
   apiUrl?: string;
 }
 
-export default function RiskOverview({ apiUrl = 'http://localhost:8000' }: RiskOverviewProps) {
+export default function RiskOverview({ apiUrl = 'https://backend-1-il1e.onrender.com' }: RiskOverviewProps) {
   const [riskData, setRiskData] = useState<RiskScore | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

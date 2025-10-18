@@ -6,7 +6,7 @@ interface CategoryBreakdownProps {
   apiUrl?: string;
 }
 
-export default function CategoryBreakdown({ apiUrl = 'http://localhost:8000' }: CategoryBreakdownProps) {
+export default function CategoryBreakdown({ apiUrl = 'https://backend-1-il1e.onrender.com' }: CategoryBreakdownProps) {
   const {
     categories,
     indicators,

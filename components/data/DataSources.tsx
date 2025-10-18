@@ -19,7 +19,7 @@ interface DataSourcesProps {
 }
 
 export default function DataSources({ 
-  apiUrl = 'http://localhost:8000',
+  apiUrl = 'https://backend-1-il1e.onrender.com',
   onSourceSelect 
 }: DataSourcesProps) {
   const {

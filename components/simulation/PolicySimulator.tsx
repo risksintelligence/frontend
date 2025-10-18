@@ -12,7 +12,7 @@ interface PolicySimulatorProps {
 
 export default function PolicySimulator({ 
   onSimulationComplete, 
-  apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+  apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com'
 }: PolicySimulatorProps) {
   const { runPolicySimulation, loadPolicyTemplates, loading, error, clearError } = useSimulation(apiUrl);
   

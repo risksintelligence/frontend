@@ -5,7 +5,7 @@ import { useDataManagement } from '../../hooks/useDataManagement';
 import { Database, Activity, TrendingUp, BarChart3, Download, RefreshCw } from 'lucide-react';
 
 export default function DataManagementPage() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com';
   const [activeTab, setActiveTab] = useState<'sources' | 'quality' | 'pipeline'>('sources');
   
   const {

@@ -16,8 +16,8 @@ interface SystemInfo {
 }
 
 export default function Home() {
-  // Use localhost:8000 where our API is running (matches FastAPI default port)
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  // Use production API URL with fallback to environment variable
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com';
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
   const [systemInfoLoading, setSystemInfoLoading] = useState(true);
   const [systemInfoError, setSystemInfoError] = useState<string | null>(null);

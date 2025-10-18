@@ -6,7 +6,7 @@ import { useForecasting } from '../../hooks/useForecasting';
 import { TrendingUp, BarChart3, Calendar, AlertTriangle } from 'lucide-react';
 
 export default function ForecastPage() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com';
   const [activeTab, setActiveTab] = useState<'dashboard' | 'chart'>('dashboard');
   
   const {

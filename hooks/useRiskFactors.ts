@@ -248,12 +248,47 @@ export function useRiskFactors(
     setError(null);
 
     try {
-      const data = await makeRequest<RiskFactorDetails>(
-        `${apiUrl}/api/v1/risk/factors/${factorId}`
+      // Use the working analysis endpoint instead of the broken factors/{id} endpoint
+      const analysisData = await makeRequest<any>(
+        `${apiUrl}/api/v1/risk/analysis/${factorId}`
       );
       
-      setSelectedFactor(data);
-      return data;
+      // Transform the analysis response to match RiskFactorDetails structure
+      const riskFactorDetails: RiskFactorDetails = {
+        factor: {
+          id: factorId,
+          name: analysisData.factor_name || factorId.replace('_', ' ').toUpperCase(),
+          category: analysisData.category as 'economic' | 'financial' | 'supply_chain' | 'geopolitical' | 'environmental',
+          current_value: analysisData.current_value,
+          historical_average: 0, // Not provided by analysis endpoint
+          volatility: 0, // Not provided by analysis endpoint  
+          contribution_to_risk: analysisData.absolute_contribution,
+          last_updated: analysisData.timestamp,
+          data_source: 'FRED Economic Data',
+          description: analysisData.description,
+          trend: 'stable', // Default since not provided
+          alert_level: analysisData.risk_level as 'low' | 'medium' | 'high' | 'critical'
+        },
+        historical_data: [], // Not provided by analysis endpoint - will show "no data available"
+        correlations: [], // Not provided by analysis endpoint
+        statistical_analysis: {
+          mean: analysisData.current_value,
+          std_dev: 0,
+          skewness: 0,
+          kurtosis: 0,
+          percentiles: {
+            p5: analysisData.current_value,
+            p25: analysisData.current_value,
+            p50: analysisData.current_value,
+            p75: analysisData.current_value,
+            p95: analysisData.current_value
+          }
+        },
+        forecast: [] // Not provided by analysis endpoint
+      };
+      
+      setSelectedFactor(riskFactorDetails);
+      return riskFactorDetails;
     } catch (err) {
       handleError(err, 'Failed to fetch risk factor details');
       throw err;

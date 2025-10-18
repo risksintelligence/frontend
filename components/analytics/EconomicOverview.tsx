@@ -6,7 +6,7 @@ interface EconomicOverviewProps {
   apiUrl?: string;
 }
 
-export default function EconomicOverview({ apiUrl = 'http://localhost:8000' }: EconomicOverviewProps) {
+export default function EconomicOverview({ apiUrl = 'https://backend-1-il1e.onrender.com' }: EconomicOverviewProps) {
   const {
     overview,
     health,

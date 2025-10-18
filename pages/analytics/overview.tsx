@@ -6,7 +6,7 @@ import { useAnalytics } from '../../hooks/useAnalytics';
 import { BarChart3, TrendingUp, Layers, Activity, Download, RefreshCw } from 'lucide-react';
 
 export default function AnalyticsOverviewPage() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com';
   const [activeTab, setActiveTab] = useState<'overview' | 'categories' | 'insights'>('overview');
   
   const {

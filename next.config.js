@@ -9,7 +9,7 @@ const nextConfig = {
   // Point to frontend directory for pages and components
   experimental: {},
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com',
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'RiskX',
   },
   // Note: rewrites() disabled for static export compatibility
@@ -17,7 +17,7 @@ const nextConfig = {
   //   return [
   //     {
   //       source: '/api/:path*',
-  //       destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/:path*`,
+  //       destination: `${process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com'}/api/:path*`,
   //     },
   //   ]
   // },

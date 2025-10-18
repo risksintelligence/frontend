@@ -48,7 +48,7 @@ export default function NetworkPage() {
   const [shockSimulation, setShockSimulation] = useState<ShockSimulationResponse | null>(null);
   const [simulationLoading, setSimulationLoading] = useState(false);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com';
 
   useEffect(() => {
     fetchNetworkData();

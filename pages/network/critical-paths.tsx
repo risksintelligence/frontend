@@ -4,7 +4,7 @@ import Layout from '../../components/common/Layout';
 import { CriticalPaths } from '../../components/network/CriticalPaths';
 
 const NetworkCriticalPaths: React.FC = () => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-1-il1e.onrender.com';
 
   return (
     <>
