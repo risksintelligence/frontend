@@ -1,0 +1,13 @@
+services:
+  - type: static_site
+    name: riskx-frontend
+    env: node
+    region: oregon
+    branch: main
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./out
+    envVars:
+      - key: NODE_VERSION
+        value: "18"
+      - key: NEXT_PUBLIC_API_URL
+        value: "https://backend-2-bz1u.onrender.com"

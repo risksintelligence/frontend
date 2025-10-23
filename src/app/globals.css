@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-terminal-bg text-terminal-text font-sans;
+    font-feature-settings: "cv01", "cv02", "cv03", "cv04";
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .terminal-card {
+    @apply bg-terminal-surface border border-terminal-border rounded-lg shadow-lg;
+  }
+  
+  .terminal-button {
+    @apply bg-terminal-surface hover:bg-terminal-border text-terminal-text border border-terminal-border rounded px-4 py-2 transition-colors font-medium;
+  }
+  
+  .terminal-input {
+    @apply bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-terminal-text placeholder-terminal-muted focus:border-terminal-blue focus:outline-none;
+  }
+  
+  .risk-score-high {
+    @apply text-terminal-red bg-terminal-red/10 border-terminal-red/20;
+  }
+  
+  .risk-score-medium {
+    @apply text-terminal-orange bg-terminal-orange/10 border-terminal-orange/20;
+  }
+  
+  .risk-score-low {
+    @apply text-terminal-green bg-terminal-green/10 border-terminal-green/20;
+  }
+  
+  .metric-card {
+    @apply terminal-card p-4 space-y-2;
+  }
+  
+  .metric-title {
+    @apply text-sm font-medium text-terminal-muted uppercase tracking-wide;
+  }
+  
+  .metric-value {
+    @apply text-2xl font-bold font-mono;
+  }
+  
+  .status-indicator {
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .status-online {
+    @apply bg-terminal-green/20 text-terminal-green;
+  }
+  
+  .status-offline {
+    @apply bg-terminal-red/20 text-terminal-red;
+  }
+  
+  .status-warning {
+    @apply bg-terminal-orange/20 text-terminal-orange;
+  }
+}
