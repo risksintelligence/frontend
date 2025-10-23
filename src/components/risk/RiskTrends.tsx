@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TrendingUp, TrendingDown, Minus, Calendar, BarChart3 } from 'lucide-react';
 
 interface RiskTrendData {
@@ -22,11 +22,7 @@ export default function RiskTrends({ timeRange = '30d', showComponents = true }:
   const [loading, setLoading] = useState(true);
   const [selectedMetric, setSelectedMetric] = useState<'overall' | 'economic' | 'market' | 'geopolitical' | 'technical'>('overall');
 
-  useEffect(() => {
-    fetchTrendData();
-  }, [timeRange]);
-
-  const fetchTrendData = async () => {
+  const fetchTrendData = useCallback(async () => {
     try {
       setLoading(true);
       // In production, fetch from API
@@ -41,7 +37,11 @@ export default function RiskTrends({ timeRange = '30d', showComponents = true }:
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeRange]);
+
+  useEffect(() => {
+    fetchTrendData();
+  }, [fetchTrendData]);
 
   const generateSampleTrendData = (range: string): RiskTrendData[] => {
     const days = range === '7d' ? 7 : range === '30d' ? 30 : range === '90d' ? 90 : 365;

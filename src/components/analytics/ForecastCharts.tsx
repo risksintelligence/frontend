@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart, ScatterChart, Scatter, Legend } from 'recharts';
 import { TrendingUp, Calendar, Target, BarChart3 } from 'lucide-react';
 
@@ -39,19 +39,7 @@ export default function ForecastCharts({
   const [chartType, setChartType] = useState<'line' | 'area' | 'scatter'>('area');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchForecastData();
-  }, [timeHorizon]);
-
-  useEffect(() => {
-    if (seriesId) {
-      setSelectedSeries(seriesId);
-    } else if (forecastSeries.length > 0) {
-      setSelectedSeries(forecastSeries[0].id);
-    }
-  }, [seriesId, forecastSeries]);
-
-  const fetchForecastData = async () => {
+  const fetchForecastData = useCallback(async () => {
     try {
       setLoading(true);
       // In production, fetch from API
@@ -155,7 +143,19 @@ export default function ForecastCharts({
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeHorizon]);
+
+  useEffect(() => {
+    fetchForecastData();
+  }, [fetchForecastData]);
+
+  useEffect(() => {
+    if (seriesId) {
+      setSelectedSeries(seriesId);
+    } else if (forecastSeries.length > 0) {
+      setSelectedSeries(forecastSeries[0].id);
+    }
+  }, [seriesId, forecastSeries]);
 
   const getCurrentSeries = () => {
     return forecastSeries.find(s => s.id === selectedSeries) || forecastSeries[0];
