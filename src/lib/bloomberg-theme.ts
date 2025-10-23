@@ -1,6 +1,6 @@
-// Clean Modern Web Dashboard Theme Configuration
-// Pure white backgrounds with white cards and professional status colors
-// Clean typography for modern dashboard aesthetics
+// Sophisticated White Background Design System
+// Pure white main background with subtle slate hierarchy for maximum elegance
+// Professional typography and enhanced visual contrast
 
 export const bloombergTheme = {
   colors: {
