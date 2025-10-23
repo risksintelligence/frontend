@@ -5,8 +5,8 @@ import Navigation from '@/components/layout/Navigation';
 
 export const metadata: Metadata = {
   title: 'RiskX Intelligence Platform',
-  description: 'Bloomberg Terminal-inspired risk intelligence platform providing real-time analytics and insights',
-  keywords: 'risk management, financial analytics, economic data, Bloomberg Terminal',
+  description: 'Professional risk intelligence observatory providing real-time analytics and insights',
+  keywords: 'risk management, financial analytics, economic data, risk intelligence observatory',
   authors: [{ name: 'RiskX Intelligence' }],
   viewport: 'width=device-width, initial-scale=1',
 };

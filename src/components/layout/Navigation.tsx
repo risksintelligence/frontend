@@ -111,7 +111,7 @@ export default function Navigation() {
               RiskX Intelligence v1.0
             </div>
             <div className="font-mono">
-              Bloomberg Terminal Style
+              Risk Intelligence Observatory
             </div>
             <div className="mt-2 flex items-center space-x-2">
               <div className="w-2 h-2 bg-terminal-green rounded-full animate-pulse"></div>

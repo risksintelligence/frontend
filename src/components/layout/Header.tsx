@@ -58,7 +58,7 @@ export default function Header() {
                   RiskX Intelligence
                 </h1>
                 <p className="text-xs text-terminal-muted font-mono">
-                  Bloomberg Terminal Style
+                  Risk Intelligence Observatory
                 </p>
               </div>
             </div>

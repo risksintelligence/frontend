@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { TrendingUp, TrendingDown, Minus, Calendar, BarChart3 } from 'lucide-react';
+import { bloombergClasses, formatNumber } from '@/lib/bloomberg-theme';
 
 interface RiskTrendData {
   date: string;
@@ -69,12 +70,12 @@ export default function RiskTrends({ timeRange = '30d', showComponents = true }:
 
   const getMetricColor = (metric: string) => {
     switch (metric) {
-      case 'overall': return 'text-terminal-green';
-      case 'economic': return 'text-terminal-blue';
-      case 'market': return 'text-terminal-orange';
-      case 'geopolitical': return 'text-terminal-red';
-      case 'technical': return 'text-terminal-purple';
-      default: return 'text-terminal-muted';
+      case 'overall': return bloombergClasses.data.positive;
+      case 'economic': return bloombergClasses.text.accent;
+      case 'market': return bloombergClasses.text.warning;
+      case 'geopolitical': return bloombergClasses.text.error;
+      case 'technical': return bloombergClasses.text.secondary;
+      default: return bloombergClasses.text.muted;
     }
   };
 
@@ -91,9 +92,9 @@ export default function RiskTrends({ timeRange = '30d', showComponents = true }:
 
   const getChangeIcon = (direction: string) => {
     switch (direction) {
-      case 'rising': return <TrendingUp className="w-4 h-4 text-terminal-red" />;
-      case 'falling': return <TrendingDown className="w-4 h-4 text-terminal-green" />;
-      default: return <Minus className="w-4 h-4 text-terminal-muted" />;
+      case 'rising': return <TrendingUp className={`w-4 h-4 ${bloombergClasses.text.error}`} />;
+      case 'falling': return <TrendingDown className={`w-4 h-4 ${bloombergClasses.text.success}`} />;
+      default: return <Minus className={`w-4 h-4 ${bloombergClasses.text.muted}`} />;
     }
   };
 
@@ -108,10 +109,10 @@ export default function RiskTrends({ timeRange = '30d', showComponents = true }:
 
   if (loading) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border p-6 rounded">
-        <div className="animate-pulse">
-          <div className="h-4 bg-terminal-bg rounded w-1/4 mb-4"></div>
-          <div className="h-48 bg-terminal-bg rounded"></div>
+      <div className={bloombergClasses.terminal.panel}>
+        <div className={bloombergClasses.animation.pulse}>
+          <div className="h-4 bg-slate-900 rounded w-1/4 mb-4"></div>
+          <div className="h-48 bg-slate-900 rounded"></div>
         </div>
       </div>
     );
@@ -122,24 +123,24 @@ export default function RiskTrends({ timeRange = '30d', showComponents = true }:
   const overallChange = calculateChange(trendData, 'overall_score');
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border p-6 rounded space-y-6">
+    <div className={`${bloombergClasses.terminal.panel} space-y-6`}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <BarChart3 className="w-5 h-5 text-terminal-green" />
-          <h3 className="font-mono font-semibold text-terminal-text">
+          <BarChart3 className={`w-5 h-5 ${bloombergClasses.text.accent}`} />
+          <h3 className={`${bloombergClasses.text.primary} font-semibold uppercase tracking-wide`}>
             RISK TRENDS
           </h3>
         </div>
         
         <div className="flex items-center gap-2">
           {getChangeIcon(overallDirection)}
-          <span className={`font-mono text-sm ${
-            overallDirection === 'rising' ? 'text-terminal-red' : 
-            overallDirection === 'falling' ? 'text-terminal-green' : 
-            'text-terminal-muted'
+          <span className={`${bloombergClasses.text.primary} text-sm font-semibold ${
+            overallDirection === 'rising' ? bloombergClasses.text.error : 
+            overallDirection === 'falling' ? bloombergClasses.text.success : 
+            bloombergClasses.text.muted
           }`}>
-            {overallChange > 0 ? '+' : ''}{overallChange.toFixed(1)}
+            {overallChange > 0 ? '+' : ''}{formatNumber(overallChange, 1)}
           </span>
         </div>
       </div>

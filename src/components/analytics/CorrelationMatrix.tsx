@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { bloombergClasses, formatNumber } from '@/lib/bloomberg-theme';
 
 interface CorrelationData {
   factor1: string;
@@ -126,33 +127,33 @@ export default function CorrelationMatrix({ timeRange = '3m' }: CorrelationMatri
 
   const getCorrelationColor = (correlation: number) => {
     const abs = Math.abs(correlation);
-    if (abs >= 0.7) return 'text-terminal-red';
-    if (abs >= 0.5) return 'text-terminal-orange';
-    if (abs >= 0.3) return 'text-terminal-blue';
-    return 'text-terminal-muted';
+    if (abs >= 0.7) return bloombergClasses.text.error;
+    if (abs >= 0.5) return bloombergClasses.text.warning;
+    if (abs >= 0.3) return bloombergClasses.text.accent;
+    return bloombergClasses.text.muted;
   };
 
   const getCorrelationBg = (correlation: number) => {
     const abs = Math.abs(correlation);
-    if (abs >= 0.7) return 'bg-terminal-red/10 border-terminal-red/20';
-    if (abs >= 0.5) return 'bg-terminal-orange/10 border-terminal-orange/20';
-    if (abs >= 0.3) return 'bg-terminal-blue/10 border-terminal-blue/20';
-    return 'bg-terminal-bg border-terminal-border';
+    if (abs >= 0.7) return 'bg-red-900/20 border-red-600/30';
+    if (abs >= 0.5) return 'bg-amber-900/20 border-amber-600/30';
+    if (abs >= 0.3) return 'bg-blue-900/20 border-blue-600/30';
+    return `${bloombergClasses.terminal.card}`;
   };
 
   const getRelationshipIcon = (relationship: string) => {
     switch (relationship) {
-      case 'positive': return <TrendingUp className="w-4 h-4 text-terminal-green" />;
-      case 'negative': return <TrendingDown className="w-4 h-4 text-terminal-red" />;
-      default: return <Minus className="w-4 h-4 text-terminal-muted" />;
+      case 'positive': return <TrendingUp className={`w-4 h-4 ${bloombergClasses.text.success}`} />;
+      case 'negative': return <TrendingDown className={`w-4 h-4 ${bloombergClasses.text.error}`} />;
+      default: return <Minus className={`w-4 h-4 ${bloombergClasses.text.muted}`} />;
     }
   };
 
   const getSignificanceLevel = (significance: string) => {
     switch (significance) {
-      case 'high': return { label: 'HIGH', color: 'text-terminal-green' };
-      case 'medium': return { label: 'MEDIUM', color: 'text-terminal-orange' };
-      default: return { label: 'LOW', color: 'text-terminal-red' };
+      case 'high': return { label: 'HIGH', color: bloombergClasses.text.success };
+      case 'medium': return { label: 'MEDIUM', color: bloombergClasses.text.warning };
+      default: return { label: 'LOW', color: bloombergClasses.text.error };
     }
   };
 
@@ -181,11 +182,11 @@ export default function CorrelationMatrix({ timeRange = '3m' }: CorrelationMatri
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-6 bg-terminal-bg rounded w-1/4 mb-4"></div>
+        <div className={bloombergClasses.animation.pulse}>
+          <div className="h-6 bg-slate-900 rounded w-1/4 mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-32 bg-terminal-bg rounded"></div>
+              <div key={i} className="h-32 bg-slate-900 rounded"></div>
             ))}
           </div>
         </div>
@@ -194,12 +195,12 @@ export default function CorrelationMatrix({ timeRange = '3m' }: CorrelationMatri
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`${bloombergClasses.terminal.main} space-y-6`}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <TrendingUp className="w-6 h-6 text-terminal-blue" />
-          <h2 className="text-xl font-mono font-semibold text-terminal-text">
+          <TrendingUp className={`w-6 h-6 ${bloombergClasses.text.accent}`} />
+          <h2 className={`${bloombergClasses.text.primary} text-xl font-semibold uppercase tracking-wide`}>
             CORRELATION MATRIX ANALYSIS
           </h2>
         </div>
@@ -209,10 +210,10 @@ export default function CorrelationMatrix({ timeRange = '3m' }: CorrelationMatri
             <button
               key={range}
               onClick={() => fetchCorrelationData()}
-              className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
+              className={`${bloombergClasses.button.secondary} text-xs ${
                 timeRange === range
-                  ? 'bg-terminal-blue/20 text-terminal-blue border border-terminal-blue/30'
-                  : 'text-terminal-muted hover:text-terminal-text hover:bg-terminal-bg border border-terminal-border'
+                  ? 'bg-blue-900/30 text-cyan-400 border-cyan-600'
+                  : ''
               }`}
             >
               {range.toUpperCase()}

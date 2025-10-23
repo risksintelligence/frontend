@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { DollarSign, TrendingUp, TrendingDown, Minus, Users, Building, Globe } from 'lucide-react';
+import { bloombergClasses, formatNumber } from '@/lib/bloomberg-theme';
 
 interface IndicatorData {
   id: string;
@@ -206,21 +207,21 @@ export default function EconomicIndicators({ category = 'all', layout: initialLa
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'growth': return 'text-terminal-green';
-      case 'employment': return 'text-terminal-blue';
-      case 'inflation': return 'text-terminal-orange';
-      case 'trade': return 'text-terminal-purple';
-      case 'housing': return 'text-terminal-cyan';
-      case 'consumer': return 'text-terminal-pink';
-      default: return 'text-terminal-muted';
+      case 'growth': return bloombergClasses.text.success;
+      case 'employment': return bloombergClasses.text.accent;
+      case 'inflation': return bloombergClasses.text.warning;
+      case 'trade': return bloombergClasses.text.secondary;
+      case 'housing': return bloombergClasses.text.accent;
+      case 'consumer': return bloombergClasses.text.primary;
+      default: return bloombergClasses.text.muted;
     }
   };
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'rising': return <TrendingUp className="w-4 h-4 text-terminal-green" />;
-      case 'falling': return <TrendingDown className="w-4 h-4 text-terminal-red" />;
-      default: return <Minus className="w-4 h-4 text-terminal-muted" />;
+      case 'rising': return <TrendingUp className={`w-4 h-4 ${bloombergClasses.text.success}`} />;
+      case 'falling': return <TrendingDown className={`w-4 h-4 ${bloombergClasses.text.error}`} />;
+      default: return <Minus className={`w-4 h-4 ${bloombergClasses.text.muted}`} />;
     }
   };
 
@@ -250,7 +251,7 @@ export default function EconomicIndicators({ category = 'all', layout: initialLa
     return {
       isOnTarget,
       status,
-      color: isOnTarget ? 'text-terminal-green' : 'text-terminal-red'
+      color: isOnTarget ? bloombergClasses.text.success : bloombergClasses.text.error
     };
   };
 
@@ -294,12 +295,12 @@ export default function EconomicIndicators({ category = 'all', layout: initialLa
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`${bloombergClasses.terminal.main} space-y-6`}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <DollarSign className="w-6 h-6 text-terminal-green" />
-          <h2 className="text-xl font-mono font-semibold text-terminal-text">
+          <DollarSign className={`w-6 h-6 ${bloombergClasses.text.success}`} />
+          <h2 className={`${bloombergClasses.text.primary} text-xl font-semibold uppercase tracking-wide`}>
             ECONOMIC INDICATORS MONITOR
           </h2>
         </div>
@@ -307,7 +308,7 @@ export default function EconomicIndicators({ category = 'all', layout: initialLa
         <div className="flex items-center gap-2">
           <button
             onClick={() => setLayout(layout === 'grid' ? 'list' : 'grid')}
-            className="px-3 py-1 text-xs font-mono rounded bg-terminal-bg border border-terminal-border hover:bg-terminal-surface transition-colors"
+            className={`${bloombergClasses.button.secondary} text-xs`}
           >
             {layout === 'grid' ? 'LIST VIEW' : 'GRID VIEW'}
           </button>
