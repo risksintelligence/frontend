@@ -1,46 +1,62 @@
 // Clean Modern Web Dashboard Theme Configuration
-// Light gray backgrounds with white cards and professional status colors
+// Pure white backgrounds with white cards and professional status colors
 // Clean typography for modern dashboard aesthetics
 
 export const bloombergTheme = {
   colors: {
     background: {
-      primary: '#f9fafb',        // Light gray background (bg-gray-50)
-      secondary: '#ffffff',      // White backgrounds for cards and panels (bg-white)
-      hover: '#f3f4f6',          // Light hover state (bg-gray-100)
+      primary: '#ffffff',        // Pure white main background
+      secondary: '#f8fafc',      // Very subtle off-white for cards (bg-slate-50)
+      tertiary: '#f1f5f9',       // Slightly more distinct sections (bg-slate-100)
+      hover: '#f8fafc',          // Subtle hover state (bg-slate-50)
+      accent: '#f0f9ff',         // Very light blue accent backgrounds (bg-sky-50)
     },
     text: {
-      primary: '#111827',        // Dark text for headings (text-gray-900)
-      secondary: '#4b5563',      // Medium gray for secondary text (text-gray-600)
-      muted: '#6b7280',          // Lighter gray for muted text (text-gray-500)
+      primary: '#0f172a',        // Deep slate for maximum readability (text-slate-900)
+      secondary: '#334155',      // Medium slate for secondary text (text-slate-700)
+      muted: '#64748b',          // Lighter slate for muted text (text-slate-500)
+      accent: '#0369a1',         // Professional blue for links/accents (text-sky-700)
     },
     border: {
-      primary: '#e5e7eb',        // Light gray borders (border-gray-200)
-      secondary: '#d1d5db',      // Slightly darker borders (border-gray-300)
+      primary: '#e2e8f0',        // Subtle slate borders (border-slate-200)
+      secondary: '#cbd5e1',      // More defined borders (border-slate-300)
+      accent: '#bae6fd',         // Light blue accent borders (border-sky-200)
     },
     status: {
       error: {
-        text: '#dc2626',         // text-red-600
-        bg: '#fef2f2',           // bg-red-100
+        text: '#b91c1c',         // Deep red for errors (text-red-700)
+        bg: '#fef2f2',           // Very light red background (bg-red-50)
+        border: '#fecaca',       // Light red border (border-red-200)
       },
       warning: {
-        text: '#d97706',         // text-yellow-600
-        bg: '#fefce8',           // bg-yellow-100
+        text: '#a16207',         // Deep amber for warnings (text-amber-700)
+        bg: '#fffbeb',           // Very light amber background (bg-amber-50)
+        border: '#fed7aa',       // Light amber border (border-amber-200)
       },
       success: {
-        text: '#059669',         // text-green-600
-        bg: '#f0fdf4',           // bg-green-100
+        text: '#047857',         // Deep emerald for success (text-emerald-700)
+        bg: '#ecfdf5',           // Very light emerald background (bg-emerald-50)
+        border: '#a7f3d0',       // Light emerald border (border-emerald-200)
       },
       info: {
-        text: '#2563eb',         // text-blue-600
-        bg: '#eff6ff',           // bg-blue-100
+        text: '#1d4ed8',         // Deep blue for info (text-blue-700)
+        bg: '#eff6ff',           // Very light blue background (bg-blue-50)
+        border: '#bfdbfe',       // Light blue border (border-blue-200)
       }
     },
     data: {
-      positive: '#059669',       // Green for positive values
-      negative: '#dc2626',       // Red for negative values
-      neutral: '#6b7280',        // Gray for neutral values
-      highlight: '#2563eb',      // Blue for highlights
+      positive: '#047857',       // Deep emerald for positive values (text-emerald-700)
+      negative: '#b91c1c',       // Deep red for negative values (text-red-700)
+      neutral: '#64748b',        // Medium slate for neutral values (text-slate-500)
+      highlight: '#1d4ed8',      // Deep blue for highlights (text-blue-700)
+      accent: '#0369a1',         // Professional sky blue (text-sky-700)
+    },
+    ui: {
+      primary: '#1e40af',        // Primary button color (bg-blue-700)
+      primaryHover: '#1d4ed8',   // Primary button hover (bg-blue-800)
+      secondary: '#f1f5f9',      // Secondary button background (bg-slate-100)
+      secondaryHover: '#e2e8f0', // Secondary button hover (bg-slate-200)
+      focus: '#3b82f6',          // Focus ring color (ring-blue-500)
     }
   },
   typography: {
@@ -94,79 +110,88 @@ export const bloombergTheme = {
   }
 } as const;
 
-// CSS Classes for clean modern web dashboard styling
+// CSS Classes for sophisticated white background design system
 export const bloombergClasses = {
-  // Main containers
+  // Main containers with visual hierarchy
   container: {
-    primary: 'min-h-screen bg-gray-50 p-6',
-    secondary: 'bg-white rounded-lg shadow p-6',
-    card: 'bg-white rounded-lg shadow p-4',
+    primary: 'min-h-screen bg-white p-6',                           // Pure white main background
+    secondary: 'bg-slate-50 rounded-lg shadow-sm border border-slate-200 p-6',  // Subtle off-white cards
+    card: 'bg-white rounded-lg shadow-sm border border-slate-200 p-4',          // White cards with subtle borders
+    accent: 'bg-sky-50 rounded-lg border border-sky-200 p-4',       // Light blue accent containers
   },
   
-  // Legacy terminal compatibility (now uses clean dashboard styling)
+  // Legacy terminal compatibility (sophisticated white theme)
   terminal: {
-    main: 'min-h-screen bg-gray-50 p-6',
-    panel: 'bg-white rounded-lg shadow p-6',
-    card: 'bg-white rounded-lg shadow p-4',
-    surface: 'bg-white border border-gray-200',
+    main: 'min-h-screen bg-white p-6',
+    panel: 'bg-slate-50 rounded-lg shadow-sm border border-slate-200 p-6',
+    card: 'bg-white rounded-lg shadow-sm border border-slate-200 p-4',
+    surface: 'bg-white border border-slate-200',
   },
   
-  // Text styling
+  // Sophisticated text hierarchy
   text: {
-    primary: 'text-gray-900 font-semibold',
-    secondary: 'text-gray-600',
-    muted: 'text-gray-500',
-    heading: 'text-gray-900 font-bold',
-    // Legacy support for existing components
-    success: 'text-green-600',
-    warning: 'text-yellow-600', 
-    error: 'text-red-600',
-    accent: 'text-blue-600',
+    primary: 'text-slate-900 font-semibold',         // Deep slate for maximum readability
+    secondary: 'text-slate-700',                     // Medium slate for secondary content
+    muted: 'text-slate-500',                         // Light slate for muted text
+    heading: 'text-slate-900 font-bold',             // Bold deep slate for headings
+    accent: 'text-sky-700',                          // Professional blue for links/accents
+    // Legacy support with updated colors
+    success: 'text-emerald-700',                     // Deep emerald for success
+    warning: 'text-amber-700',                       // Deep amber for warnings
+    error: 'text-red-700',                           // Deep red for errors
   },
   
-  // Status colors
+  // Professional status indicators
   status: {
-    error: 'text-red-600 bg-red-100 px-3 py-1 rounded-full text-sm',
-    warning: 'text-yellow-600 bg-yellow-100 px-3 py-1 rounded-full text-sm',
-    success: 'text-green-600 bg-green-100 px-3 py-1 rounded-full text-sm',
-    info: 'text-blue-600 bg-blue-100 px-3 py-1 rounded-full text-sm',
+    error: 'text-red-700 bg-red-50 border border-red-200 px-3 py-1 rounded-full text-sm',
+    warning: 'text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-sm',
+    success: 'text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-sm',
+    info: 'text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full text-sm',
   },
   
-  // Borders
+  // Sophisticated border system
   border: {
-    primary: 'border-gray-200',
-    secondary: 'border-gray-300',
+    primary: 'border-slate-200',        // Subtle slate borders
+    secondary: 'border-slate-300',      // More defined borders
+    accent: 'border-sky-200',           // Light blue accent borders
+    focus: 'border-blue-500',           // Focus state borders
   },
   
-  // Interactive elements
+  // Professional interactive elements
   button: {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors',
-    secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-lg border border-gray-200 transition-colors',
+    primary: 'bg-blue-700 text-white hover:bg-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 px-4 py-2 rounded-lg transition-all',
+    secondary: 'bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 px-4 py-2 rounded-lg border border-slate-200 transition-all',
+    accent: 'bg-sky-100 text-sky-700 hover:bg-sky-200 focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 px-4 py-2 rounded-lg border border-sky-200 transition-all',
+    ghost: 'text-slate-700 hover:bg-slate-100 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 px-4 py-2 rounded-lg transition-all',
   },
   
-  // Background styles
+  // Sophisticated background hierarchy
   background: {
-    primary: 'bg-gray-50',
-    secondary: 'bg-white',
-    hover: 'hover:bg-gray-100',
+    primary: 'bg-white',              // Pure white main areas
+    secondary: 'bg-slate-50',         // Very subtle off-white sections
+    tertiary: 'bg-slate-100',         // Slightly more distinct areas
+    hover: 'hover:bg-slate-50',       // Subtle hover effects
+    accent: 'bg-sky-50',              // Light blue accent backgrounds
   },
   
-  // Data visualization
+  // Professional data visualization colors
   chart: {
-    positive: 'text-green-600',
-    negative: 'text-red-600',
-    neutral: 'text-gray-500',
-    highlight: 'text-blue-600',
+    positive: 'text-emerald-700',     // Deep emerald for positive trends
+    negative: 'text-red-700',         // Deep red for negative trends
+    neutral: 'text-slate-500',        // Medium slate for neutral
+    highlight: 'text-blue-700',       // Deep blue for highlights
+    accent: 'text-sky-700',           // Professional sky blue
   },
   
-  // Legacy data compatibility
+  // Enhanced data display
   data: {
-    positive: 'text-green-600',
-    negative: 'text-red-600',
-    neutral: 'text-gray-500',
-    highlight: 'text-blue-600',
-    metric: 'text-gray-900 text-lg',
-    label: 'text-gray-500 text-sm uppercase tracking-wide',
+    positive: 'text-emerald-700',              // Deep emerald for positive values
+    negative: 'text-red-700',                  // Deep red for negative values
+    neutral: 'text-slate-500',                 // Medium slate for neutral
+    highlight: 'text-blue-700',                // Deep blue for highlights
+    metric: 'text-slate-900 text-lg font-bold', // Bold slate for metrics
+    label: 'text-slate-500 text-sm uppercase tracking-wide', // Consistent labeling
+    accent: 'text-sky-700',                    // Professional accent color
   },
   
   // Grid and layout
@@ -186,22 +211,25 @@ export const bloombergClasses = {
     axis: 'text-gray-500 text-xs',
   },
   
-  // Tables
+  // Sophisticated table styling
   table: {
-    container: 'bg-white border border-gray-200 rounded-lg overflow-hidden',
-    header: 'bg-gray-50 border-b border-gray-200',
-    headerCell: 'px-4 py-3 text-gray-900 font-semibold text-sm uppercase tracking-wide text-left',
-    row: 'border-b border-gray-200 hover:bg-gray-50 transition-colors',
-    cell: 'px-4 py-3 text-gray-600 text-sm',
-    zebra: 'even:bg-white odd:bg-gray-50',
+    container: 'bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm',
+    header: 'bg-slate-50 border-b border-slate-200',
+    headerCell: 'px-4 py-3 text-slate-900 font-semibold text-sm uppercase tracking-wide text-left',
+    row: 'border-b border-slate-200 hover:bg-slate-50 transition-colors',
+    cell: 'px-4 py-3 text-slate-700 text-sm',
+    zebra: 'even:bg-white odd:bg-slate-50',
+    accent: 'bg-sky-50 border-sky-200',  // Accent row styling
   },
   
-  // Forms
+  // Professional form styling
   form: {
-    label: 'block text-gray-700 text-sm font-medium mb-2',
-    input: 'bg-white border border-gray-200 text-gray-900 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-    select: 'bg-white border border-gray-200 text-gray-900 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500',
-    textarea: 'bg-white border border-gray-200 text-gray-900 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none',
+    label: 'block text-slate-700 text-sm font-medium mb-2',
+    input: 'bg-white border border-slate-300 text-slate-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400',
+    select: 'bg-white border border-slate-300 text-slate-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all',
+    textarea: 'bg-white border border-slate-300 text-slate-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none placeholder:text-slate-400',
+    error: 'border-red-300 focus:border-red-500 focus:ring-red-500',
+    success: 'border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500',
   },
   
   // Animations
