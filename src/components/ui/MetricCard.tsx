@@ -14,21 +14,21 @@ export default function MetricCard({
   loading = false
 }: MetricCardProps) {
   const statusClasses = {
-    good: 'border-terminal-green/20 bg-terminal-green/5',
-    warning: 'border-terminal-orange/20 bg-terminal-orange/5',
-    critical: 'border-terminal-red/20 bg-terminal-red/5'
+    good: 'border-emerald-200 bg-emerald-50',
+    warning: 'border-amber-200 bg-amber-50', 
+    critical: 'border-red-200 bg-red-50'
   };
 
   const trendIcon = trend === 'up' ? '↗' : trend === 'down' ? '↘' : '→';
-  const trendColor = trend === 'up' ? 'text-terminal-green' : 
-                    trend === 'down' ? 'text-terminal-red' : 
-                    'text-terminal-muted';
+  const trendColor = trend === 'up' ? 'text-emerald-700' : 
+                    trend === 'down' ? 'text-red-700' : 
+                    'text-slate-500';
 
   return (
     <div className={`metric-card ${statusClasses[status]}`}>
       <div className="flex items-center justify-between">
         <h3 className="metric-title">{title}</h3>
-        {Icon && <Icon className="w-5 h-5 text-terminal-muted" />}
+        {Icon && <Icon className="w-5 h-5 text-slate-500" />}
       </div>
       
       <div className="flex items-baseline gap-2">
@@ -40,7 +40,7 @@ export default function MetricCard({
               {typeof value === 'number' ? value.toLocaleString() : value}
             </span>
             {unit && (
-              <span className="text-sm text-terminal-muted font-medium">
+              <span className="text-sm text-slate-500 font-medium">
                 {unit}
               </span>
             )}
@@ -54,7 +54,7 @@ export default function MetricCard({
           <span>
             {trendValue > 0 ? '+' : ''}{trendValue}%
           </span>
-          <span className="text-terminal-muted">vs prev</span>
+          <span className="text-slate-500">vs prev</span>
         </div>
       )}
     </div>

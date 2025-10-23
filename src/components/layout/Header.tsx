@@ -44,20 +44,20 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-terminal-surface border-b border-terminal-border">
+    <header className="bg-white border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo and Title */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-terminal-blue to-terminal-green rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-700 to-emerald-700 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">R</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-terminal-text">
+                <h1 className="text-xl font-bold text-slate-900">
                   RiskX Intelligence
                 </h1>
-                <p className="text-xs text-terminal-muted font-mono">
+                <p className="text-xs text-slate-500 font-mono">
                   Risk Intelligence Observatory
                 </p>
               </div>
@@ -72,7 +72,7 @@ export default function Header() {
               size="sm"
             />
             {systemHealth?.components && (
-              <div className="flex items-center space-x-2 text-xs text-terminal-muted">
+              <div className="flex items-center space-x-2 text-xs text-slate-500">
                 <span>API:</span>
                 <StatusBadge 
                   status={systemHealth.components.api === 'operational' ? 'online' : 'offline'}
@@ -86,16 +86,16 @@ export default function Header() {
           {/* Right - Time and Environment */}
           <div className="flex items-center space-x-4">
             <div className="text-right">
-              <div className="text-sm font-mono text-terminal-text">
+              <div className="text-sm font-mono text-slate-900">
                 {currentTime.toLocaleTimeString()}
               </div>
-              <div className="text-xs text-terminal-muted">
+              <div className="text-xs text-slate-500">
                 {currentTime.toLocaleDateString()}
               </div>
             </div>
-            <div className="text-xs bg-terminal-bg px-2 py-1 rounded border border-terminal-border">
-              <span className="text-terminal-muted">ENV:</span>
-              <span className="text-terminal-text ml-1 font-mono">PROD</span>
+            <div className="text-xs bg-slate-50 px-2 py-1 rounded border border-slate-200">
+              <span className="text-slate-500">ENV:</span>
+              <span className="text-slate-900 ml-1 font-mono">PROD</span>
             </div>
           </div>
         </div>

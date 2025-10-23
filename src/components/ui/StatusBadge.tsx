@@ -9,9 +9,12 @@ export default function StatusBadge({
 }: StatusBadgeProps) {
   const statusClasses = {
     online: 'status-online',
-    offline: 'status-offline',
+    offline: 'status-offline', 
     warning: 'status-warning',
-    error: 'status-offline'
+    error: 'status-offline',
+    good: 'status-online',
+    critical: 'status-offline',
+    info: 'status-info'
   };
 
   const sizeClasses = {
@@ -30,9 +33,10 @@ export default function StatusBadge({
       inline-flex items-center gap-1
     `}>
       <div className={`w-2 h-2 rounded-full ${
-        status === 'online' ? 'bg-terminal-green' :
-        status === 'warning' ? 'bg-terminal-orange' :
-        'bg-terminal-red'
+        status === 'online' || status === 'good' ? 'bg-emerald-700' :
+        status === 'warning' ? 'bg-amber-700' :
+        status === 'info' ? 'bg-blue-700' :
+        'bg-red-700'
       }`} />
       {displayText}
     </span>

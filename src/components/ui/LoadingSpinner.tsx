@@ -4,7 +4,7 @@ import { LoadingSpinnerProps } from '@/types';
 
 export default function LoadingSpinner({ 
   size = 'md', 
-  color = 'text-terminal-blue' 
+  color = 'text-blue-700' 
 }: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: 'w-4 h-4',

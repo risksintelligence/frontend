@@ -6,11 +6,11 @@
 
 @layer base {
   * {
-    @apply border-terminal-border;
+    @apply border-slate-200;
   }
   
   body {
-    @apply bg-terminal-bg text-terminal-text font-sans;
+    @apply bg-white text-slate-900 font-sans;
     font-feature-settings: "cv01", "cv02", "cv03", "cv04";
   }
   
@@ -20,55 +20,168 @@
 }
 
 @layer components {
+  /* Sophisticated White Background Card System */
   .terminal-card {
-    @apply bg-terminal-surface border border-terminal-border rounded-lg shadow-lg;
+    @apply bg-white rounded-lg shadow-sm border border-slate-200;
   }
   
+  .terminal-panel {
+    @apply bg-slate-50 rounded-lg shadow-sm border border-slate-200;
+  }
+  
+  .terminal-accent {
+    @apply bg-sky-50 rounded-lg border border-sky-200;
+  }
+  
+  /* Professional Interactive Elements */
   .terminal-button {
-    @apply bg-terminal-surface hover:bg-terminal-border text-terminal-text border border-terminal-border rounded px-4 py-2 transition-colors font-medium;
+    @apply bg-blue-700 text-white hover:bg-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 px-4 py-2 rounded-lg border border-blue-700 transition-all font-medium;
   }
   
+  .terminal-button-secondary {
+    @apply bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 px-4 py-2 rounded-lg border border-slate-200 transition-all font-medium;
+  }
+  
+  .terminal-button-ghost {
+    @apply text-slate-700 hover:bg-slate-100 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 px-4 py-2 rounded-lg transition-all;
+  }
+  
+  /* Professional Form Elements */
   .terminal-input {
-    @apply bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-terminal-text placeholder-terminal-muted focus:border-terminal-blue focus:outline-none;
+    @apply bg-white border border-slate-300 text-slate-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400;
   }
   
+  .terminal-select {
+    @apply bg-white border border-slate-300 text-slate-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all;
+  }
+  
+  .terminal-textarea {
+    @apply bg-white border border-slate-300 text-slate-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none placeholder:text-slate-400;
+  }
+  
+  /* Professional Status Colors with Proper Backgrounds */
   .risk-score-high {
-    @apply text-terminal-red bg-terminal-red/10 border-terminal-red/20;
+    @apply text-red-700 bg-red-50 border border-red-200 px-3 py-1 rounded-full text-sm;
   }
   
   .risk-score-medium {
-    @apply text-terminal-orange bg-terminal-orange/10 border-terminal-orange/20;
+    @apply text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-sm;
   }
   
   .risk-score-low {
-    @apply text-terminal-green bg-terminal-green/10 border-terminal-green/20;
+    @apply text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-sm;
   }
   
-  .metric-card {
-    @apply terminal-card p-4 space-y-2;
-  }
-  
-  .metric-title {
-    @apply text-sm font-medium text-terminal-muted uppercase tracking-wide;
-  }
-  
-  .metric-value {
-    @apply text-2xl font-bold font-mono;
-  }
-  
+  /* Professional Status Indicators */
   .status-indicator {
-    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
   }
   
   .status-online {
-    @apply bg-terminal-green/20 text-terminal-green;
+    @apply text-emerald-700 bg-emerald-50 border border-emerald-200;
   }
   
   .status-offline {
-    @apply bg-terminal-red/20 text-terminal-red;
+    @apply text-red-700 bg-red-50 border border-red-200;
   }
   
   .status-warning {
-    @apply bg-terminal-orange/20 text-terminal-orange;
+    @apply text-amber-700 bg-amber-50 border border-amber-200;
+  }
+  
+  .status-info {
+    @apply text-blue-700 bg-blue-50 border border-blue-200;
+  }
+  
+  /* Sophisticated Metric Card System */
+  .metric-card {
+    @apply bg-white rounded-lg shadow-sm border border-slate-200 p-4 space-y-2;
+  }
+  
+  .metric-title {
+    @apply text-sm font-medium text-slate-500 uppercase tracking-wide;
+  }
+  
+  .metric-value {
+    @apply text-2xl font-bold font-mono text-slate-900;
+  }
+  
+  .metric-change-positive {
+    @apply text-emerald-700;
+  }
+  
+  .metric-change-negative {
+    @apply text-red-700;
+  }
+  
+  .metric-change-neutral {
+    @apply text-slate-500;
+  }
+  
+  /* Professional Typography Hierarchy */
+  .text-primary {
+    @apply text-slate-900 font-semibold;
+  }
+  
+  .text-secondary {
+    @apply text-slate-700;
+  }
+  
+  .text-muted {
+    @apply text-slate-500;
+  }
+  
+  .text-heading {
+    @apply text-slate-900 font-bold;
+  }
+  
+  .text-accent {
+    @apply text-sky-700;
+  }
+  
+  /* Professional Table Styling */
+  .table-container {
+    @apply bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm;
+  }
+  
+  .table-header {
+    @apply bg-slate-50 border-b border-slate-200;
+  }
+  
+  .table-header-cell {
+    @apply px-4 py-3 text-slate-900 font-semibold text-sm uppercase tracking-wide text-left;
+  }
+  
+  .table-row {
+    @apply border-b border-slate-200 hover:bg-slate-50 transition-colors;
+  }
+  
+  .table-cell {
+    @apply px-4 py-3 text-slate-700 text-sm;
+  }
+  
+  /* Professional Navigation Styling */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors duration-150;
+  }
+  
+  .nav-item-active {
+    @apply bg-blue-50 text-blue-700 border border-blue-200;
+  }
+  
+  .nav-item-inactive {
+    @apply text-slate-600 hover:text-slate-900 hover:bg-slate-50;
+  }
+  
+  .nav-group-header {
+    @apply w-full flex items-center gap-2 px-3 py-2 rounded text-sm font-medium transition-colors duration-150;
+  }
+  
+  .nav-group-active {
+    @apply text-slate-900;
+  }
+  
+  .nav-group-inactive {
+    @apply text-slate-600 hover:text-slate-900 hover:bg-slate-50;
   }
 }

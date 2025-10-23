@@ -59,29 +59,29 @@ export default function Dashboard() {
 
   if (loading && !dashboardData) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-full bg-white">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-terminal-muted">Loading dashboard...</p>
+          <p className="mt-4 text-slate-500">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 bg-white min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-terminal-text">
+          <h1 className="text-3xl font-bold text-slate-900">
             Risk Intelligence Dashboard
           </h1>
-          <p className="text-terminal-muted">
+          <p className="text-slate-700">
             Real-time risk assessment and economic monitoring
           </p>
         </div>
         <div className="text-right">
-          <div className="text-sm text-terminal-muted">
+          <div className="text-sm text-slate-500">
             Last updated: {lastUpdated.toLocaleTimeString()}
           </div>
           <StatusBadge 
@@ -136,24 +136,24 @@ export default function Dashboard() {
 
       {/* Risk Components */}
       {dashboardData?.current_risk?.components && (
-        <div className="terminal-card p-6">
-          <h2 className="text-xl font-semibold mb-4 text-terminal-text">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <h2 className="text-xl font-semibold mb-4 text-slate-900">
             Risk Components Breakdown
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Object.entries(dashboardData.current_risk.components).map(([key, value]) => (
-              <div key={key} className="bg-terminal-bg p-4 rounded border border-terminal-border">
-                <div className="text-sm text-terminal-muted uppercase tracking-wide mb-1">
+              <div key={key} className="bg-slate-50 p-4 rounded border border-slate-200">
+                <div className="text-sm text-slate-500 uppercase tracking-wide mb-1">
                   {key}
                 </div>
-                <div className="text-2xl font-bold font-mono text-terminal-text">
+                <div className="text-2xl font-bold font-mono text-slate-900">
                   {value.toFixed(1)}
                 </div>
-                <div className="w-full bg-terminal-border rounded-full h-2 mt-2">
+                <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
                   <div 
                     className={`h-2 rounded-full ${
-                      value >= 80 ? 'bg-terminal-red' :
-                      value >= 60 ? 'bg-terminal-orange' : 'bg-terminal-green'
+                      value >= 80 ? 'bg-red-700' :
+                      value >= 60 ? 'bg-amber-700' : 'bg-emerald-700'
                     }`}
                     style={{ width: `${Math.min(value, 100)}%` }}
                   />
@@ -166,24 +166,24 @@ export default function Dashboard() {
 
       {/* Economic Indicators */}
       {economicData && (
-        <div className="terminal-card p-6">
-          <h2 className="text-xl font-semibold mb-4 text-terminal-text">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <h2 className="text-xl font-semibold mb-4 text-slate-900">
             Economic Indicators
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Object.entries(economicData).map(([key, indicator]) => (
-              <div key={key} className="bg-terminal-bg p-4 rounded border border-terminal-border">
-                <div className="text-sm text-terminal-muted uppercase tracking-wide mb-1">
+              <div key={key} className="bg-slate-50 p-4 rounded border border-slate-200">
+                <div className="text-sm text-slate-500 uppercase tracking-wide mb-1">
                   {key.replace('_', ' ')}
                 </div>
-                <div className="text-lg font-bold font-mono text-terminal-text">
+                <div className="text-lg font-bold font-mono text-slate-900">
                   {typeof indicator.value === 'number' ? 
                     indicator.value.toLocaleString() : indicator.value}
                 </div>
-                <div className="text-xs text-terminal-muted">
+                <div className="text-xs text-slate-500">
                   {indicator.units}
                 </div>
-                <div className="text-xs text-terminal-muted mt-1">
+                <div className="text-xs text-slate-500 mt-1">
                   {indicator.frequency}
                 </div>
               </div>
@@ -194,31 +194,31 @@ export default function Dashboard() {
 
       {/* Top Risk Factors */}
       {dashboardData?.top_risk_factors && dashboardData.top_risk_factors.length > 0 && (
-        <div className="terminal-card p-6">
-          <h2 className="text-xl font-semibold mb-4 text-terminal-text">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <h2 className="text-xl font-semibold mb-4 text-slate-900">
             Top Risk Factors
           </h2>
           <div className="space-y-3">
             {dashboardData.top_risk_factors.map((factor, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-terminal-bg rounded border border-terminal-border">
+              <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded border border-slate-200">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-terminal-surface rounded flex items-center justify-center text-sm font-mono">
+                  <div className="w-8 h-8 bg-white rounded flex items-center justify-center text-sm font-mono text-slate-700 border border-slate-200">
                     {index + 1}
                   </div>
                   <div>
-                    <div className="font-medium text-terminal-text">
+                    <div className="font-medium text-slate-900">
                       {factor.name}
                     </div>
-                    <div className="text-sm text-terminal-muted">
+                    <div className="text-sm text-slate-500">
                       {factor.category} • {factor.impact} impact
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold font-mono text-terminal-text">
+                  <div className="text-lg font-bold font-mono text-slate-900">
                     {factor.score.toFixed(1)}
                   </div>
-                  <div className="text-xs text-terminal-muted">
+                  <div className="text-xs text-slate-500">
                     risk score
                   </div>
                 </div>
@@ -230,21 +230,21 @@ export default function Dashboard() {
 
       {/* Alert Summary */}
       {dashboardData?.alert_summary && (
-        <div className="terminal-card p-6">
-          <h2 className="text-xl font-semibold mb-4 text-terminal-text">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <h2 className="text-xl font-semibold mb-4 text-slate-900">
             Alert Summary
           </h2>
           <div className="grid grid-cols-4 gap-4">
             {Object.entries(dashboardData.alert_summary.by_severity).map(([severity, count]) => (
-              <div key={severity} className="text-center p-4 bg-terminal-bg rounded border border-terminal-border">
+              <div key={severity} className="text-center p-4 bg-slate-50 rounded border border-slate-200">
                 <div className={`text-2xl font-bold font-mono ${
-                  severity === 'critical' ? 'text-terminal-red' :
-                  severity === 'high' ? 'text-terminal-orange' :
-                  severity === 'medium' ? 'text-terminal-blue' : 'text-terminal-green'
+                  severity === 'critical' ? 'text-red-700' :
+                  severity === 'high' ? 'text-amber-700' :
+                  severity === 'medium' ? 'text-blue-700' : 'text-emerald-700'
                 }`}>
                   {count}
                 </div>
-                <div className="text-sm text-terminal-muted capitalize">
+                <div className="text-sm text-slate-500 capitalize">
                   {severity}
                 </div>
               </div>

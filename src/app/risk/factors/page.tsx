@@ -169,15 +169,15 @@ export default function RiskFactorsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 p-6 bg-white min-h-screen">
         <div className="flex items-center justify-between">
-          <div className="h-8 bg-terminal-bg rounded w-1/4 animate-pulse"></div>
-          <div className="h-6 bg-terminal-bg rounded w-1/6 animate-pulse"></div>
+          <div className="h-8 bg-slate-200 rounded w-1/4 animate-pulse"></div>
+          <div className="h-6 bg-slate-200 rounded w-1/6 animate-pulse"></div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className="h-48 bg-terminal-bg rounded animate-pulse"></div>
+            <div key={i} className="h-48 bg-slate-200 rounded animate-pulse"></div>
           ))}
         </div>
       </div>
@@ -185,10 +185,10 @@ export default function RiskFactorsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6 bg-white min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-mono font-bold text-terminal-text">
+        <h1 className="text-2xl font-mono font-bold text-slate-900">
           RISK FACTORS ANALYSIS
         </h1>
         
@@ -198,8 +198,8 @@ export default function RiskFactorsPage() {
               onClick={() => setViewMode('cards')}
               className={`px-3 py-1 text-sm font-mono rounded transition-colors ${
                 viewMode === 'cards'
-                  ? 'bg-terminal-green/20 text-terminal-green border border-terminal-green/30'
-                  : 'text-terminal-muted hover:text-terminal-text hover:bg-terminal-bg'
+                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
               CARDS
@@ -208,15 +208,15 @@ export default function RiskFactorsPage() {
               onClick={() => setViewMode('heatmap')}
               className={`px-3 py-1 text-sm font-mono rounded transition-colors ${
                 viewMode === 'heatmap'
-                  ? 'bg-terminal-green/20 text-terminal-green border border-terminal-green/30'
-                  : 'text-terminal-muted hover:text-terminal-text hover:bg-terminal-bg'
+                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
               HEATMAP
             </button>
           </div>
           
-          <div className="text-terminal-muted font-mono text-sm">
+          <div className="text-slate-500 font-mono text-sm">
             {riskFactors.length} factors monitored
           </div>
         </div>
@@ -224,30 +224,30 @@ export default function RiskFactorsPage() {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
-          <div className="text-terminal-muted font-mono text-xs mb-1">HIGH RISK</div>
-          <div className="text-2xl font-mono font-bold text-terminal-red">
+        <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+          <div className="text-slate-500 font-mono text-xs mb-1">HIGH RISK</div>
+          <div className="text-2xl font-mono font-bold text-red-700">
             {riskFactors.filter(f => f.score >= 70).length}
           </div>
         </div>
         
-        <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
-          <div className="text-terminal-muted font-mono text-xs mb-1">MODERATE RISK</div>
-          <div className="text-2xl font-mono font-bold text-terminal-orange">
+        <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+          <div className="text-slate-500 font-mono text-xs mb-1">MODERATE RISK</div>
+          <div className="text-2xl font-mono font-bold text-amber-700">
             {riskFactors.filter(f => f.score >= 40 && f.score < 70).length}
           </div>
         </div>
         
-        <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
-          <div className="text-terminal-muted font-mono text-xs mb-1">LOW RISK</div>
-          <div className="text-2xl font-mono font-bold text-terminal-green">
+        <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+          <div className="text-slate-500 font-mono text-xs mb-1">LOW RISK</div>
+          <div className="text-2xl font-mono font-bold text-emerald-700">
             {riskFactors.filter(f => f.score < 40).length}
           </div>
         </div>
         
-        <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
-          <div className="text-terminal-muted font-mono text-xs mb-1">RISING TRENDS</div>
-          <div className="text-2xl font-mono font-bold text-terminal-red">
+        <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+          <div className="text-slate-500 font-mono text-xs mb-1">RISING TRENDS</div>
+          <div className="text-2xl font-mono font-bold text-red-700">
             {riskFactors.filter(f => f.trend === 'rising').length}
           </div>
         </div>
@@ -258,7 +258,7 @@ export default function RiskFactorsPage() {
         <div className="space-y-6">
           {Object.entries(categorizedFactors).map(([category, factors]) => (
             <div key={category} className="space-y-4">
-              <h2 className="text-lg font-mono font-semibold text-terminal-text border-b border-terminal-border pb-2">
+              <h2 className="text-lg font-mono font-semibold text-slate-900 border-b border-slate-200 pb-2">
                 {category.toUpperCase()}
               </h2>
               

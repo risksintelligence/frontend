@@ -152,7 +152,7 @@ export interface MetricCardProps {
 }
 
 export interface StatusBadgeProps {
-  status: 'online' | 'offline' | 'warning' | 'error';
+  status: 'online' | 'offline' | 'warning' | 'error' | 'good' | 'critical' | 'info';
   text?: string;
   size?: 'sm' | 'md' | 'lg';
 }

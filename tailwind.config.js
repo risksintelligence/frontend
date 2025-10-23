@@ -8,42 +8,58 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // Bloomberg Terminal Color Scheme
+      // Sophisticated White Background Design System
       colors: {
         // Legacy risk colors (kept for compatibility)
         'risk': {
-          'primary': '#0A0F1C',
-          'secondary': '#1A2332',
-          'accent': '#FF6B35',
-          'success': '#22C55E',
-          'warning': '#F59E0B',
-          'danger': '#EF4444',
-          'info': '#3B82F6'
+          'primary': '#0f172a',      // Deep slate for maximum readability
+          'secondary': '#334155',    // Medium slate for secondary content  
+          'accent': '#0369a1',       // Professional blue for links/accents
+          'success': '#047857',      // Deep emerald for success
+          'warning': '#a16207',      // Deep amber for warnings
+          'danger': '#b91c1c',       // Deep red for errors
+          'info': '#1d4ed8'          // Deep blue for info
         },
         
-        // Bloomberg Terminal colors (updated)
+        // Sophisticated White Background colors
         'terminal': {
-          'bg': '#0f172a',           // Dark slate background
-          'surface': '#1e293b',      // Panel background
-          'border': '#475569',       // Border color
-          'text': '#f8fafc',         // Primary text
-          'muted': '#64748b',        // Muted text
-          'green': '#10b981',        // Success/positive
-          'orange': '#f59e0b',       // Warning
-          'red': '#ef4444',          // Error/negative
-          'blue': '#38bdf8',         // Accent/info
-          'purple': '#8b5cf6',       // Secondary accent
-          'cyan': '#06b6d4',         // Tertiary accent
-          'pink': '#ec4899'          // Quaternary accent
+          'bg': '#ffffff',           // Pure white main background
+          'surface': '#f8fafc',      // Very subtle off-white for cards (bg-slate-50)
+          'border': '#e2e8f0',       // Subtle slate borders (border-slate-200)
+          'text': '#0f172a',         // Deep slate for maximum readability (text-slate-900)
+          'muted': '#64748b',        // Light slate for muted text (text-slate-500)
+          'green': '#047857',        // Deep emerald for success (text-emerald-700)
+          'orange': '#a16207',       // Deep amber for warnings (text-amber-700)
+          'red': '#b91c1c',          // Deep red for errors (text-red-700)
+          'blue': '#1d4ed8',         // Deep blue for info (text-blue-700)
+          'purple': '#7c3aed',       // Deep purple accent
+          'cyan': '#0891b2',         // Deep cyan accent
+          'pink': '#be185d'          // Deep pink accent
         },
         
-        // Primary Bloomberg Terminal colors
-        'bloomberg-navy': '#1e3a8a',
-        'bloomberg-charcoal': '#374151',
-        'bloomberg-navy-light': '#2563eb',
-        'bloomberg-navy-dark': '#1e40af',
-        'bloomberg-charcoal-light': '#4b5563',
-        'bloomberg-charcoal-dark': '#1f2937',
+        // Professional white background hierarchy
+        'white-bg': {
+          'primary': '#ffffff',      // Pure white main background
+          'secondary': '#f8fafc',    // Very subtle off-white (bg-slate-50)
+          'tertiary': '#f1f5f9',     // Slightly more distinct (bg-slate-100)
+          'accent': '#f0f9ff',       // Light blue accent (bg-sky-50)
+        },
+        
+        // Professional typography colors
+        'text-hierarchy': {
+          'primary': '#0f172a',      // Deep slate for headings (text-slate-900)
+          'secondary': '#334155',    // Medium slate for body text (text-slate-700)
+          'muted': '#64748b',        // Light slate for descriptions (text-slate-500)
+          'accent': '#0369a1',       // Professional blue for links (text-sky-700)
+        },
+        
+        // Professional border system
+        'border-system': {
+          'primary': '#e2e8f0',      // Subtle slate borders (border-slate-200)
+          'secondary': '#cbd5e1',    // More defined borders (border-slate-300)
+          'accent': '#bae6fd',       // Light blue accent borders (border-sky-200)
+          'focus': '#3b82f6',        // Focus state borders (border-blue-500)
+        },
       },
       
       // Bloomberg Terminal Typography
