@@ -127,18 +127,18 @@ export default function CorrelationMatrix({ timeRange = '3m' }: CorrelationMatri
 
   const getCorrelationColor = (correlation: number) => {
     const abs = Math.abs(correlation);
-    if (abs >= 0.7) return bloombergClasses.text.error;
-    if (abs >= 0.5) return bloombergClasses.text.warning;
-    if (abs >= 0.3) return bloombergClasses.text.accent;
+    if (abs >= 0.7) return bloombergClasses.chart.negative;
+    if (abs >= 0.5) return 'text-yellow-600';
+    if (abs >= 0.3) return bloombergClasses.chart.highlight;
     return bloombergClasses.text.muted;
   };
 
   const getCorrelationBg = (correlation: number) => {
     const abs = Math.abs(correlation);
-    if (abs >= 0.7) return 'bg-red-900/20 border-red-600/30';
-    if (abs >= 0.5) return 'bg-amber-900/20 border-amber-600/30';
-    if (abs >= 0.3) return 'bg-blue-900/20 border-blue-600/30';
-    return `${bloombergClasses.terminal.card}`;
+    if (abs >= 0.7) return 'bg-red-100 border-red-200';
+    if (abs >= 0.5) return 'bg-yellow-100 border-yellow-200';
+    if (abs >= 0.3) return 'bg-blue-100 border-blue-200';
+    return 'bg-gray-100 border-gray-200';
   };
 
   const getRelationshipIcon = (relationship: string) => {
@@ -195,7 +195,7 @@ export default function CorrelationMatrix({ timeRange = '3m' }: CorrelationMatri
   }
 
   return (
-    <div className={`${bloombergClasses.terminal.main} space-y-6`}>
+    <div className={`${bloombergClasses.container.primary} space-y-6`}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
