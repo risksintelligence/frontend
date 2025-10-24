@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Header from '@/components/layout/Header';
 import Navigation from '@/components/layout/Navigation';
@@ -8,7 +8,11 @@ export const metadata: Metadata = {
   description: 'Professional risk intelligence observatory providing real-time analytics and insights',
   keywords: 'risk management, financial analytics, economic data, risk intelligence observatory',
   authors: [{ name: 'RiskX Intelligence' }],
-  viewport: 'width=device-width, initial-scale=1',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({

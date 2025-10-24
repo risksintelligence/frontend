@@ -45,69 +45,16 @@ export default function RiskAlerts({ showFilters = true, maxAlerts }: RiskAlerts
       // const response = await fetch('/api/v1/risk/alerts');
       // const data = await response.json();
       
-      // Sample alerts for demonstration
-      const sampleAlerts: RiskAlert[] = [
-        {
-          id: '1',
-          type: 'critical',
-          title: 'Inflation Rate Spike Detected',
-          description: 'Consumer Price Index increased by 0.8% month-over-month, exceeding forecast by 150 basis points',
-          category: 'economic',
-          severity: 92,
-          timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-          status: 'active',
-          source: 'BLS CPI Report',
-          actions: ['Review portfolio allocation', 'Assess hedge positions', 'Monitor Fed communications']
-        },
-        {
-          id: '2',
-          type: 'high',
-          title: 'Market Volatility Surge',
-          description: 'VIX index jumped 18% indicating increased market uncertainty and risk aversion',
-          category: 'market',
-          severity: 78,
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          status: 'active',
-          source: 'Market Data Feed',
-          actions: ['Increase cash reserves', 'Review stop-loss levels']
-        },
-        {
-          id: '3',
-          type: 'medium',
-          title: 'Trade Relationship Tension',
-          description: 'New tariff announcements affecting key supply chain sectors',
-          category: 'geopolitical',
-          severity: 65,
-          timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-          status: 'acknowledged',
-          source: 'Geopolitical Intelligence',
-          actions: ['Assess supply chain exposure', 'Review alternative suppliers']
-        },
-        {
-          id: '4',
-          type: 'low',
-          title: 'System Performance Alert',
-          description: 'API response times elevated but within acceptable thresholds',
-          category: 'technical',
-          severity: 35,
-          timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-          status: 'resolved',
-          source: 'System Monitor'
-        },
-        {
-          id: '5',
-          type: 'info',
-          title: 'GDP Data Release Scheduled',
-          description: 'Quarterly GDP data will be released tomorrow at 8:30 AM EST',
-          category: 'economic',
-          severity: 15,
-          timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-          status: 'active',
-          source: 'Economic Calendar'
-        }
-      ];
+      // Load real alerts from API
+      const response = await fetch('/api/v1/risk/alerts');
+      if (!response.ok) {
+        throw new Error('Failed to fetch risk alerts');
+      }
       
-      setAlerts(sampleAlerts);
+      const data = await response.json();
+      const realAlerts: RiskAlert[] = data.alerts || [];
+      
+      setAlerts(realAlerts);
     } catch (error) {
       console.error('Error fetching alerts:', error);
     } finally {

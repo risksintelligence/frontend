@@ -37,25 +37,6 @@ export function useTrendAnalysis(timeRange: string = '6m'): UseTrendAnalysisResu
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
-  const generateSampleData = (baseValue: number, trendSlope: number, volatility: number): TrendData[] => {
-    const data: TrendData[] = [];
-    const now = new Date();
-    const days = timeRange === '1m' ? 30 : timeRange === '3m' ? 90 : timeRange === '6m' ? 180 : 365;
-    
-    for (let i = 0; i < days; i++) {
-      const date = new Date(now.getTime() - (days - i) * 24 * 60 * 60 * 1000);
-      const trendValue = baseValue + (trendSlope * i / days);
-      const noise = (Math.random() - 0.5) * volatility;
-      const value = Math.max(0, trendValue + noise);
-      
-      data.push({
-        date: date.toISOString().split('T')[0],
-        value: Math.round(value * 100) / 100
-      });
-    }
-    
-    return data;
-  };
 
   const calculateLinearRegression = (data: TrendData[]) => {
     const n = data.length;
@@ -95,20 +76,15 @@ export function useTrendAnalysis(timeRange: string = '6m'): UseTrendAnalysisResu
       setLoading(true);
       setError(null);
       
-      // In production, fetch actual data from API
-      // const response = await fetch(`/api/v1/analytics/trends/${seriesId}?algorithm=${algorithm}&range=${timeRange}`);
+      // Fetch real trend data from API
+      const response = await fetch(`/api/v1/analytics/trends/${seriesId}?algorithm=${algorithm}&range=${timeRange}`);
       
-      // Generate sample data for different economic indicators
-      const sampleSeries = {
-        'gdp-growth': { baseValue: 2.1, trendSlope: 0.3, volatility: 0.5 },
-        'unemployment': { baseValue: 3.7, trendSlope: 0.4, volatility: 0.3 },
-        'inflation': { baseValue: 3.2, trendSlope: -0.8, volatility: 0.6 },
-        'market-volatility': { baseValue: 18.5, trendSlope: 3.2, volatility: 4.5 },
-        'interest-rates': { baseValue: 5.25, trendSlope: 0.5, volatility: 0.25 }
-      };
+      if (!response.ok) {
+        throw new Error('Failed to fetch trend data');
+      }
       
-      const seriesConfig = sampleSeries[seriesId as keyof typeof sampleSeries] || sampleSeries['gdp-growth'];
-      const data = generateSampleData(seriesConfig.baseValue, seriesConfig.trendSlope, seriesConfig.volatility);
+      const responseData = await response.json();
+      const data: TrendData[] = responseData.data || [];
       
       // Calculate trend statistics
       const stats = calculateLinearRegression(data);

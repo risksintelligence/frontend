@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Grid, Info, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface RiskHeatmapData {
@@ -23,56 +23,29 @@ export default function RiskHeatmap({ timeRange = '1d', showLegend = true }: Ris
   const [loading, setLoading] = useState(true);
   const [selectedCell, setSelectedCell] = useState<RiskHeatmapData | null>(null);
 
-  useEffect(() => {
-    fetchHeatmapData();
-  }, [timeRange]);
-
-  const fetchHeatmapData = async () => {
+  const fetchHeatmapData = useCallback(async () => {
     try {
       setLoading(true);
-      // In production, fetch from API
-      // const response = await fetch(`/api/v1/risk/heatmap?range=${timeRange}`);
-      // const data = await response.json();
+      // Fetch from real API
+      const response = await fetch(`/api/v1/risk/heatmap?range=${timeRange}`);
+      if (response.ok) {
+        const data = await response.json();
+        setHeatmapData(data.heatmap || []);
+        return;
+      }
       
-      // Sample heatmap data for demonstration
-      const categories = [
-        'Economic Indicators',
-        'Market Conditions',
-        'Geopolitical Factors',
-        'Technical Systems'
-      ];
-      
-      const subcategories = {
-        'Economic Indicators': ['GDP Growth', 'Inflation Rate', 'Employment', 'Consumer Spending', 'Trade Balance'],
-        'Market Conditions': ['Equity Markets', 'Bond Markets', 'Currency Markets', 'Commodity Markets', 'Volatility Index'],
-        'Geopolitical Factors': ['Political Stability', 'Trade Relations', 'Regulatory Changes', 'International Conflicts', 'Sanctions'],
-        'Technical Systems': ['API Performance', 'Data Quality', 'System Uptime', 'Security Status', 'Model Accuracy']
-      };
-      
-      const sampleData: RiskHeatmapData[] = [];
-      
-      categories.forEach(category => {
-        subcategories[category as keyof typeof subcategories].forEach(subcategory => {
-          const baseRisk = Math.random() * 100;
-          sampleData.push({
-            category,
-            subcategory,
-            riskScore: baseRisk,
-            change: (Math.random() - 0.5) * 20,
-            volatility: Math.random() * 30,
-            confidence: 0.7 + Math.random() * 0.3,
-            lastUpdated: new Date().toISOString()
-          });
-        });
-      });
-      
-      setHeatmapData(sampleData);
+      // No fallback data - require API connection
+      setHeatmapData([]);
     } catch (error) {
       console.error('Error fetching heatmap data:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeRange]);
+
+  useEffect(() => {
+    fetchHeatmapData();
+  }, [fetchHeatmapData]);
 
   const getRiskColor = (riskScore: number) => {
     if (riskScore >= 80) return 'bg-terminal-red';

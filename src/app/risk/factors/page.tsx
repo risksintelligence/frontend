@@ -25,99 +25,20 @@ export default function RiskFactorsPage() {
   const fetchRiskFactors = async () => {
     try {
       setLoading(true);
-      // In production, fetch from API
+      // fetch from API
       // const response = await fetch('/api/v1/risk/factors');
       // const data = await response.json();
       
-      // Sample risk factors for demonstration
-      const sampleFactors: RiskFactor[] = [
-        {
-          name: 'GDP Growth Rate',
-          score: 78.2,
-          impact: 'high',
-          trend: 'falling',
-          description: 'Economic growth showing signs of deceleration with quarterly GDP declining'
-        },
-        {
-          name: 'Unemployment Rate',
-          score: 34.5,
-          impact: 'moderate',
-          trend: 'stable',
-          description: 'Employment levels remain stable with gradual improvement in job market'
-        },
-        {
-          name: 'Inflation Rate',
-          score: 85.1,
-          impact: 'high',
-          trend: 'rising',
-          description: 'Consumer prices rising above target levels indicating inflationary pressure'
-        },
-        {
-          name: 'Market Volatility',
-          score: 72.8,
-          impact: 'high',
-          trend: 'rising',
-          description: 'Increased market uncertainty driving higher volatility across asset classes'
-        },
-        {
-          name: 'Credit Spreads',
-          score: 65.4,
-          impact: 'moderate',
-          trend: 'rising',
-          description: 'Widening credit spreads indicating increased credit risk perception'
-        },
-        {
-          name: 'Currency Stability',
-          score: 41.2,
-          impact: 'moderate',
-          trend: 'stable',
-          description: 'Exchange rates showing relative stability with minor fluctuations'
-        },
-        {
-          name: 'Political Stability',
-          score: 68.9,
-          impact: 'high',
-          trend: 'rising',
-          description: 'Political tensions and policy uncertainty affecting market confidence'
-        },
-        {
-          name: 'Trade Relations',
-          score: 76.3,
-          impact: 'high',
-          trend: 'rising',
-          description: 'International trade tensions and tariff concerns impacting global commerce'
-        },
-        {
-          name: 'Regulatory Environment',
-          score: 52.7,
-          impact: 'moderate',
-          trend: 'stable',
-          description: 'Regulatory changes providing clarity but creating compliance challenges'
-        },
-        {
-          name: 'Supply Chain Resilience',
-          score: 81.5,
-          impact: 'high',
-          trend: 'rising',
-          description: 'Supply chain disruptions and bottlenecks affecting global trade flows'
-        },
-        {
-          name: 'Energy Security',
-          score: 74.1,
-          impact: 'high',
-          trend: 'rising',
-          description: 'Energy price volatility and supply concerns affecting economic stability'
-        },
-        {
-          name: 'Technology Risk',
-          score: 38.6,
-          impact: 'low',
-          trend: 'stable',
-          description: 'Technology infrastructure and cybersecurity risks remain manageable'
-        }
-      ];
+      // Load real risk factors from API
+      const response = await fetch('/api/v1/risk/factors');
+      if (!response.ok) {
+        throw new Error('Failed to fetch risk factors');
+      }
       
-      setRiskFactors(sampleFactors);
+      const data = await response.json();
+      const realFactors: RiskFactor[] = data.factors || [];
+      
+      setRiskFactors(realFactors);
     } catch (error) {
       console.error('Error fetching risk factors:', error);
     } finally {

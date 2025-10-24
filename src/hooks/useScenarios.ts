@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 interface ScenarioParameter {
   id: string;
@@ -49,7 +49,7 @@ export function useScenarios(): UseScenariosResult {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const defaultParameters: ScenarioParameter[] = [
+  const defaultParameters = useMemo<ScenarioParameter[]>(() => [
     {
       id: 'gdp-growth',
       name: 'GDP Growth Rate',
@@ -116,7 +116,7 @@ export function useScenarios(): UseScenariosResult {
       unit: '$/barrel',
       category: 'market'
     }
-  ];
+  ], []);
 
   const createScenario = useCallback(async (name: string, description: string) => {
     try {
@@ -140,7 +140,7 @@ export function useScenarios(): UseScenariosResult {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [defaultParameters]);
 
   const updateParameter = useCallback(async (parameterId: string, value: number) => {
     if (!activeScenario) return;
@@ -261,7 +261,7 @@ export function useScenarios(): UseScenariosResult {
     } finally {
       setLoading(false);
     }
-  }, [activeScenario]);
+  }, []);
 
   const loadScenario = useCallback(async (id: string) => {
     try {

@@ -30,9 +30,14 @@ export default function RiskTrends({ timeRange = '30d', showComponents = true }:
       // const response = await fetch(`/api/v1/risk/trends?range=${timeRange}`);
       // const data = await response.json();
       
-      // Sample trend data for demonstration
-      const sampleData: RiskTrendData[] = generateSampleTrendData(timeRange);
-      setTrendData(sampleData);
+      // Load real trend data from API
+      const response = await fetch(`/api/v1/risk/trends?range=${timeRange}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch trend data');
+      }
+      
+      const data = await response.json();
+      setTrendData(data.trends || []);
     } catch (error) {
       console.error('Error fetching trend data:', error);
     } finally {
@@ -44,29 +49,6 @@ export default function RiskTrends({ timeRange = '30d', showComponents = true }:
     fetchTrendData();
   }, [fetchTrendData]);
 
-  const generateSampleTrendData = (range: string): RiskTrendData[] => {
-    const days = range === '7d' ? 7 : range === '30d' ? 30 : range === '90d' ? 90 : 365;
-    const data: RiskTrendData[] = [];
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      
-      // Generate trending data with some volatility
-      const baseScore = 75 + Math.sin(i / 10) * 10 + Math.random() * 5 - 2.5;
-      
-      data.push({
-        date: date.toISOString().split('T')[0],
-        overall_score: Math.max(0, Math.min(100, baseScore)),
-        economic: Math.max(0, Math.min(100, baseScore + Math.random() * 10 - 5)),
-        market: Math.max(0, Math.min(100, baseScore + Math.random() * 10 - 5)),
-        geopolitical: Math.max(0, Math.min(100, baseScore + Math.random() * 10 - 5)),
-        technical: Math.max(0, Math.min(100, baseScore + Math.random() * 10 - 5))
-      });
-    }
-    
-    return data;
-  };
 
   const getMetricColor = (metric: string) => {
     switch (metric) {

@@ -46,7 +46,7 @@ export default function ForecastCharts({
       // const response = await fetch(`/api/v1/analytics/forecasts?horizon=${timeHorizon}`);
       // const data = await response.json();
       
-      // Generate sample forecast data
+      // Generate forecast visualization data
       const generateForecastData = (baseValue: number, trend: number, volatility: number) => {
         const data: ForecastPoint[] = [];
         const now = new Date();

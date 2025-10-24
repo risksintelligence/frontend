@@ -68,62 +68,24 @@ export function useCorrelations(timeRange: string = '3m'): UseCorrelationsResult
     return { correlation, pValue };
   };
 
-  const generateSampleData = (baseValue: number, trend: number, volatility: number, correlation?: number, referenceData?: number[]): number[] => {
-    const days = timeRange === '1m' ? 30 : timeRange === '3m' ? 90 : timeRange === '6m' ? 180 : 365;
-    const data: number[] = [];
-    
-    for (let i = 0; i < days; i++) {
-      let value = baseValue + (trend * i / days);
-      
-      if (correlation && referenceData && referenceData[i] !== undefined) {
-        // Add correlation with reference data
-        const referenceNorm = (referenceData[i] - baseValue) / volatility;
-        value += correlation * referenceNorm * volatility;
-      }
-      
-      // Add random noise
-      const noise = (Math.random() - 0.5) * volatility;
-      value += noise;
-      
-      data.push(Math.max(0, value));
-    }
-    
-    return data;
-  };
-
   const calculateCorrelations = useCallback(async (factors: string[]) => {
     try {
       setLoading(true);
       setError(null);
       
-      // In production, fetch from API
-      // const response = await fetch('/api/v1/analytics/correlations', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ factors, timeRange })
-      // });
+      // Fetch real correlation data from API
+      const response = await fetch('/api/v1/analytics/correlations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ factors, timeRange })
+      });
       
-      // Generate sample data for different factors
-      const factorConfigs = {
-        'GDP Growth': { baseValue: 2.1, trend: 0.3, volatility: 0.5 },
-        'Unemployment Rate': { baseValue: 3.7, trend: 0.4, volatility: 0.3 },
-        'Inflation Rate': { baseValue: 3.2, trend: -0.8, volatility: 0.6 },
-        'Interest Rates': { baseValue: 5.25, trend: 0.5, volatility: 0.25 },
-        'Market Volatility': { baseValue: 18.5, trend: 3.2, volatility: 4.5 },
-        'Oil Price': { baseValue: 85.0, trend: 5.0, volatility: 10.0 }
-      };
+      if (!response.ok) {
+        throw new Error('Failed to fetch correlation data');
+      }
       
-      // Generate data for each factor
-      const factorData: Record<string, number[]> = {};
-      const gdpData = generateSampleData(factorConfigs['GDP Growth'].baseValue, factorConfigs['GDP Growth'].trend, factorConfigs['GDP Growth'].volatility);
-      factorData['GDP Growth'] = gdpData;
-      
-      // Generate correlated data for other factors
-      factorData['Unemployment Rate'] = generateSampleData(factorConfigs['Unemployment Rate'].baseValue, factorConfigs['Unemployment Rate'].trend, factorConfigs['Unemployment Rate'].volatility, -0.78, gdpData);
-      factorData['Inflation Rate'] = generateSampleData(factorConfigs['Inflation Rate'].baseValue, factorConfigs['Inflation Rate'].trend, factorConfigs['Inflation Rate'].volatility, 0.45, gdpData);
-      factorData['Interest Rates'] = generateSampleData(factorConfigs['Interest Rates'].baseValue, factorConfigs['Interest Rates'].trend, factorConfigs['Interest Rates'].volatility, 0.32, gdpData);
-      factorData['Market Volatility'] = generateSampleData(factorConfigs['Market Volatility'].baseValue, factorConfigs['Market Volatility'].trend, factorConfigs['Market Volatility'].volatility, -0.52, gdpData);
-      factorData['Oil Price'] = generateSampleData(factorConfigs['Oil Price'].baseValue, factorConfigs['Oil Price'].trend, factorConfigs['Oil Price'].volatility, 0.25, gdpData);
+      const data = await response.json();
+      const factorData: Record<string, number[]> = data.factorData || {};
       
       // Calculate correlations between all factor pairs
       const newCorrelations: CorrelationData[] = [];

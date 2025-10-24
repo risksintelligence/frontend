@@ -26,46 +26,12 @@ export function useRiskOverview() {
         setRiskData(result.data);
         setLastUpdated(new Date().toLocaleTimeString());
       } else {
-        // Fallback to sample data for demonstration
-        const sampleData: RiskScore = {
-          overall_score: 75.5,
-          components: {
-            economic: 78.2,
-            market: 72.1,
-            geopolitical: 68.9,
-            technical: 81.3
-          },
-          trend: 'stable',
-          confidence: 0.87,
-          calculation_method: 'Multi-factor weighted analysis with ML enhancement',
-          data_sources: ['FRED', 'BEA', 'BLS', 'Market Data'],
-          timestamp: new Date().toISOString()
-        };
-        
-        setRiskData(sampleData);
-        setLastUpdated(new Date().toLocaleTimeString());
+        throw new Error('No risk data available');
       }
     } catch (err) {
       console.error('Risk data fetch error:', err);
       
-      // Fallback to sample data even on error
-      const sampleData: RiskScore = {
-        overall_score: 75.5,
-        components: {
-          economic: 78.2,
-          market: 72.1,
-          geopolitical: 68.9,
-          technical: 81.3
-        },
-        trend: 'stable',
-        confidence: 0.87,
-        calculation_method: 'Multi-factor weighted analysis with ML enhancement',
-        data_sources: ['FRED', 'BEA', 'BLS', 'Market Data'],
-        timestamp: new Date().toISOString()
-      };
-      
-      setRiskData(sampleData);
-      setError('Using sample data - API not available');
+      setError(err instanceof Error ? err.message : 'Failed to fetch risk data');
       setLastUpdated(new Date().toLocaleTimeString());
     } finally {
       setLoading(false);

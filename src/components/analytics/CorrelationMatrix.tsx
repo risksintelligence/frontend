@@ -29,95 +29,17 @@ export default function CorrelationMatrix({ timeRange = '3m' }: CorrelationMatri
   const fetchCorrelationData = async () => {
     try {
       setLoading(true);
-      // In production, fetch from API
-      // const response = await fetch(`/api/v1/analytics/correlations?range=${timeRange}`);
-      // const data = await response.json();
+      // Fetch real correlation data from API
+      const response = await fetch(`/api/v1/analytics/correlations?range=${timeRange}`);
       
-      // Sample correlation data
-      const sampleCorrelations: CorrelationData[] = [
-        {
-          factor1: 'GDP Growth',
-          factor2: 'Unemployment Rate',
-          correlation: -0.78,
-          pValue: 0.001,
-          significance: 'high',
-          relationship: 'negative'
-        },
-        {
-          factor1: 'GDP Growth',
-          factor2: 'Inflation Rate',
-          correlation: 0.45,
-          pValue: 0.023,
-          significance: 'medium',
-          relationship: 'positive'
-        },
-        {
-          factor1: 'GDP Growth',
-          factor2: 'Interest Rates',
-          correlation: 0.32,
-          pValue: 0.087,
-          significance: 'low',
-          relationship: 'positive'
-        },
-        {
-          factor1: 'GDP Growth',
-          factor2: 'Market Volatility',
-          correlation: -0.52,
-          pValue: 0.008,
-          significance: 'high',
-          relationship: 'negative'
-        },
-        {
-          factor1: 'Unemployment Rate',
-          factor2: 'Inflation Rate',
-          correlation: -0.34,
-          pValue: 0.056,
-          significance: 'low',
-          relationship: 'negative'
-        },
-        {
-          factor1: 'Unemployment Rate',
-          factor2: 'Interest Rates',
-          correlation: -0.41,
-          pValue: 0.034,
-          significance: 'medium',
-          relationship: 'negative'
-        },
-        {
-          factor1: 'Unemployment Rate',
-          factor2: 'Market Volatility',
-          correlation: 0.67,
-          pValue: 0.002,
-          significance: 'high',
-          relationship: 'positive'
-        },
-        {
-          factor1: 'Inflation Rate',
-          factor2: 'Interest Rates',
-          correlation: 0.73,
-          pValue: 0.001,
-          significance: 'high',
-          relationship: 'positive'
-        },
-        {
-          factor1: 'Inflation Rate',
-          factor2: 'Market Volatility',
-          correlation: 0.28,
-          pValue: 0.124,
-          significance: 'low',
-          relationship: 'positive'
-        },
-        {
-          factor1: 'Interest Rates',
-          factor2: 'Market Volatility',
-          correlation: 0.19,
-          pValue: 0.203,
-          significance: 'low',
-          relationship: 'positive'
-        }
-      ];
+      if (!response.ok) {
+        throw new Error('Failed to fetch correlation data');
+      }
       
-      setCorrelations(sampleCorrelations);
+      const data = await response.json();
+      const realCorrelations: CorrelationData[] = data.correlations || [];
+      
+      setCorrelations(realCorrelations);
     } catch (error) {
       console.error('Error fetching correlation data:', error);
     } finally {
