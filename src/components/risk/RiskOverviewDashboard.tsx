@@ -129,33 +129,33 @@ export default function RiskOverviewDashboard() {
         <div className={`${bloombergClasses.grid.cols4} gap-4`}>
           <MetricCard
             title="Economic Risk"
-            value={formatNumber(riskData.components.economic, 1)}
+            value={formatNumber(riskData.components?.economic || 0, 1)}
             trend={riskData.trend === 'rising' ? 'up' : riskData.trend === 'falling' ? 'down' : 'stable'}
-            status={riskData.components.economic >= 70 ? 'critical' : riskData.components.economic >= 40 ? 'warning' : 'good'}
+            status={(riskData.components?.economic || 0) >= 70 ? 'critical' : (riskData.components?.economic || 0) >= 40 ? 'warning' : 'good'}
             icon={TrendingUp}
           />
           
           <MetricCard
             title="Market Risk"
-            value={formatNumber(riskData.components.market, 1)}
+            value={formatNumber(riskData.components?.market || 0, 1)}
             trend={riskData.trend === 'rising' ? 'up' : riskData.trend === 'falling' ? 'down' : 'stable'}
-            status={riskData.components.market >= 70 ? 'critical' : riskData.components.market >= 40 ? 'warning' : 'good'}
+            status={(riskData.components?.market || 0) >= 70 ? 'critical' : (riskData.components?.market || 0) >= 40 ? 'warning' : 'good'}
             icon={TrendingUp}
           />
           
           <MetricCard
             title="Geopolitical Risk"
-            value={formatNumber(riskData.components.geopolitical, 1)}
+            value={formatNumber(riskData.components?.geopolitical || 0, 1)}
             trend={riskData.trend === 'rising' ? 'up' : riskData.trend === 'falling' ? 'down' : 'stable'}
-            status={riskData.components.geopolitical >= 70 ? 'critical' : riskData.components.geopolitical >= 40 ? 'warning' : 'good'}
+            status={(riskData.components?.geopolitical || 0) >= 70 ? 'critical' : (riskData.components?.geopolitical || 0) >= 40 ? 'warning' : 'good'}
             icon={AlertTriangle}
           />
           
           <MetricCard
             title="Technical Risk"
-            value={formatNumber(riskData.components.technical, 1)}
+            value={formatNumber(riskData.components?.technical || 0, 1)}
             trend={riskData.trend === 'rising' ? 'up' : riskData.trend === 'falling' ? 'down' : 'stable'}
-            status={riskData.components.technical >= 70 ? 'critical' : riskData.components.technical >= 40 ? 'warning' : 'good'}
+            status={(riskData.components?.technical || 0) >= 70 ? 'critical' : (riskData.components?.technical || 0) >= 40 ? 'warning' : 'good'}
             icon={Shield}
           />
         </div>
