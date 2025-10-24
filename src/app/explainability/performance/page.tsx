@@ -44,36 +44,13 @@ export default function ModelPerformancePage() {
     const fetchPerformanceMetrics = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/v1/explainability/performance/${selectedModel}`)
-        if (response.ok) {
-          const data = await response.json()
-          setMetrics(data)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'}/api/v1/explainability/performance/${selectedModel}`)
+        const data = await response.json()
+        
+        if (data.status === 'success' && data.data?.metrics) {
+          setMetrics(data.data.metrics)
         } else {
-          setMetrics({
-            modelName: 'Economic Risk Model',
-            accuracy: 0.892,
-            precision: 0.875,
-            recall: 0.903,
-            f1Score: 0.889,
-            auc: 0.945,
-            mse: 0.034,
-            mae: 0.127,
-            validationHistory: [
-              { epoch: 1, trainLoss: 0.245, valLoss: 0.267, accuracy: 0.782 },
-              { epoch: 5, trainLoss: 0.156, valLoss: 0.178, accuracy: 0.834 },
-              { epoch: 10, trainLoss: 0.089, valLoss: 0.112, accuracy: 0.867 },
-              { epoch: 15, trainLoss: 0.067, valLoss: 0.089, accuracy: 0.881 },
-              { epoch: 20, trainLoss: 0.054, valLoss: 0.076, accuracy: 0.892 }
-            ],
-            confusionMatrix: {
-              truePositive: 234,
-              falsePositive: 28,
-              trueNegative: 187,
-              falseNegative: 15
-            },
-            crossValidationScores: [0.887, 0.901, 0.885, 0.896, 0.892],
-            lastEvaluated: new Date().toISOString()
-          })
+          throw new Error('Performance metrics not available from backend')
         }
       } catch (error) {
         console.error('Error fetching performance metrics:', error)
@@ -107,10 +84,12 @@ export default function ModelPerformancePage() {
 
   if (!metrics) {
     return (
-      <div className="terminal-card p-8 text-center">
-        <BarChart3 className="h-12 w-12 text-amber-600 mx-auto mb-4" />
-        <h2 className="text-xl font-semibold text-heading mb-2">No Performance Data</h2>
-        <p className="text-muted">Performance metrics could not be loaded.</p>
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center">
+        <div className="text-slate-500">
+          <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <h3 className="text-lg font-semibold mb-2">No Model Performance Data Available</h3>
+          <p>Backend API must be fully functional to display model performance metrics.</p>
+        </div>
       </div>
     )
   }

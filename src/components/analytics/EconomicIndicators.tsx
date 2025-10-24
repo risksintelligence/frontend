@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, Minus, Users, Building, Globe } from 'lucide-react';
-import { bloombergClasses, formatNumber } from '@/lib/bloomberg-theme';
+import { TrendingUp, TrendingDown, Minus, Activity, DollarSign, Percent } from 'lucide-react';
 
 interface IndicatorData {
   id: string;
@@ -12,11 +11,9 @@ interface IndicatorData {
   change: number;
   changePercent: number;
   trend: 'rising' | 'falling' | 'stable';
-  category: 'growth' | 'employment' | 'inflation' | 'trade' | 'housing' | 'consumer';
+  category: 'economic' | 'employment' | 'inflation' | 'growth';
   lastUpdated: string;
   description: string;
-  target?: number;
-  targetType?: 'above' | 'below' | 'range';
 }
 
 interface EconomicIndicatorsProps {
@@ -37,243 +34,71 @@ export default function EconomicIndicators({ category = 'all', layout: initialLa
   const fetchIndicators = async () => {
     try {
       setLoading(true);
-      // In production, fetch from API
-      // const response = await fetch('/api/v1/analytics/economic-indicators');
-      // const data = await response.json();
+      // Fetch REAL data from working API endpoint
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'}/api/v1/economic/indicators`);
+      const data = await response.json();
       
-      // Sample economic indicators
-      const sampleIndicators: IndicatorData[] = [
-        {
-          id: 'gdp-growth',
-          name: 'GDP Growth Rate',
-          value: 2.1,
-          unit: '%',
-          change: -0.3,
-          changePercent: -12.5,
-          trend: 'falling',
-          category: 'growth',
-          lastUpdated: new Date().toISOString(),
-          description: 'Quarterly GDP growth rate (annualized)',
-          target: 2.5,
-          targetType: 'above'
-        },
-        {
-          id: 'unemployment',
-          name: 'Unemployment Rate',
-          value: 3.7,
-          unit: '%',
-          change: -0.1,
-          changePercent: -2.6,
-          trend: 'falling',
-          category: 'employment',
-          lastUpdated: new Date().toISOString(),
-          description: 'Monthly unemployment rate',
-          target: 4.0,
-          targetType: 'below'
-        },
-        {
-          id: 'inflation',
-          name: 'Consumer Price Index',
-          value: 3.2,
-          unit: '% YoY',
-          change: 0.4,
-          changePercent: 14.3,
-          trend: 'rising',
-          category: 'inflation',
-          lastUpdated: new Date().toISOString(),
-          description: 'Annual inflation rate',
-          target: 2.0,
-          targetType: 'range'
-        },
-        {
-          id: 'payrolls',
-          name: 'Nonfarm Payrolls',
-          value: 199,
-          unit: 'K jobs',
-          change: 15,
-          changePercent: 8.2,
-          trend: 'rising',
-          category: 'employment',
-          lastUpdated: new Date().toISOString(),
-          description: 'Monthly job creation (thousands)',
-          target: 200,
-          targetType: 'above'
-        },
-        {
-          id: 'manufacturing-pmi',
-          name: 'Manufacturing PMI',
-          value: 48.7,
-          unit: 'index',
-          change: -1.2,
-          changePercent: -2.4,
-          trend: 'falling',
-          category: 'growth',
-          lastUpdated: new Date().toISOString(),
-          description: 'Manufacturing activity index',
-          target: 50.0,
-          targetType: 'above'
-        },
-        {
-          id: 'trade-balance',
-          name: 'Trade Balance',
-          value: -68.9,
-          unit: 'billion USD',
-          change: -3.2,
-          changePercent: 4.9,
-          trend: 'falling',
-          category: 'trade',
-          lastUpdated: new Date().toISOString(),
-          description: 'Monthly trade deficit',
-          target: -60.0,
-          targetType: 'above'
-        },
-        {
-          id: 'consumer-spending',
-          name: 'Consumer Spending',
-          value: 0.7,
-          unit: '% MoM',
-          change: 0.2,
-          changePercent: 40.0,
-          trend: 'rising',
-          category: 'consumer',
-          lastUpdated: new Date().toISOString(),
-          description: 'Monthly personal consumption expenditure growth',
-          target: 0.5,
-          targetType: 'above'
-        },
-        {
-          id: 'housing-starts',
-          name: 'Housing Starts',
-          value: 1.35,
-          unit: 'million units',
-          change: -0.08,
-          changePercent: -5.6,
-          trend: 'falling',
-          category: 'housing',
-          lastUpdated: new Date().toISOString(),
-          description: 'Annualized housing construction activity',
-          target: 1.5,
-          targetType: 'above'
-        },
-        {
-          id: 'retail-sales',
-          name: 'Retail Sales',
-          value: 0.3,
-          unit: '% MoM',
-          change: -0.2,
-          changePercent: -40.0,
-          trend: 'falling',
-          category: 'consumer',
-          lastUpdated: new Date().toISOString(),
-          description: 'Monthly retail sales growth',
-          target: 0.4,
-          targetType: 'above'
-        },
-        {
-          id: 'industrial-production',
-          name: 'Industrial Production',
-          value: 0.2,
-          unit: '% MoM',
-          change: 0.1,
-          changePercent: 100.0,
-          trend: 'rising',
-          category: 'growth',
-          lastUpdated: new Date().toISOString(),
-          description: 'Monthly industrial output growth',
-          target: 0.3,
-          targetType: 'above'
-        }
-      ];
-      
-      setIndicators(sampleIndicators);
+      if (data.status === 'success' && data.data) {
+        // Transform real API data into component format
+        const realIndicators: IndicatorData[] = Object.entries(data.data).map(([key, indicator]: [string, any]) => ({
+          id: key,
+          name: indicator.title || key.replace('_', ' ').toUpperCase(),
+          value: indicator.value,
+          unit: indicator.units || '',
+          change: 0,
+          changePercent: 0,
+          trend: 'stable' as const,
+          category: 'economic' as const,
+          description: indicator.title || '',
+          lastUpdated: indicator.last_updated || new Date().toISOString()
+        }));
+        
+        setIndicators(realIndicators);
+      } else {
+        throw new Error('No economic data available from backend');
+      }
     } catch (error) {
-      console.error('Error fetching indicators:', error);
+      console.error('Error fetching economic indicators:', error);
+      setIndicators([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'growth': return DollarSign;
-      case 'employment': return Users;
-      case 'inflation': return TrendingUp;
-      case 'trade': return Globe;
-      case 'housing': return Building;
-      case 'consumer': return Users;
-      default: return DollarSign;
-    }
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'growth': return bloombergClasses.text.success;
-      case 'employment': return bloombergClasses.text.accent;
-      case 'inflation': return bloombergClasses.text.warning;
-      case 'trade': return bloombergClasses.text.secondary;
-      case 'housing': return bloombergClasses.text.accent;
-      case 'consumer': return bloombergClasses.text.primary;
-      default: return bloombergClasses.text.muted;
-    }
-  };
-
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'rising': return <TrendingUp className={`w-4 h-4 ${bloombergClasses.text.success}`} />;
-      case 'falling': return <TrendingDown className={`w-4 h-4 ${bloombergClasses.text.error}`} />;
-      default: return <Minus className={`w-4 h-4 ${bloombergClasses.text.muted}`} />;
+      case 'rising':
+        return <TrendingUp className="w-4 h-4 text-emerald-700" />;
+      case 'falling':
+        return <TrendingDown className="w-4 h-4 text-red-700" />;
+      default:
+        return <Minus className="w-4 h-4 text-slate-500" />;
     }
   };
 
-  const getTargetStatus = (indicator: IndicatorData) => {
-    if (!indicator.target || !indicator.targetType) return null;
-
-    const { value, target, targetType } = indicator;
-    let isOnTarget = false;
-    let status = '';
-
-    switch (targetType) {
-      case 'above':
-        isOnTarget = value >= target;
-        status = isOnTarget ? 'ABOVE TARGET' : 'BELOW TARGET';
-        break;
-      case 'below':
-        isOnTarget = value <= target;
-        status = isOnTarget ? 'BELOW TARGET' : 'ABOVE TARGET';
-        break;
-      case 'range':
-        const range = target * 0.5; // ±50% of target
-        isOnTarget = Math.abs(value - target) <= range;
-        status = isOnTarget ? 'IN RANGE' : 'OUT OF RANGE';
-        break;
+  const getValueColor = (trend: string) => {
+    switch (trend) {
+      case 'rising':
+        return 'text-emerald-700';
+      case 'falling':
+        return 'text-red-700';
+      default:
+        return 'text-slate-900';
     }
-
-    return {
-      isOnTarget,
-      status,
-      color: isOnTarget ? bloombergClasses.text.success : bloombergClasses.text.error
-    };
   };
 
-  const formatValue = (value: number, unit: string) => {
-    if (unit.includes('K')) {
-      return value.toFixed(0);
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'growth':
+        return <TrendingUp className="w-5 h-5 text-blue-700" />;
+      case 'employment':
+        return <Activity className="w-5 h-5 text-purple-700" />;
+      case 'inflation':
+        return <Percent className="w-5 h-5 text-amber-700" />;
+      default:
+        return <DollarSign className="w-5 h-5 text-slate-700" />;
     }
-    if (unit.includes('billion') || unit.includes('million')) {
-      return value.toFixed(1);
-    }
-    return value.toFixed(1);
   };
-
-  const categories = [
-    { key: 'all', label: 'All Indicators', count: indicators.length },
-    { key: 'growth', label: 'Economic Growth', count: indicators.filter(i => i.category === 'growth').length },
-    { key: 'employment', label: 'Employment', count: indicators.filter(i => i.category === 'employment').length },
-    { key: 'inflation', label: 'Inflation', count: indicators.filter(i => i.category === 'inflation').length },
-    { key: 'trade', label: 'Trade', count: indicators.filter(i => i.category === 'trade').length },
-    { key: 'housing', label: 'Housing', count: indicators.filter(i => i.category === 'housing').length },
-    { key: 'consumer', label: 'Consumer', count: indicators.filter(i => i.category === 'consumer').length }
-  ];
 
   const filteredIndicators = selectedCategory === 'all' 
     ? indicators 
@@ -281,254 +106,149 @@ export default function EconomicIndicators({ category = 'all', layout: initialLa
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-6 bg-terminal-bg rounded w-1/4 mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 9 }).map((_, i) => (
-              <div key={i} className="h-40 bg-terminal-bg rounded"></div>
-            ))}
-          </div>
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+              <div className="animate-pulse">
+                <div className="h-4 bg-slate-200 rounded w-3/4 mb-2"></div>
+                <div className="h-6 bg-slate-200 rounded w-1/2 mb-2"></div>
+                <div className="h-3 bg-slate-200 rounded w-1/4"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (indicators.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center">
+        <div className="text-slate-500">
+          <Activity className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <h3 className="text-lg font-semibold mb-2">No Economic Data Available</h3>
+          <p>Backend API must be fully functional to display real economic indicators.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`${bloombergClasses.terminal.main} space-y-6`}>
-      {/* Header */}
+    <div className="space-y-6">
+      {/* Header with Controls */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <DollarSign className={`w-6 h-6 ${bloombergClasses.text.success}`} />
-          <h2 className={`${bloombergClasses.text.primary} text-xl font-semibold uppercase tracking-wide`}>
-            ECONOMIC INDICATORS MONITOR
-          </h2>
+        <div>
+          <h2 className="text-xl font-semibold text-slate-900">Economic Indicators</h2>
+          <p className="text-sm text-slate-500">Real-time economic data from government sources</p>
         </div>
         
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setLayout(layout === 'grid' ? 'list' : 'grid')}
-            className={`${bloombergClasses.button.secondary} text-xs`}
+        <div className="flex items-center gap-4">
+          {/* Category Filter */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {layout === 'grid' ? 'LIST VIEW' : 'GRID VIEW'}
-          </button>
-        </div>
-      </div>
+            <option value="all">All Categories</option>
+            <option value="economic">Economic</option>
+            <option value="employment">Employment</option>
+            <option value="inflation">Inflation</option>
+            <option value="growth">Growth</option>
+          </select>
 
-      {/* Category Filters */}
-      <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => {
-            const Icon = getCategoryIcon(category.key);
-            const isSelected = selectedCategory === category.key;
-            
-            return (
-              <button
-                key={category.key}
-                onClick={() => setSelectedCategory(category.key)}
-                className={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${
-                  isSelected
-                    ? 'bg-terminal-green/20 text-terminal-green border border-terminal-green/30'
-                    : 'text-terminal-muted hover:text-terminal-text hover:bg-terminal-bg border border-terminal-border'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span className="font-mono text-sm">{category.label}</span>
-                <span className="bg-terminal-bg px-2 py-1 rounded text-xs font-mono">
-                  {category.count}
-                </span>
-              </button>
-            );
-          })}
+          {/* Layout Toggle */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setLayout('grid')}
+              className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
+                layout === 'grid'
+                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              GRID
+            </button>
+            <button
+              onClick={() => setLayout('list')}
+              className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
+                layout === 'list'
+                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              LIST
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Indicators Display */}
       {layout === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredIndicators.map((indicator) => {
-            const Icon = getCategoryIcon(indicator.category);
-            const categoryColor = getCategoryColor(indicator.category);
-            const targetStatus = getTargetStatus(indicator);
-            
-            return (
-              <div
-                key={indicator.id}
-                className="bg-terminal-surface border border-terminal-border p-4 rounded hover:bg-terminal-surface/80 transition-colors"
-              >
-                <div className="space-y-3">
-                  {/* Header */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Icon className={`w-4 h-4 ${categoryColor}`} />
-                      <span className="font-mono text-xs text-terminal-muted">
-                        {indicator.category.toUpperCase()}
-                      </span>
-                    </div>
-                    {getTrendIcon(indicator.trend)}
-                  </div>
-
-                  {/* Name */}
-                  <h3 className="font-mono font-semibold text-terminal-text text-sm">
-                    {indicator.name.toUpperCase()}
-                  </h3>
-
-                  {/* Value */}
-                  <div className="space-y-1">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-mono font-bold text-terminal-text">
-                        {formatValue(indicator.value, indicator.unit)}
-                      </span>
-                      <span className="text-terminal-muted font-mono text-xs">
-                        {indicator.unit}
-                      </span>
-                    </div>
-                    
-                    {/* Change */}
-                    <div className={`flex items-center gap-1 text-sm font-mono ${
-                      indicator.change > 0 ? 'text-terminal-green' : 
-                      indicator.change < 0 ? 'text-terminal-red' : 
-                      'text-terminal-muted'
-                    }`}>
-                      <span>
-                        {indicator.change > 0 ? '+' : ''}{indicator.change.toFixed(2)}
-                      </span>
-                      <span>
-                        ({indicator.changePercent > 0 ? '+' : ''}{indicator.changePercent.toFixed(1)}%)
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Target Status */}
-                  {targetStatus && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-terminal-muted font-mono text-xs">TARGET STATUS</span>
-                      <span className={`font-mono text-xs ${targetStatus.color}`}>
-                        {targetStatus.status}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Description */}
-                  <p className="text-terminal-muted font-mono text-xs leading-relaxed">
-                    {indicator.description}
-                  </p>
-
-                  {/* Last Updated */}
-                  <div className="text-terminal-muted font-mono text-xs">
-                    Updated: {new Date(indicator.lastUpdated).toLocaleTimeString()}
-                  </div>
+          {filteredIndicators.map((indicator) => (
+            <div key={indicator.id} className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  {getCategoryIcon(indicator.category)}
+                  <h3 className="font-medium text-slate-900 text-sm">{indicator.name}</h3>
+                </div>
+                {getTrendIcon(indicator.trend)}
+              </div>
+              
+              <div className="space-y-2">
+                <div className={`text-2xl font-bold font-mono ${getValueColor(indicator.trend)}`}>
+                  {typeof indicator.value === 'number' ? indicator.value.toLocaleString() : indicator.value}
+                  <span className="text-xs font-normal text-slate-500 ml-1">{indicator.unit}</span>
+                </div>
+                
+                <div className="text-xs text-slate-500">
+                  Updated: {new Date(indicator.lastUpdated).toLocaleString()}
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       ) : (
-        <div className="space-y-2">
-          {filteredIndicators.map((indicator) => {
-            const Icon = getCategoryIcon(indicator.category);
-            const categoryColor = getCategoryColor(indicator.category);
-            const targetStatus = getTargetStatus(indicator);
-            
-            return (
-              <div
-                key={indicator.id}
-                className="bg-terminal-surface border border-terminal-border p-4 rounded hover:bg-terminal-surface/80 transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Icon className={`w-5 h-5 ${categoryColor}`} />
-                    <div>
-                      <div className="font-mono font-semibold text-terminal-text text-sm">
-                        {indicator.name.toUpperCase()}
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th className="text-left py-3 px-4 text-xs font-medium text-slate-500 uppercase tracking-wider">Indicator</th>
+                  <th className="text-right py-3 px-4 text-xs font-medium text-slate-500 uppercase tracking-wider">Value</th>
+                  <th className="text-center py-3 px-4 text-xs font-medium text-slate-500 uppercase tracking-wider">Trend</th>
+                  <th className="text-right py-3 px-4 text-xs font-medium text-slate-500 uppercase tracking-wider">Last Updated</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {filteredIndicators.map((indicator) => (
+                  <tr key={indicator.id} className="hover:bg-slate-50">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        {getCategoryIcon(indicator.category)}
+                        <span className="font-medium text-slate-900">{indicator.name}</span>
                       </div>
-                      <div className="text-terminal-muted font-mono text-xs">
-                        {indicator.description}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-6">
-                    <div className="text-right">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-xl font-mono font-bold text-terminal-text">
-                          {formatValue(indicator.value, indicator.unit)}
-                        </span>
-                        <span className="text-terminal-muted font-mono text-xs">
-                          {indicator.unit}
-                        </span>
-                      </div>
-                      <div className={`text-sm font-mono ${
-                        indicator.change > 0 ? 'text-terminal-green' : 
-                        indicator.change < 0 ? 'text-terminal-red' : 
-                        'text-terminal-muted'
-                      }`}>
-                        {indicator.change > 0 ? '+' : ''}{indicator.change.toFixed(2)} ({indicator.changePercent > 0 ? '+' : ''}{indicator.changePercent.toFixed(1)}%)
-                      </div>
-                    </div>
-                    
-                    {targetStatus && (
-                      <div className="text-right">
-                        <div className="text-terminal-muted font-mono text-xs">TARGET</div>
-                        <div className={`font-mono text-xs ${targetStatus.color}`}>
-                          {targetStatus.status}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {getTrendIcon(indicator.trend)}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <span className={`font-mono font-semibold ${getValueColor(indicator.trend)}`}>
+                        {typeof indicator.value === 'number' ? indicator.value.toLocaleString() : indicator.value}
+                      </span>
+                      <span className="text-xs text-slate-500 ml-1">{indicator.unit}</span>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      {getTrendIcon(indicator.trend)}
+                    </td>
+                    <td className="py-3 px-4 text-right text-xs text-slate-500">
+                      {new Date(indicator.lastUpdated).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
-
-      {/* Summary */}
-      <div className="bg-terminal-surface border border-terminal-border p-6 rounded">
-        <h3 className="font-mono font-semibold text-terminal-text mb-4">
-          INDICATORS SUMMARY
-        </h3>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="text-center">
-            <div className="text-2xl font-mono font-bold text-terminal-green mb-1">
-              {indicators.filter(i => i.trend === 'rising').length}
-            </div>
-            <div className="text-terminal-muted font-mono text-xs">
-              RISING
-            </div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-2xl font-mono font-bold text-terminal-red mb-1">
-              {indicators.filter(i => i.trend === 'falling').length}
-            </div>
-            <div className="text-terminal-muted font-mono text-xs">
-              FALLING
-            </div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-2xl font-mono font-bold text-terminal-muted mb-1">
-              {indicators.filter(i => i.trend === 'stable').length}
-            </div>
-            <div className="text-terminal-muted font-mono text-xs">
-              STABLE
-            </div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-2xl font-mono font-bold text-terminal-text mb-1">
-              {indicators.length}
-            </div>
-            <div className="text-terminal-muted font-mono text-xs">
-              TOTAL TRACKED
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

@@ -12,11 +12,16 @@ export function useRiskOverview() {
       setLoading(true);
       setError(null);
 
-      // In production, this would call the actual API
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const response = await fetch(`${apiUrl}/api/v1/risk/overview`);
       
       if (!response.ok) {
+        if (response.status === 503) {
+          const errorData = await response.json().catch(() => ({ detail: 'Service temporarily unavailable' }));
+          setError(`System is warming up: ${errorData.detail || 'Economic data is being prepared'}`);
+          setLastUpdated(new Date().toLocaleTimeString());
+          return;
+        }
         throw new Error(`API Error: ${response.status}`);
       }
 
@@ -31,7 +36,11 @@ export function useRiskOverview() {
     } catch (err) {
       console.error('Risk data fetch error:', err);
       
-      setError(err instanceof Error ? err.message : 'Failed to fetch risk data');
+      if (err instanceof Error && err.message.includes('503')) {
+        setError('System is warming up - Economic data will be available shortly');
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to fetch risk data');
+      }
       setLastUpdated(new Date().toLocaleTimeString());
     } finally {
       setLoading(false);

@@ -74,25 +74,19 @@ export const economicApi = {
   getMarketIndicators: () => apiCall<any>('/api/v1/economic/market'),
 };
 
-// Analytics API
+// Analytics API - REAL BACKEND ENDPOINTS ONLY
 export const analyticsApi = {
-  // Get dashboard data
-  getDashboard: () => apiCall<DashboardData>('/api/v1/analytics/dashboard'),
+  // Get dashboard data from backend
+  getDashboard: () => apiCall<DashboardData>('/api/v1/dashboard'),
   
   // Get current risk analytics
-  getCurrentRiskAnalytics: () => apiCall<RiskScore>('/api/v1/analytics/risk/current'),
+  getCurrentRiskAnalytics: () => apiCall<RiskScore>('/api/v1/risk/overview'),
   
   // Get risk factors analytics
-  getFactorsAnalytics: (category?: string) => {
-    const params = category ? `?category=${category}` : '';
-    return apiCall<{ factors: RiskFactor[] }>(`/api/v1/analytics/factors${params}`);
-  },
+  getFactorsAnalytics: () => apiCall<{ factors: RiskFactor[] }>('/api/v1/risk/factors'),
   
-  // Get active alerts
-  getAlerts: (severity?: string) => {
-    const params = severity ? `?severity=${severity}` : '';
-    return apiCall<{ alerts: Alert[] }>(`/api/v1/analytics/alerts${params}`);
-  },
+  // Get active alerts from backend
+  getAlerts: () => apiCall<{ alerts: Alert[] }>('/api/v1/alerts'),
 };
 
 // External APIs

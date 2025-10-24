@@ -45,186 +45,95 @@ export default function AnalyticsMetrics({
   const fetchMetrics = async () => {
     try {
       setLoading(true);
-      // In production, fetch from API
-      // const response = await fetch('/api/v1/analytics/metrics');
-      // const data = await response.json();
       
-      // Sample analytics metrics
-      const sampleMetrics: MetricData[] = [
-        {
-          id: 'model-accuracy',
-          name: 'Overall Model Accuracy',
-          value: 94.2,
-          unit: '%',
-          change: 1.8,
-          changePercent: 1.9,
-          trend: 'up',
-          status: 'good',
-          target: 90,
-          category: 'accuracy',
-          description: 'Average prediction accuracy across all models',
-          lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'prediction-precision',
-          name: 'Prediction Precision',
-          value: 91.7,
-          unit: '%',
-          change: 0.3,
-          changePercent: 0.3,
-          trend: 'up',
-          status: 'good',
-          target: 85,
-          category: 'accuracy',
-          description: 'Precision of predictions (true positives / total predictions)',
-          lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'prediction-recall',
-          name: 'Prediction Recall',
-          value: 89.1,
-          unit: '%',
-          change: -0.5,
-          changePercent: -0.6,
-          trend: 'down',
-          status: 'warning',
-          target: 90,
-          category: 'accuracy',
-          description: 'Recall of predictions (true positives / actual positives)',
-          lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'f1-score',
-          name: 'F1 Score',
-          value: 90.4,
-          unit: '%',
-          change: -0.1,
-          changePercent: -0.1,
-          trend: 'stable',
-          status: 'good',
-          target: 85,
-          category: 'accuracy',
-          description: 'Harmonic mean of precision and recall',
-          lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'response-time',
-          name: 'Avg Response Time',
-          value: 127,
-          unit: 'ms',
-          change: -15,
-          changePercent: -10.6,
-          trend: 'down',
-          status: 'good',
-          target: 200,
-          category: 'performance',
-          description: 'Average API response time',
-          lastUpdated: new Date().toISOString()
-        },
-        {
+      const [healthResponse, cacheResponse] = await Promise.all([
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'}/api/v1/health`),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'}/api/v1/cache/metrics`)
+      ]);
+      
+      const [healthData, cacheData] = await Promise.all([
+        healthResponse.json(),
+        cacheResponse.json()
+      ]);
+      
+      const realMetrics: MetricData[] = [];
+      
+      if (cacheData.status === 'success' && cacheData.data?.metrics) {
+        const cacheMetrics = cacheData.data.metrics;
+        
+        realMetrics.push({
           id: 'cache-hit-rate',
           name: 'Cache Hit Rate',
-          value: 96.8,
+          value: cacheMetrics.hit_rate_percent || 0,
           unit: '%',
-          change: 1.2,
-          changePercent: 1.3,
-          trend: 'up',
-          status: 'good',
-          target: 95,
+          change: 0,
+          changePercent: 0,
+          trend: 'stable',
+          status: cacheMetrics.hit_rate_percent >= 80 ? 'good' : 'warning',
+          target: 80,
           category: 'performance',
           description: 'Percentage of requests served from cache',
           lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'throughput',
-          name: 'Request Throughput',
-          value: 1247,
-          unit: 'req/min',
-          change: 83,
-          changePercent: 7.1,
-          trend: 'up',
+        });
+        
+        realMetrics.push({
+          id: 'cache-requests',
+          name: 'Total Requests',
+          value: cacheMetrics.total_requests || 0,
+          unit: 'req',
+          change: 0,
+          changePercent: 0,
+          trend: 'stable',
           status: 'good',
-          target: 1000,
           category: 'performance',
-          description: 'Number of requests processed per minute',
+          description: 'Total number of cache requests',
           lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'data-freshness',
-          name: 'Data Freshness',
-          value: 98.5,
-          unit: '%',
-          change: -0.3,
-          changePercent: -0.3,
-          trend: 'down',
-          status: 'good',
-          target: 95,
-          category: 'data_quality',
-          description: 'Percentage of data updated within SLA',
-          lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'data-completeness',
-          name: 'Data Completeness',
-          value: 99.2,
-          unit: '%',
-          change: 0.1,
-          changePercent: 0.1,
-          trend: 'up',
-          status: 'good',
-          target: 98,
-          category: 'data_quality',
-          description: 'Percentage of expected data points available',
-          lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'data-accuracy',
-          name: 'Data Accuracy',
-          value: 97.8,
-          unit: '%',
-          change: -0.7,
-          changePercent: -0.7,
-          trend: 'down',
-          status: 'warning',
-          target: 98,
-          category: 'data_quality',
-          description: 'Percentage of data passing validation checks',
-          lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'system-uptime',
-          name: 'System Uptime',
-          value: 99.97,
-          unit: '%',
-          change: 0.02,
-          changePercent: 0.02,
-          trend: 'up',
-          status: 'good',
-          target: 99.9,
-          category: 'system',
-          description: 'System availability over the last 30 days',
-          lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'error-rate',
-          name: 'Error Rate',
-          value: 0.15,
-          unit: '%',
-          change: 0.02,
-          changePercent: 15.4,
-          trend: 'up',
-          status: 'warning',
-          target: 0.1,
-          category: 'system',
-          description: 'Percentage of requests resulting in errors',
-          lastUpdated: new Date().toISOString()
-        }
-      ];
+        });
+      }
       
-      setMetrics(sampleMetrics);
+      if (healthData.data?.components) {
+        const components = healthData.data.components;
+        
+        realMetrics.push({
+          id: 'system-health',
+          name: 'System Health',
+          value: components.api === 'operational' ? 100 : 0,
+          unit: '%',
+          change: 0,
+          changePercent: 0,
+          trend: 'stable',
+          status: components.api === 'operational' ? 'good' : 'critical',
+          target: 100,
+          category: 'system',
+          description: 'Overall API system health status',
+          lastUpdated: new Date().toISOString()
+        });
+        
+        realMetrics.push({
+          id: 'database-status',
+          name: 'Database Status',
+          value: components.database === 'operational' ? 100 : 0,
+          unit: '%',
+          change: 0,
+          changePercent: 0,
+          trend: 'stable',
+          status: components.database === 'operational' ? 'good' : 'critical',
+          target: 100,
+          category: 'system',
+          description: 'Database connection and health status',
+          lastUpdated: new Date().toISOString()
+        });
+      }
+      
+      if (realMetrics.length === 0) {
+        throw new Error('No metrics data available from backend');
+      }
+      
+      setMetrics(realMetrics);
       setLastRefresh(new Date());
     } catch (error) {
       console.error('Error fetching metrics:', error);
+      setMetrics([]);
     } finally {
       setLoading(false);
     }
@@ -232,27 +141,27 @@ export default function AnalyticsMetrics({
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'good': return <CheckCircle className="w-4 h-4 text-terminal-green" />;
-      case 'warning': return <AlertTriangle className="w-4 h-4 text-terminal-orange" />;
-      case 'critical': return <AlertTriangle className="w-4 h-4 text-terminal-red" />;
+      case 'good': return <CheckCircle className="w-4 h-4 text-emerald-700" />;
+      case 'warning': return <AlertTriangle className="w-4 h-4 text-amber-700" />;
+      case 'critical': return <AlertTriangle className="w-4 h-4 text-red-700" />;
       default: return null;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'good': return 'text-terminal-green';
-      case 'warning': return 'text-terminal-orange';
-      case 'critical': return 'text-terminal-red';
-      default: return 'text-terminal-muted';
+      case 'good': return 'text-emerald-700';
+      case 'warning': return 'text-amber-700';
+      case 'critical': return 'text-red-700';
+      default: return 'text-slate-500';
     }
   };
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'up': return <TrendingUp className="w-4 h-4 text-terminal-green" />;
-      case 'down': return <TrendingUp className="w-4 h-4 text-terminal-red rotate-180" />;
-      default: return <Target className="w-4 h-4 text-terminal-muted" />;
+      case 'up': return <TrendingUp className="w-4 h-4 text-emerald-700" />;
+      case 'down': return <TrendingUp className="w-4 h-4 text-red-700 rotate-180" />;
+      default: return <Target className="w-4 h-4 text-slate-500" />;
     }
   };
 
@@ -268,11 +177,11 @@ export default function AnalyticsMetrics({
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'performance': return 'text-terminal-blue';
-      case 'accuracy': return 'text-terminal-green';
-      case 'data_quality': return 'text-terminal-purple';
-      case 'system': return 'text-terminal-orange';
-      default: return 'text-terminal-muted';
+      case 'performance': return 'text-blue-700';
+      case 'accuracy': return 'text-emerald-700';
+      case 'data_quality': return 'text-purple-700';
+      case 'system': return 'text-amber-700';
+      default: return 'text-slate-500';
     }
   };
 
@@ -299,12 +208,24 @@ export default function AnalyticsMetrics({
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
-          <div className="h-6 bg-terminal-bg rounded w-1/4 mb-4"></div>
+          <div className="h-6 bg-white rounded w-1/4 mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-32 bg-terminal-bg rounded"></div>
+              <div key={i} className="h-32 bg-white rounded border border-slate-200"></div>
             ))}
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!loading && metrics.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center">
+        <div className="text-slate-500">
+          <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <h3 className="text-lg font-semibold mb-2">No Analytics Metrics Available</h3>
+          <p>Backend API must be fully functional to display system metrics.</p>
         </div>
       </div>
     );
@@ -315,31 +236,31 @@ export default function AnalyticsMetrics({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <BarChart3 className="w-6 h-6 text-terminal-blue" />
-          <h2 className="text-xl font-mono font-semibold text-terminal-text">
-            ANALYTICS METRICS DASHBOARD
+          <BarChart3 className="w-6 h-6 text-blue-700" />
+          <h2 className="text-xl font-semibold text-slate-900">
+            Analytics Metrics Dashboard
           </h2>
         </div>
         
         <div className="flex items-center gap-4">
           <div className="text-right">
-            <div className="text-terminal-muted font-mono text-xs">LAST REFRESH</div>
-            <div className="text-terminal-text font-mono text-sm">
+            <div className="text-slate-500 text-xs">Last Refresh</div>
+            <div className="text-slate-900 text-sm">
               {lastRefresh.toLocaleTimeString()}
             </div>
           </div>
           <button
             onClick={fetchMetrics}
             disabled={loading}
-            className="px-3 py-1 text-xs font-mono rounded bg-terminal-bg border border-terminal-border hover:bg-terminal-surface transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
-            {loading ? 'REFRESHING...' : 'REFRESH'}
+            {loading ? 'Refreshing...' : 'Refresh'}
           </button>
         </div>
       </div>
 
       {/* Category Filters */}
-      <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
+      <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
         <div className="flex flex-wrap gap-2">
           {categories.map((category) => {
             const Icon = getCategoryIcon(category.key);
@@ -351,13 +272,13 @@ export default function AnalyticsMetrics({
                 onClick={() => setSelectedCategory(category.key)}
                 className={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${
                   isSelected
-                    ? 'bg-terminal-blue/20 text-terminal-blue border border-terminal-blue/30'
-                    : 'text-terminal-muted hover:text-terminal-text hover:bg-terminal-bg border border-terminal-border'
+                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 border border-slate-200'
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span className="font-mono text-sm">{category.label}</span>
-                <span className="bg-terminal-bg px-2 py-1 rounded text-xs font-mono">
+                <span className="text-sm">{category.label}</span>
+                <span className="bg-slate-100 px-2 py-1 rounded text-xs">
                   {category.count}
                 </span>
               </button>
@@ -376,15 +297,15 @@ export default function AnalyticsMetrics({
           return (
             <div
               key={metric.id}
-              className="bg-terminal-surface border border-terminal-border p-4 rounded hover:bg-terminal-surface/80 transition-colors"
+              className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="space-y-3">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Icon className={`w-4 h-4 ${categoryColor}`} />
-                    <span className="font-mono text-xs text-terminal-muted">
-                      {metric.category.replace('_', ' ').toUpperCase()}
+                    <span className="text-xs text-slate-500">
+                      {metric.category.replace('_', ' ').charAt(0).toUpperCase() + metric.category.replace('_', ' ').slice(1)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -394,26 +315,26 @@ export default function AnalyticsMetrics({
                 </div>
 
                 {/* Name */}
-                <h3 className="font-mono font-semibold text-terminal-text text-sm">
-                  {metric.name.toUpperCase()}
+                <h3 className="font-semibold text-slate-900 text-sm">
+                  {metric.name}
                 </h3>
 
                 {/* Value */}
                 <div className="space-y-1">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-mono font-bold text-terminal-text">
+                    <span className="text-2xl font-mono font-bold text-slate-900">
                       {formatValue(metric.value, metric.unit)}
                     </span>
-                    <span className="text-terminal-muted font-mono text-xs">
+                    <span className="text-slate-500 text-xs">
                       {metric.unit}
                     </span>
                   </div>
                   
                   {/* Change */}
-                  <div className={`flex items-center gap-1 text-sm font-mono ${
-                    metric.change > 0 ? 'text-terminal-green' : 
-                    metric.change < 0 ? 'text-terminal-red' : 
-                    'text-terminal-muted'
+                  <div className={`flex items-center gap-1 text-sm ${
+                    metric.change > 0 ? 'text-emerald-700' : 
+                    metric.change < 0 ? 'text-red-700' : 
+                    'text-slate-500'
                   }`}>
                     <span>
                       {metric.change > 0 ? '+' : ''}{metric.change.toFixed(2)}
@@ -428,15 +349,19 @@ export default function AnalyticsMetrics({
                 {metric.target && (
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-terminal-muted font-mono text-xs">TARGET</span>
-                      <span className="text-terminal-text font-mono text-xs">
+                      <span className="text-slate-500 text-xs">Target</span>
+                      <span className="text-slate-900 text-xs">
                         {metric.target.toFixed(1)}{metric.unit}
                       </span>
                     </div>
                     
-                    <div className="w-full bg-terminal-bg rounded-full h-2">
+                    <div className="w-full bg-slate-200 rounded-full h-2">
                       <div 
-                        className={`h-2 rounded-full ${statusColor.replace('text-', 'bg-')}`}
+                        className={`h-2 rounded-full ${
+                          metric.status === 'good' ? 'bg-emerald-700' :
+                          metric.status === 'warning' ? 'bg-amber-700' :
+                          'bg-red-700'
+                        }`}
                         style={{ 
                           width: `${Math.min(100, (metric.value / metric.target) * 100)}%` 
                         }}
@@ -444,20 +369,20 @@ export default function AnalyticsMetrics({
                     </div>
                     
                     <div className="text-center">
-                      <span className={`font-mono text-xs ${statusColor}`}>
-                        {metric.value >= metric.target ? 'TARGET MET' : 'BELOW TARGET'}
+                      <span className={`text-xs ${statusColor}`}>
+                        {metric.value >= metric.target ? 'Target Met' : 'Below Target'}
                       </span>
                     </div>
                   </div>
                 )}
 
                 {/* Description */}
-                <p className="text-terminal-muted font-mono text-xs leading-relaxed">
+                <p className="text-slate-500 text-xs leading-relaxed">
                   {metric.description}
                 </p>
 
                 {/* Last Updated */}
-                <div className="text-terminal-muted font-mono text-xs">
+                <div className="text-slate-500 text-xs">
                   Updated: {new Date(metric.lastUpdated).toLocaleTimeString()}
                 </div>
               </div>
@@ -467,45 +392,45 @@ export default function AnalyticsMetrics({
       </div>
 
       {/* Summary Statistics */}
-      <div className="bg-terminal-surface border border-terminal-border p-6 rounded">
-        <h3 className="font-mono font-semibold text-terminal-text mb-4">
-          METRICS SUMMARY
+      <div className="bg-white border border-slate-200 p-6 rounded-lg shadow-sm">
+        <h3 className="font-semibold text-slate-900 mb-4">
+          Metrics Summary
         </h3>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="text-center">
-            <div className="text-2xl font-mono font-bold text-terminal-green mb-1">
+            <div className="text-2xl font-semibold text-emerald-700 mb-1">
               {metrics.filter(m => m.status === 'good').length}
             </div>
-            <div className="text-terminal-muted font-mono text-xs">
-              HEALTHY METRICS
+            <div className="text-slate-500 text-xs">
+              Healthy Metrics
             </div>
           </div>
           
           <div className="text-center">
-            <div className="text-2xl font-mono font-bold text-terminal-orange mb-1">
+            <div className="text-2xl font-semibold text-amber-700 mb-1">
               {metrics.filter(m => m.status === 'warning').length}
             </div>
-            <div className="text-terminal-muted font-mono text-xs">
-              WARNING METRICS
+            <div className="text-slate-500 text-xs">
+              Warning Metrics
             </div>
           </div>
           
           <div className="text-center">
-            <div className="text-2xl font-mono font-bold text-terminal-red mb-1">
+            <div className="text-2xl font-semibold text-red-700 mb-1">
               {metrics.filter(m => m.status === 'critical').length}
             </div>
-            <div className="text-terminal-muted font-mono text-xs">
-              CRITICAL METRICS
+            <div className="text-slate-500 text-xs">
+              Critical Metrics
             </div>
           </div>
           
           <div className="text-center">
-            <div className="text-2xl font-mono font-bold text-terminal-text mb-1">
+            <div className="text-2xl font-semibold text-slate-900 mb-1">
               {metrics.filter(m => m.target && m.value >= m.target).length}
             </div>
-            <div className="text-terminal-muted font-mono text-xs">
-              TARGETS MET
+            <div className="text-slate-500 text-xs">
+              Targets Met
             </div>
           </div>
         </div>

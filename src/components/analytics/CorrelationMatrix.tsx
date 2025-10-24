@@ -29,19 +29,18 @@ export default function CorrelationMatrix({ timeRange = '3m' }: CorrelationMatri
   const fetchCorrelationData = async () => {
     try {
       setLoading(true);
-      // Fetch real correlation data from API
-      const response = await fetch(`/api/v1/analytics/correlations?range=${timeRange}`);
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch correlation data');
-      }
-      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'}/api/v1/analytics/correlations?range=${timeRange}`);
       const data = await response.json();
-      const realCorrelations: CorrelationData[] = data.correlations || [];
       
-      setCorrelations(realCorrelations);
+      if (data.status === 'success' && data.data?.correlations) {
+        setCorrelations(data.data.correlations);
+      } else {
+        throw new Error('Correlation data not available from backend');
+      }
     } catch (error) {
       console.error('Error fetching correlation data:', error);
+      setCorrelations([]);
     } finally {
       setLoading(false);
     }
@@ -174,94 +173,104 @@ export default function CorrelationMatrix({ timeRange = '3m' }: CorrelationMatri
       </div>
 
       {/* Correlation Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredCorrelations.map((correlation, index) => {
-          const significance = getSignificanceLevel(correlation.significance);
-          
-          return (
-            <div
-              key={index}
-              className={`p-6 rounded border ${getCorrelationBg(correlation.correlation)} hover:bg-opacity-80 transition-colors`}
-            >
-              <div className="space-y-4">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {getRelationshipIcon(correlation.relationship)}
-                    <span className={`px-2 py-1 rounded text-xs font-mono ${significance.color} bg-terminal-bg border border-terminal-border`}>
-                      {significance.label} SIG
-                    </span>
-                  </div>
-                  <div className={`text-2xl font-mono font-bold ${getCorrelationColor(correlation.correlation)}`}>
-                    {correlation.correlation >= 0 ? '+' : ''}{correlation.correlation.toFixed(3)}
-                  </div>
-                </div>
-
-                {/* Factor Names */}
-                <div className="space-y-2">
-                  <div className="font-mono font-semibold text-terminal-text text-sm">
-                    {correlation.factor1.toUpperCase()}
-                  </div>
-                  <div className="text-terminal-muted font-mono text-xs">
-                    vs
-                  </div>
-                  <div className="font-mono font-semibold text-terminal-text text-sm">
-                    {correlation.factor2.toUpperCase()}
-                  </div>
-                </div>
-
-                {/* Statistics */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-terminal-muted font-mono text-xs mb-1">CORRELATION</div>
-                    <div className={`font-mono text-lg font-bold ${getCorrelationColor(correlation.correlation)}`}>
-                      {Math.abs(correlation.correlation).toFixed(3)}
+      {filteredCorrelations.length > 0 ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {filteredCorrelations.map((correlation, index) => {
+            const significance = getSignificanceLevel(correlation.significance);
+            
+            return (
+              <div
+                key={index}
+                className={`p-6 rounded border ${getCorrelationBg(correlation.correlation)} hover:bg-opacity-80 transition-colors`}
+              >
+                <div className="space-y-4">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {getRelationshipIcon(correlation.relationship)}
+                      <span className={`px-2 py-1 rounded text-xs font-mono ${significance.color} bg-terminal-bg border border-terminal-border`}>
+                        {significance.label} SIG
+                      </span>
+                    </div>
+                    <div className={`text-2xl font-mono font-bold ${getCorrelationColor(correlation.correlation)}`}>
+                      {correlation.correlation >= 0 ? '+' : ''}{correlation.correlation.toFixed(3)}
                     </div>
                   </div>
-                  
-                  <div>
-                    <div className="text-terminal-muted font-mono text-xs mb-1">P-VALUE</div>
-                    <div className="font-mono text-lg font-bold text-terminal-text">
-                      {correlation.pValue.toFixed(3)}
+
+                  {/* Factor Names */}
+                  <div className="space-y-2">
+                    <div className="font-mono font-semibold text-terminal-text text-sm">
+                      {correlation.factor1.toUpperCase()}
+                    </div>
+                    <div className="text-terminal-muted font-mono text-xs">
+                      vs
+                    </div>
+                    <div className="font-mono font-semibold text-terminal-text text-sm">
+                      {correlation.factor2.toUpperCase()}
                     </div>
                   </div>
-                </div>
 
-                {/* Strength Indicator */}
-                <div>
-                  <div className="text-terminal-muted font-mono text-xs mb-2">RELATIONSHIP STRENGTH</div>
-                  <div className="w-full bg-terminal-bg rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full ${correlation.correlation >= 0 ? 'bg-terminal-green' : 'bg-terminal-red'}`}
-                      style={{ width: `${Math.abs(correlation.correlation) * 100}%` }}
-                    ></div>
+                  {/* Statistics */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-terminal-muted font-mono text-xs mb-1">CORRELATION</div>
+                      <div className={`font-mono text-lg font-bold ${getCorrelationColor(correlation.correlation)}`}>
+                        {Math.abs(correlation.correlation).toFixed(3)}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-terminal-muted font-mono text-xs mb-1">P-VALUE</div>
+                      <div className="font-mono text-lg font-bold text-terminal-text">
+                        {correlation.pValue.toFixed(3)}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-xs font-mono text-terminal-muted mt-1">
-                    <span>WEAK</span>
-                    <span>STRONG</span>
-                  </div>
-                </div>
 
-                {/* Interpretation */}
-                <div className="bg-terminal-bg p-3 rounded border border-terminal-border">
-                  <div className="text-terminal-muted font-mono text-xs mb-1">INTERPRETATION</div>
-                  <div className="text-terminal-text font-mono text-xs">
-                    {Math.abs(correlation.correlation) >= 0.7 && (
-                      <span>Strong {correlation.relationship} correlation indicates these factors move closely together.</span>
-                    )}
-                    {Math.abs(correlation.correlation) >= 0.5 && Math.abs(correlation.correlation) < 0.7 && (
-                      <span>Moderate {correlation.relationship} correlation suggests these factors are related but not tightly coupled.</span>
-                    )}
-                    {Math.abs(correlation.correlation) < 0.5 && (
-                      <span>Weak correlation indicates limited relationship between these factors.</span>
-                    )}
+                  {/* Strength Indicator */}
+                  <div>
+                    <div className="text-terminal-muted font-mono text-xs mb-2">RELATIONSHIP STRENGTH</div>
+                    <div className="w-full bg-terminal-bg rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full ${correlation.correlation >= 0 ? 'bg-terminal-green' : 'bg-terminal-red'}`}
+                        style={{ width: `${Math.abs(correlation.correlation) * 100}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between text-xs font-mono text-terminal-muted mt-1">
+                      <span>WEAK</span>
+                      <span>STRONG</span>
+                    </div>
+                  </div>
+
+                  {/* Interpretation */}
+                  <div className="bg-terminal-bg p-3 rounded border border-terminal-border">
+                    <div className="text-terminal-muted font-mono text-xs mb-1">INTERPRETATION</div>
+                    <div className="text-terminal-text font-mono text-xs">
+                      {Math.abs(correlation.correlation) >= 0.7 && (
+                        <span>Strong {correlation.relationship} correlation indicates these factors move closely together.</span>
+                      )}
+                      {Math.abs(correlation.correlation) >= 0.5 && Math.abs(correlation.correlation) < 0.7 && (
+                        <span>Moderate {correlation.relationship} correlation suggests these factors are related but not tightly coupled.</span>
+                      )}
+                      {Math.abs(correlation.correlation) < 0.5 && (
+                        <span>Weak correlation indicates limited relationship between these factors.</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center">
+          <div className="text-slate-500">
+            <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <h3 className="text-lg font-semibold mb-2">No Correlation Data Available</h3>
+            <p>Backend API must be fully functional to display correlation analysis.</p>
+          </div>
+        </div>
+      )}
 
       {/* Summary Statistics */}
       <div className="bg-terminal-surface border border-terminal-border p-6 rounded">

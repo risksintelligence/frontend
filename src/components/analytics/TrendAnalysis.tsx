@@ -1,14 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, Minus, BarChart, Calendar, Filter } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, BarChart, Filter } from 'lucide-react';
 
-interface TrendData {
-  date: string;
-  value: number;
-  indicator: string;
-  category: string;
-}
 
 interface TrendAnalysisResult {
   indicator: string;
@@ -40,137 +34,18 @@ export default function TrendAnalysis({ timeRange = '6m' }: TrendAnalysisProps) 
   const fetchTrendAnalysis = async () => {
     try {
       setLoading(true);
-      // In production, fetch from API
-      // const response = await fetch(`/api/v1/analytics/trends?range=${timeRange}`);
-      // const data = await response.json();
       
-      // Sample trend analysis results
-      const sampleResults: TrendAnalysisResult[] = [
-        {
-          indicator: 'GDP Growth Rate',
-          category: 'economic',
-          trend: 'falling',
-          strength: 'moderate',
-          slope: -0.15,
-          correlation: -0.78,
-          r_squared: 0.61,
-          volatility: 12.4,
-          recent_change: -0.3,
-          recent_change_percent: -12.5
-        },
-        {
-          indicator: 'Unemployment Rate',
-          category: 'employment',
-          trend: 'stable',
-          strength: 'weak',
-          slope: 0.02,
-          correlation: 0.23,
-          r_squared: 0.05,
-          volatility: 8.7,
-          recent_change: -0.1,
-          recent_change_percent: -2.6
-        },
-        {
-          indicator: 'Consumer Price Index',
-          category: 'inflation',
-          trend: 'rising',
-          strength: 'strong',
-          slope: 0.28,
-          correlation: 0.89,
-          r_squared: 0.79,
-          volatility: 15.2,
-          recent_change: 0.4,
-          recent_change_percent: 14.3
-        },
-        {
-          indicator: 'Federal Funds Rate',
-          category: 'monetary',
-          trend: 'rising',
-          strength: 'strong',
-          slope: 0.45,
-          correlation: 0.92,
-          r_squared: 0.85,
-          volatility: 22.1,
-          recent_change: 0.25,
-          recent_change_percent: 5.0
-        },
-        {
-          indicator: 'Manufacturing PMI',
-          category: 'economic',
-          trend: 'falling',
-          strength: 'moderate',
-          slope: -0.18,
-          correlation: -0.65,
-          r_squared: 0.42,
-          volatility: 9.8,
-          recent_change: -1.2,
-          recent_change_percent: -2.4
-        },
-        {
-          indicator: 'Consumer Confidence',
-          category: 'sentiment',
-          trend: 'falling',
-          strength: 'weak',
-          slope: -0.08,
-          correlation: -0.45,
-          r_squared: 0.20,
-          volatility: 18.5,
-          recent_change: -2.1,
-          recent_change_percent: -2.0
-        },
-        {
-          indicator: 'Housing Price Index',
-          category: 'housing',
-          trend: 'rising',
-          strength: 'moderate',
-          slope: 0.22,
-          correlation: 0.71,
-          r_squared: 0.50,
-          volatility: 6.3,
-          recent_change: 0.8,
-          recent_change_percent: 2.1
-        },
-        {
-          indicator: 'Corporate Bond Spreads',
-          category: 'financial',
-          trend: 'rising',
-          strength: 'moderate',
-          slope: 0.12,
-          correlation: 0.58,
-          r_squared: 0.34,
-          volatility: 25.7,
-          recent_change: 8.5,
-          recent_change_percent: 9.5
-        },
-        {
-          indicator: 'Dollar Index (DXY)',
-          category: 'currency',
-          trend: 'stable',
-          strength: 'weak',
-          slope: -0.03,
-          correlation: -0.18,
-          r_squared: 0.03,
-          volatility: 11.2,
-          recent_change: -0.2,
-          recent_change_percent: -0.2
-        },
-        {
-          indicator: 'Oil Prices (WTI)',
-          category: 'commodities',
-          trend: 'falling',
-          strength: 'strong',
-          slope: -0.35,
-          correlation: -0.81,
-          r_squared: 0.66,
-          volatility: 28.9,
-          recent_change: -4.2,
-          recent_change_percent: -5.3
-        }
-      ];
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'}/api/v1/analytics/trends?range=${timeRange}`);
+      const data = await response.json();
       
-      setTrendResults(sampleResults);
+      if (data.status === 'success' && data.data) {
+        setTrendResults(data.data.trends || []);
+      } else {
+        throw new Error('Trend analysis data not available from backend');
+      }
     } catch (error) {
       console.error('Error fetching trend analysis:', error);
+      setTrendResults([]);
     } finally {
       setLoading(false);
     }
@@ -178,43 +53,12 @@ export default function TrendAnalysis({ timeRange = '6m' }: TrendAnalysisProps) 
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'rising': return <TrendingUp className="w-4 h-4 text-terminal-green" />;
-      case 'falling': return <TrendingDown className="w-4 h-4 text-terminal-red" />;
-      default: return <Minus className="w-4 h-4 text-terminal-muted" />;
+      case 'rising': return <TrendingUp className="w-4 h-4 text-emerald-700" />;
+      case 'falling': return <TrendingDown className="w-4 h-4 text-red-700" />;
+      default: return <Minus className="w-4 h-4 text-slate-500" />;
     }
   };
 
-  const getTrendColor = (trend: string) => {
-    switch (trend) {
-      case 'rising': return 'text-terminal-green';
-      case 'falling': return 'text-terminal-red';
-      default: return 'text-terminal-muted';
-    }
-  };
-
-  const getStrengthColor = (strength: string) => {
-    switch (strength) {
-      case 'strong': return 'text-terminal-green';
-      case 'moderate': return 'text-terminal-orange';
-      case 'weak': return 'text-terminal-muted';
-      default: return 'text-terminal-muted';
-    }
-  };
-
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      economic: 'text-terminal-green',
-      employment: 'text-terminal-blue',
-      inflation: 'text-terminal-orange',
-      monetary: 'text-terminal-purple',
-      sentiment: 'text-terminal-yellow',
-      housing: 'text-terminal-cyan',
-      financial: 'text-terminal-red',
-      currency: 'text-terminal-pink',
-      commodities: 'text-terminal-brown'
-    };
-    return colors[category] || 'text-terminal-muted';
-  };
 
   const sortResults = (results: TrendAnalysisResult[]) => {
     return [...results].sort((a, b) => {
@@ -255,12 +99,24 @@ export default function TrendAnalysis({ timeRange = '6m' }: TrendAnalysisProps) 
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
-          <div className="h-6 bg-terminal-bg rounded w-1/4 mb-4"></div>
+          <div className="h-6 bg-white rounded w-1/4 mb-4"></div>
           <div className="space-y-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-16 bg-terminal-bg rounded"></div>
+              <div key={i} className="h-16 bg-white rounded border border-slate-200"></div>
             ))}
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (trendResults.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center">
+        <div className="text-slate-500">
+          <BarChart className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <h3 className="text-lg font-semibold mb-2">No Trend Analysis Data Available</h3>
+          <p>Backend API must be fully functional to display statistical trend analysis.</p>
         </div>
       </div>
     );
@@ -271,9 +127,9 @@ export default function TrendAnalysis({ timeRange = '6m' }: TrendAnalysisProps) 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <BarChart className="w-6 h-6 text-terminal-green" />
-          <h2 className="text-xl font-mono font-semibold text-terminal-text">
-            STATISTICAL TREND ANALYSIS
+          <BarChart className="w-6 h-6 text-blue-700" />
+          <h2 className="text-xl font-semibold text-slate-900">
+            Statistical Trend Analysis
           </h2>
         </div>
         
@@ -284,49 +140,49 @@ export default function TrendAnalysis({ timeRange = '6m' }: TrendAnalysisProps) 
               onClick={() => fetchTrendAnalysis()}
               className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
                 timeRange === range.key
-                  ? 'bg-terminal-green/20 text-terminal-green border border-terminal-green/30'
-                  : 'text-terminal-muted hover:text-terminal-text hover:bg-terminal-bg'
+                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
-              {range.label.toUpperCase()}
+              {range.label}
             </button>
           ))}
         </div>
       </div>
 
       {/* Filters and Controls */}
-      <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
+      <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-terminal-muted" />
-            <span className="font-mono text-sm text-terminal-muted">CATEGORY:</span>
+            <Filter className="w-4 h-4 text-slate-500" />
+            <span className="text-sm text-slate-500">Category:</span>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-terminal-bg border border-terminal-border text-terminal-text font-mono text-sm px-3 py-1 rounded"
+              className="bg-white border border-slate-300 text-slate-900 text-sm px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {categories.map(category => (
                 <option key={category} value={category}>
-                  {category.toUpperCase()}
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
                 </option>
               ))}
             </select>
           </div>
           
           <div className="flex items-center gap-2">
-            <span className="font-mono text-sm text-terminal-muted">SORT BY:</span>
+            <span className="text-sm text-slate-500">Sort by:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-terminal-bg border border-terminal-border text-terminal-text font-mono text-sm px-3 py-1 rounded"
+              className="bg-white border border-slate-300 text-slate-900 text-sm px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="strength">TREND STRENGTH</option>
-              <option value="volatility">VOLATILITY</option>
-              <option value="change">RECENT CHANGE</option>
+              <option value="strength">Trend Strength</option>
+              <option value="volatility">Volatility</option>
+              <option value="change">Recent Change</option>
             </select>
           </div>
           
-          <div className="text-terminal-muted font-mono text-sm">
+          <div className="text-slate-500 text-sm">
             {sortedResults.length} indicators analyzed
           </div>
         </div>
@@ -334,103 +190,111 @@ export default function TrendAnalysis({ timeRange = '6m' }: TrendAnalysisProps) 
 
       {/* Summary Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
-          <div className="text-terminal-muted font-mono text-xs mb-1">RISING TRENDS</div>
-          <div className="text-2xl font-mono font-bold text-terminal-green">
+        <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+          <div className="text-slate-500 text-xs mb-1">RISING TRENDS</div>
+          <div className="text-2xl font-semibold text-emerald-700">
             {trendResults.filter(r => r.trend === 'rising').length}
           </div>
         </div>
         
-        <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
-          <div className="text-terminal-muted font-mono text-xs mb-1">FALLING TRENDS</div>
-          <div className="text-2xl font-mono font-bold text-terminal-red">
+        <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+          <div className="text-slate-500 text-xs mb-1">FALLING TRENDS</div>
+          <div className="text-2xl font-semibold text-red-700">
             {trendResults.filter(r => r.trend === 'falling').length}
           </div>
         </div>
         
-        <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
-          <div className="text-terminal-muted font-mono text-xs mb-1">STABLE TRENDS</div>
-          <div className="text-2xl font-mono font-bold text-terminal-muted">
+        <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+          <div className="text-slate-500 text-xs mb-1">STABLE TRENDS</div>
+          <div className="text-2xl font-semibold text-slate-500">
             {trendResults.filter(r => r.trend === 'stable').length}
           </div>
         </div>
         
-        <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
-          <div className="text-terminal-muted font-mono text-xs mb-1">STRONG TRENDS</div>
-          <div className="text-2xl font-mono font-bold text-terminal-green">
+        <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+          <div className="text-slate-500 text-xs mb-1">STRONG TRENDS</div>
+          <div className="text-2xl font-semibold text-emerald-700">
             {trendResults.filter(r => r.strength === 'strong').length}
           </div>
         </div>
       </div>
 
       {/* Trend Analysis Results */}
-      <div className="bg-terminal-surface border border-terminal-border rounded">
-        <div className="p-4 border-b border-terminal-border">
-          <h3 className="font-mono font-semibold text-terminal-text">
-            TREND ANALYSIS RESULTS
+      <div className="bg-white border border-slate-200 rounded-lg shadow-sm">
+        <div className="p-4 border-b border-slate-200">
+          <h3 className="font-semibold text-slate-900">
+            Trend Analysis Results
           </h3>
         </div>
         
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-terminal-bg">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="text-left p-4 font-mono text-xs text-terminal-muted">INDICATOR</th>
-                <th className="text-left p-4 font-mono text-xs text-terminal-muted">CATEGORY</th>
-                <th className="text-left p-4 font-mono text-xs text-terminal-muted">TREND</th>
-                <th className="text-left p-4 font-mono text-xs text-terminal-muted">STRENGTH</th>
-                <th className="text-left p-4 font-mono text-xs text-terminal-muted">R²</th>
-                <th className="text-left p-4 font-mono text-xs text-terminal-muted">VOLATILITY</th>
-                <th className="text-left p-4 font-mono text-xs text-terminal-muted">RECENT CHANGE</th>
+                <th className="text-left p-4 text-xs text-slate-500 uppercase tracking-wider">Indicator</th>
+                <th className="text-left p-4 text-xs text-slate-500 uppercase tracking-wider">Category</th>
+                <th className="text-left p-4 text-xs text-slate-500 uppercase tracking-wider">Trend</th>
+                <th className="text-left p-4 text-xs text-slate-500 uppercase tracking-wider">Strength</th>
+                <th className="text-left p-4 text-xs text-slate-500 uppercase tracking-wider">R²</th>
+                <th className="text-left p-4 text-xs text-slate-500 uppercase tracking-wider">Volatility</th>
+                <th className="text-left p-4 text-xs text-slate-500 uppercase tracking-wider">Recent Change</th>
               </tr>
             </thead>
             <tbody>
               {sortedResults.map((result, index) => (
-                <tr key={index} className="border-b border-terminal-border hover:bg-terminal-bg/50 transition-colors">
+                <tr key={index} className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
                   <td className="p-4">
-                    <div className="font-mono text-sm text-terminal-text font-semibold">
+                    <div className="text-sm text-slate-900 font-semibold">
                       {result.indicator}
                     </div>
                   </td>
                   
                   <td className="p-4">
-                    <span className={`px-2 py-1 rounded text-xs font-mono ${getCategoryColor(result.category)} bg-terminal-surface border border-terminal-border`}>
-                      {result.category.toUpperCase()}
+                    <span className="px-2 py-1 rounded text-xs bg-slate-100 text-slate-700 border border-slate-200">
+                      {result.category.charAt(0).toUpperCase() + result.category.slice(1)}
                     </span>
                   </td>
                   
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       {getTrendIcon(result.trend)}
-                      <span className={`font-mono text-sm ${getTrendColor(result.trend)}`}>
-                        {result.trend.toUpperCase()}
+                      <span className={`text-sm ${
+                        result.trend === 'rising' ? 'text-emerald-700' : 
+                        result.trend === 'falling' ? 'text-red-700' : 
+                        'text-slate-500'
+                      }`}>
+                        {result.trend.charAt(0).toUpperCase() + result.trend.slice(1)}
                       </span>
                     </div>
                   </td>
                   
                   <td className="p-4">
-                    <span className={`font-mono text-sm ${getStrengthColor(result.strength)}`}>
-                      {result.strength.toUpperCase()}
+                    <span className={`text-sm ${
+                      result.strength === 'strong' ? 'text-emerald-700' : 
+                      result.strength === 'moderate' ? 'text-amber-700' : 
+                      'text-slate-500'
+                    }`}>
+                      {result.strength.charAt(0).toUpperCase() + result.strength.slice(1)}
                     </span>
                   </td>
                   
                   <td className="p-4">
-                    <span className="font-mono text-sm text-terminal-text">
+                    <span className="font-mono text-sm text-slate-900">
                       {result.r_squared.toFixed(3)}
                     </span>
                   </td>
                   
                   <td className="p-4">
-                    <span className="font-mono text-sm text-terminal-text">
+                    <span className="font-mono text-sm text-slate-900">
                       {result.volatility.toFixed(1)}%
                     </span>
                   </td>
                   
                   <td className="p-4">
                     <div className={`font-mono text-sm ${
-                      result.recent_change > 0 ? 'text-terminal-green' : 
-                      result.recent_change < 0 ? 'text-terminal-red' : 
-                      'text-terminal-muted'
+                      result.recent_change > 0 ? 'text-emerald-700' : 
+                      result.recent_change < 0 ? 'text-red-700' : 
+                      'text-slate-500'
                     }`}>
                       {result.recent_change > 0 ? '+' : ''}{result.recent_change.toFixed(2)}
                       <span className="text-xs ml-1">
@@ -446,18 +310,18 @@ export default function TrendAnalysis({ timeRange = '6m' }: TrendAnalysisProps) 
       </div>
 
       {/* Statistical Methodology */}
-      <div className="bg-terminal-surface border border-terminal-border p-6 rounded">
-        <h3 className="font-mono font-semibold text-terminal-text mb-4">
-          STATISTICAL METHODOLOGY
+      <div className="bg-white border border-slate-200 p-6 rounded-lg shadow-sm">
+        <h3 className="font-semibold text-slate-900 mb-4">
+          Statistical Methodology
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-mono font-semibold text-terminal-text text-sm mb-3">
-              TREND CLASSIFICATION
+            <h4 className="font-semibold text-slate-900 text-sm mb-3">
+              Trend Classification
             </h4>
             
-            <div className="space-y-2 text-xs font-mono text-terminal-muted">
+            <div className="space-y-2 text-xs text-slate-500">
               <div><strong>Rising:</strong> Positive slope with R² &gt; 0.3</div>
               <div><strong>Falling:</strong> Negative slope with R² &gt; 0.3</div>
               <div><strong>Stable:</strong> Low slope magnitude or R² &lt; 0.3</div>
@@ -465,11 +329,11 @@ export default function TrendAnalysis({ timeRange = '6m' }: TrendAnalysisProps) 
           </div>
           
           <div>
-            <h4 className="font-mono font-semibold text-terminal-text text-sm mb-3">
-              STRENGTH METRICS
+            <h4 className="font-semibold text-slate-900 text-sm mb-3">
+              Strength Metrics
             </h4>
             
-            <div className="space-y-2 text-xs font-mono text-terminal-muted">
+            <div className="space-y-2 text-xs text-slate-500">
               <div><strong>Strong:</strong> R² &gt; 0.7</div>
               <div><strong>Moderate:</strong> 0.3 &lt; R² ≤ 0.7</div>
               <div><strong>Weak:</strong> R² ≤ 0.3</div>

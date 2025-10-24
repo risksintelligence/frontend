@@ -42,104 +42,18 @@ export default function ForecastCharts({
   const fetchForecastData = useCallback(async () => {
     try {
       setLoading(true);
-      // In production, fetch from API
-      // const response = await fetch(`/api/v1/analytics/forecasts?horizon=${timeHorizon}`);
-      // const data = await response.json();
       
-      // Generate forecast visualization data
-      const generateForecastData = (baseValue: number, trend: number, volatility: number) => {
-        const data: ForecastPoint[] = [];
-        const now = new Date();
-        
-        // Historical data (last 3 months)
-        for (let i = -90; i <= 0; i += 7) {
-          const date = new Date(now.getTime() + i * 24 * 60 * 60 * 1000);
-          const noise = (Math.random() - 0.5) * volatility;
-          const trendValue = baseValue + (trend * i / 90);
-          const actual = Math.max(0, trendValue + noise);
-          
-          data.push({
-            date: date.toISOString().split('T')[0],
-            actual,
-            forecast: actual, // Historical forecast matches actual for past data
-            upperBound: actual + volatility * 0.5,
-            lowerBound: Math.max(0, actual - volatility * 0.5),
-            confidence: 0.95
-          });
-        }
-        
-        // Future forecasts
-        const horizonDays = timeHorizon === '1m' ? 30 : timeHorizon === '3m' ? 90 : timeHorizon === '6m' ? 180 : 365;
-        for (let i = 1; i <= horizonDays; i += 7) {
-          const date = new Date(now.getTime() + i * 24 * 60 * 60 * 1000);
-          const trendValue = baseValue + (trend * i / 90);
-          const uncertainty = volatility * (1 + i / horizonDays); // Increasing uncertainty over time
-          const forecast = Math.max(0, trendValue);
-          const confidence = Math.max(0.5, 0.95 - (i / horizonDays) * 0.3); // Decreasing confidence
-          
-          data.push({
-            date: date.toISOString().split('T')[0],
-            forecast,
-            upperBound: forecast + uncertainty,
-            lowerBound: Math.max(0, forecast - uncertainty),
-            confidence
-          });
-        }
-        
-        return data;
-      };
-
-      const sampleForecastSeries: ForecastSeries[] = [
-        {
-          id: 'gdp-forecast',
-          name: 'GDP Growth Rate',
-          unit: '%',
-          category: 'economic',
-          data: generateForecastData(2.1, 0.3, 0.5),
-          accuracy: 94.2,
-          lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'unemployment-forecast',
-          name: 'Unemployment Rate',
-          unit: '%',
-          category: 'economic',
-          data: generateForecastData(3.7, 0.4, 0.3),
-          accuracy: 89.5,
-          lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'inflation-forecast',
-          name: 'Inflation Rate',
-          unit: '%',
-          category: 'economic',
-          data: generateForecastData(3.2, -0.8, 0.6),
-          accuracy: 87.8,
-          lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'market-volatility-forecast',
-          name: 'Market Volatility Index',
-          unit: 'VIX',
-          category: 'market',
-          data: generateForecastData(18.5, 3.2, 4.5),
-          accuracy: 82.1,
-          lastUpdated: new Date().toISOString()
-        },
-        {
-          id: 'risk-score-forecast',
-          name: 'Risk Score',
-          unit: 'index',
-          category: 'risk',
-          data: generateForecastData(65.3, 5.8, 8.2),
-          accuracy: 85.7,
-          lastUpdated: new Date().toISOString()
-        }
-      ];
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'}/api/v1/analytics/forecasts?horizon=${timeHorizon}`);
+      const data = await response.json();
       
-      setForecastSeries(sampleForecastSeries);
+      if (data.status === 'success' && data.data?.forecasts) {
+        setForecastSeries(data.data.forecasts);
+      } else {
+        throw new Error('Forecast data not available from backend');
+      }
     } catch (error) {
       console.error('Error fetching forecast data:', error);
+      setForecastSeries([]);
     } finally {
       setLoading(false);
     }
@@ -173,15 +87,15 @@ export default function ForecastCharts({
       const date = new Date(label).toLocaleDateString();
       
       return (
-        <div className="bg-terminal-surface border border-terminal-border p-3 rounded shadow-lg">
-          <p className="font-mono text-sm text-terminal-text mb-2">{date}</p>
+        <div className="bg-white border border-slate-200 p-3 rounded-lg shadow-lg">
+          <p className="text-sm text-slate-900 mb-2">{date}</p>
           {payload.map((item: any, index: number) => (
             <div key={index} className="flex items-center gap-2">
               <div 
                 className="w-3 h-3 rounded-full" 
                 style={{ backgroundColor: item.color }}
               ></div>
-              <span className="font-mono text-xs text-terminal-text">
+              <span className="text-xs text-slate-900">
                 {item.name}: {item.value.toFixed(2)}{currentSeries?.unit}
               </span>
             </div>
@@ -196,18 +110,20 @@ export default function ForecastCharts({
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
-          <div className="h-6 bg-terminal-bg rounded w-1/4 mb-4"></div>
-          <div className="h-96 bg-terminal-bg rounded"></div>
+          <div className="h-6 bg-white rounded w-1/4 mb-4"></div>
+          <div className="h-96 bg-white rounded border border-slate-200"></div>
         </div>
       </div>
     );
   }
 
-  if (!currentSeries) {
+  if (!currentSeries || forecastSeries.length === 0) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border p-6 rounded">
-        <div className="text-terminal-muted font-mono text-center">
-          No forecast data available
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center">
+        <div className="text-slate-500">
+          <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <h3 className="text-lg font-semibold mb-2">No Forecast Data Available</h3>
+          <p>Backend API must be fully functional to display forecast charts.</p>
         </div>
       </div>
     );
@@ -220,9 +136,9 @@ export default function ForecastCharts({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <BarChart3 className="w-6 h-6 text-terminal-blue" />
-          <h2 className="text-xl font-mono font-semibold text-terminal-text">
-            FORECAST VISUALIZATION
+          <BarChart3 className="w-6 h-6 text-blue-700" />
+          <h2 className="text-xl font-semibold text-slate-900">
+            Forecast Visualization
           </h2>
         </div>
         
@@ -231,29 +147,29 @@ export default function ForecastCharts({
             <button
               key={horizon}
               onClick={() => fetchForecastData()}
-              className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
+              className={`px-3 py-1 text-xs rounded transition-colors ${
                 timeHorizon === horizon
-                  ? 'bg-terminal-blue/20 text-terminal-blue border border-terminal-blue/30'
-                  : 'text-terminal-muted hover:text-terminal-text hover:bg-terminal-bg border border-terminal-border'
+                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 border border-slate-200'
               }`}
             >
-              {horizon.toUpperCase()}
+              {horizon}
             </button>
           ))}
         </div>
       </div>
 
       {/* Controls */}
-      <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
+      <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-terminal-muted" />
-              <span className="font-mono text-sm text-terminal-muted">SERIES:</span>
+              <Target className="w-4 h-4 text-slate-500" />
+              <span className="text-sm text-slate-500">Series:</span>
               <select
                 value={selectedSeries}
                 onChange={(e) => setSelectedSeries(e.target.value)}
-                className="bg-terminal-bg border border-terminal-border rounded px-3 py-1 font-mono text-sm text-terminal-text"
+                className="bg-white border border-slate-300 rounded px-3 py-1 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {forecastSeries.map((series) => (
                   <option key={series.id} value={series.id}>
@@ -264,11 +180,11 @@ export default function ForecastCharts({
             </div>
             
             <div className="flex items-center gap-2">
-              <span className="font-mono text-sm text-terminal-muted">CHART TYPE:</span>
+              <span className="text-sm text-slate-500">Chart Type:</span>
               <select
                 value={chartType}
                 onChange={(e) => setChartType(e.target.value as 'line' | 'area' | 'scatter')}
-                className="bg-terminal-bg border border-terminal-border rounded px-3 py-1 font-mono text-sm text-terminal-text"
+                className="bg-white border border-slate-300 rounded px-3 py-1 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="area">Area Chart</option>
                 <option value="line">Line Chart</option>
@@ -279,9 +195,9 @@ export default function ForecastCharts({
           
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <div className="text-terminal-muted font-mono text-xs">MODEL ACCURACY</div>
-              <div className="text-terminal-text font-mono text-sm font-semibold">
-                {currentSeries.accuracy.toFixed(1)}%
+              <div className="text-slate-500 text-xs">Model Accuracy</div>
+              <div className="text-slate-900 text-sm font-semibold">
+                {currentSeries.accuracy?.toFixed(1) || 0}%
               </div>
             </div>
           </div>
@@ -289,12 +205,12 @@ export default function ForecastCharts({
       </div>
 
       {/* Chart */}
-      <div className="bg-terminal-surface border border-terminal-border p-6 rounded">
+      <div className="bg-white border border-slate-200 p-6 rounded-lg shadow-sm">
         <div className="mb-4">
-          <h3 className="font-mono font-semibold text-terminal-text mb-2">
-            {currentSeries.name.toUpperCase()} FORECAST
+          <h3 className="font-semibold text-slate-900 mb-2">
+            {currentSeries.name} Forecast
           </h3>
-          <div className="flex items-center gap-4 text-xs font-mono text-terminal-muted">
+          <div className="flex items-center gap-4 text-xs text-slate-500">
             <span>Historical Data & Future Projections</span>
             <span>•</span>
             <span>Confidence Intervals: {showConfidence ? 'Enabled' : 'Disabled'}</span>
@@ -458,67 +374,67 @@ export default function ForecastCharts({
 
       {/* Forecast Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
-          <h4 className="font-mono font-semibold text-terminal-text text-sm mb-3">
-            FORECAST HORIZON
+        <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+          <h4 className="font-semibold text-slate-900 text-sm mb-3">
+            Forecast Horizon
           </h4>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-terminal-muted font-mono text-xs">Period</span>
-              <span className="text-terminal-text font-mono text-xs">{timeHorizon.toUpperCase()}</span>
+              <span className="text-slate-500 text-xs">Period</span>
+              <span className="text-slate-900 text-xs">{timeHorizon}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-terminal-muted font-mono text-xs">Data Points</span>
-              <span className="text-terminal-text font-mono text-xs">{currentSeries.data.length}</span>
+              <span className="text-slate-500 text-xs">Data Points</span>
+              <span className="text-slate-900 text-xs">{currentSeries.data?.length || 0}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-terminal-muted font-mono text-xs">Update Frequency</span>
-              <span className="text-terminal-text font-mono text-xs">Daily</span>
+              <span className="text-slate-500 text-xs">Update Frequency</span>
+              <span className="text-slate-900 text-xs">Daily</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
-          <h4 className="font-mono font-semibold text-terminal-text text-sm mb-3">
-            MODEL PERFORMANCE
+        <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+          <h4 className="font-semibold text-slate-900 text-sm mb-3">
+            Model Performance
           </h4>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-terminal-muted font-mono text-xs">Accuracy</span>
-              <span className="text-terminal-text font-mono text-xs">{currentSeries.accuracy.toFixed(1)}%</span>
+              <span className="text-slate-500 text-xs">Accuracy</span>
+              <span className="text-slate-900 text-xs">{currentSeries.accuracy?.toFixed(1) || 0}%</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-terminal-muted font-mono text-xs">RMSE</span>
-              <span className="text-terminal-text font-mono text-xs">0.34{currentSeries.unit}</span>
+              <span className="text-slate-500 text-xs">RMSE</span>
+              <span className="text-slate-900 text-xs">-{currentSeries.unit || ''}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-terminal-muted font-mono text-xs">MAE</span>
-              <span className="text-terminal-text font-mono text-xs">0.28{currentSeries.unit}</span>
+              <span className="text-slate-500 text-xs">MAE</span>
+              <span className="text-slate-900 text-xs">-{currentSeries.unit || ''}</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-terminal-surface border border-terminal-border p-4 rounded">
-          <h4 className="font-mono font-semibold text-terminal-text text-sm mb-3">
-            CONFIDENCE METRICS
+        <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+          <h4 className="font-semibold text-slate-900 text-sm mb-3">
+            Confidence Metrics
           </h4>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-terminal-muted font-mono text-xs">Avg Confidence</span>
-              <span className="text-terminal-text font-mono text-xs">
-                {(currentSeries.data.reduce((sum, point) => sum + point.confidence, 0) / currentSeries.data.length * 100).toFixed(1)}%
+              <span className="text-slate-500 text-xs">Avg Confidence</span>
+              <span className="text-slate-900 text-xs">
+                {currentSeries.data?.length ? (currentSeries.data.reduce((sum, point) => sum + point.confidence, 0) / currentSeries.data.length * 100).toFixed(1) : 0}%
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-terminal-muted font-mono text-xs">Min Confidence</span>
-              <span className="text-terminal-text font-mono text-xs">
-                {(Math.min(...currentSeries.data.map(p => p.confidence)) * 100).toFixed(1)}%
+              <span className="text-slate-500 text-xs">Min Confidence</span>
+              <span className="text-slate-900 text-xs">
+                {currentSeries.data?.length ? (Math.min(...currentSeries.data.map(p => p.confidence)) * 100).toFixed(1) : 0}%
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-terminal-muted font-mono text-xs">Max Confidence</span>
-              <span className="text-terminal-text font-mono text-xs">
-                {(Math.max(...currentSeries.data.map(p => p.confidence)) * 100).toFixed(1)}%
+              <span className="text-slate-500 text-xs">Max Confidence</span>
+              <span className="text-slate-900 text-xs">
+                {currentSeries.data?.length ? (Math.max(...currentSeries.data.map(p => p.confidence)) * 100).toFixed(1) : 0}%
               </span>
             </div>
           </div>

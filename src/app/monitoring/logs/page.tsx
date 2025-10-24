@@ -1,229 +1,46 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 export default function SystemLogsPage() {
   const [selectedService, setSelectedService] = useState('all')
   const [selectedLevel, setSelectedLevel] = useState('all')
   const [selectedTimeframe, setSelectedTimeframe] = useState('1h')
   const [searchQuery, setSearchQuery] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [logEntries, setLogEntries] = useState<any[]>([])
+  const [logStats, setLogStats] = useState<any>(null)
+  const [logAggregations, setLogAggregations] = useState<any>(null)
+  const [searchFilters, setSearchFilters] = useState<any[]>([])
 
-  const logEntries = [
-    {
-      id: 1,
-      timestamp: '2024-10-24T08:45:23.456Z',
-      level: 'ERROR',
-      service: 'api_gateway',
-      component: 'authentication',
-      message: 'Authentication token validation failed for user session',
-      details: {
-        userId: 'user_12345',
-        sessionId: 'sess_abcdef',
-        ipAddress: '192.168.1.100',
-        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-        errorCode: 'AUTH_TOKEN_EXPIRED'
-      },
-      traceId: 'trace-abc123',
-      duration: null
-    },
-    {
-      id: 2,
-      timestamp: '2024-10-24T08:45:18.234Z',
-      level: 'WARN',
-      service: 'risk_engine',
-      component: 'calculation',
-      message: 'Risk calculation took longer than expected threshold',
-      details: {
-        calculationId: 'calc_789xyz',
-        expectedTime: '500ms',
-        actualTime: '1234ms',
-        riskFactors: ['economic_indicators', 'market_volatility'],
-        dataPoints: 15000
-      },
-      traceId: 'trace-def456',
-      duration: 1234
-    },
-    {
-      id: 3,
-      timestamp: '2024-10-24T08:45:15.789Z',
-      level: 'INFO',
-      service: 'cache_layer',
-      component: 'redis',
-      message: 'Cache warming completed successfully for economic indicators',
-      details: {
-        cacheKey: 'econ_indicators_2024_q3',
-        recordsLoaded: 50000,
-        loadTime: '2.3s',
-        hitRateImprovement: '+12%'
-      },
-      traceId: 'trace-ghi789',
-      duration: 2300
-    },
-    {
-      id: 4,
-      timestamp: '2024-10-24T08:45:12.567Z',
-      level: 'ERROR',
-      service: 'external_apis',
-      component: 'fred_client',
-      message: 'Failed to retrieve data from FRED API - connection timeout',
-      details: {
-        endpoint: 'https://api.stlouisfed.org/fred/series',
-        series: ['GDP', 'UNRATE', 'CPIAUCSL'],
-        timeout: '30000ms',
-        retryAttempt: 3,
-        httpStatus: null
-      },
-      traceId: 'trace-jkl012',
-      duration: 30000
-    },
-    {
-      id: 5,
-      timestamp: '2024-10-24T08:45:09.345Z',
-      level: 'INFO',
-      service: 'ml_service',
-      component: 'model_server',
-      message: 'Risk prediction model served successfully',
-      details: {
-        modelId: 'risk_model_v2.1',
-        predictionId: 'pred_345mno',
-        inputFeatures: 25,
-        confidence: 0.87,
-        predictionValue: 0.23
-      },
-      traceId: 'trace-mno345',
-      duration: 445
-    },
-    {
-      id: 6,
-      timestamp: '2024-10-24T08:45:06.123Z',
-      level: 'DEBUG',
-      service: 'database',
-      component: 'query_executor',
-      message: 'Slow query detected in risk_scores table',
-      details: {
-        query: 'SELECT * FROM risk_scores WHERE date_range = ? AND factor_type = ?',
-        executionTime: '2.34s',
-        rowsExamined: 1500000,
-        rowsReturned: 50000,
-        indexUsed: 'idx_date_factor'
-      },
-      traceId: 'trace-pqr678',
-      duration: 2340
-    },
-    {
-      id: 7,
-      timestamp: '2024-10-24T08:45:03.901Z',
-      level: 'INFO',
-      service: 'data_pipeline',
-      component: 'etl_processor',
-      message: 'ETL job completed successfully for BLS employment data',
-      details: {
-        jobId: 'etl_bls_employment_20241024',
-        recordsProcessed: 25000,
-        recordsUpdated: 1500,
-        recordsInserted: 300,
-        processingTime: '45s'
-      },
-      traceId: 'trace-stu901',
-      duration: 45000
-    },
-    {
-      id: 8,
-      timestamp: '2024-10-24T08:45:00.678Z',
-      level: 'WARN',
-      service: 'notification_service',
-      component: 'email_sender',
-      message: 'Email delivery rate below threshold',
-      details: {
-        deliveryRate: '87%',
-        threshold: '95%',
-        totalEmails: 1200,
-        failedEmails: 156,
-        bounceRate: '3.2%'
-      },
-      traceId: 'trace-vwx234',
-      duration: null
-    },
-    {
-      id: 9,
-      timestamp: '2024-10-24T08:44:57.456Z',
-      level: 'INFO',
-      service: 'api_gateway',
-      component: 'rate_limiter',
-      message: 'Rate limit threshold adjusted for high-volume client',
-      details: {
-        clientId: 'client_enterprise_001',
-        oldLimit: '1000/min',
-        newLimit: '1500/min',
-        requestVolume: '1200/min',
-        adjustmentReason: 'enterprise_tier'
-      },
-      traceId: 'trace-yza567',
-      duration: null
-    },
-    {
-      id: 10,
-      timestamp: '2024-10-24T08:44:54.234Z',
-      level: 'ERROR',
-      service: 'ml_service',
-      component: 'feature_processor',
-      message: 'Feature extraction failed for network analysis model',
-      details: {
-        modelId: 'network_centrality_v1.3',
-        featureSet: 'network_topology',
-        nodeCount: 15000,
-        edgeCount: 45000,
-        errorType: 'memory_allocation_error'
-      },
-      traceId: 'trace-bcd890',
-      duration: null
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'}/api/v1/monitoring/logs?timeframe=${selectedTimeframe}&service=${selectedService}&level=${selectedLevel}`)
+        const data = await response.json()
+        
+        if (data.status === 'success' && data.data) {
+          setLogEntries(data.data.logs || [])
+          setLogStats(data.data.stats || null)
+          setLogAggregations(data.data.aggregations || null)
+          setSearchFilters(data.data.filters || [])
+        } else {
+          throw new Error('Log data not available from backend')
+        }
+      } catch (error) {
+        console.error('Error fetching logs:', error)
+        setLogEntries([])
+        setLogStats(null)
+        setLogAggregations(null)
+        setSearchFilters([])
+      } finally {
+        setLoading(false)
+      }
     }
-  ]
 
-  const logStats = {
-    totalLogs: 125847,
-    errorRate: 2.3,
-    warnRate: 8.7,
-    avgResponseTime: 234,
-    topErrorServices: ['external_apis', 'ml_service', 'api_gateway'],
-    logVolumeGrowth: '+15.2%'
-  }
-
-  const searchFilters = [
-    { id: 'error_codes', name: 'Error Codes', values: ['AUTH_TOKEN_EXPIRED', 'CONNECTION_TIMEOUT', 'MEMORY_ERROR'] },
-    { id: 'trace_ids', name: 'Trace IDs', values: ['trace-abc123', 'trace-def456', 'trace-ghi789'] },
-    { id: 'user_agents', name: 'User Agents', values: ['Mozilla/5.0', 'Chrome/118.0', 'Safari/17.0'] },
-    { id: 'ip_addresses', name: 'IP Addresses', values: ['192.168.1.100', '10.0.0.50', '172.16.0.25'] }
-  ]
-
-  const logAggregations = {
-    byLevel: {
-      ERROR: 2890,
-      WARN: 10956,
-      INFO: 98567,
-      DEBUG: 13434
-    },
-    byService: {
-      api_gateway: 45623,
-      risk_engine: 23456,
-      database: 18934,
-      cache_layer: 15678,
-      ml_service: 12345,
-      external_apis: 9811
-    },
-    byHour: [
-      { hour: '00:00', count: 8234 },
-      { hour: '01:00', count: 7456 },
-      { hour: '02:00', count: 6789 },
-      { hour: '03:00', count: 6123 },
-      { hour: '04:00', count: 5890 },
-      { hour: '05:00', count: 6234 },
-      { hour: '06:00', count: 7567 },
-      { hour: '07:00', count: 9890 },
-      { hour: '08:00', count: 12456 },
-      { hour: '09:00', count: 11234 }
-    ]
-  }
+    fetchLogs()
+  }, [selectedService, selectedLevel, selectedTimeframe])
 
   const getLevelColor = (level: string) => {
     switch (level) {
@@ -267,6 +84,35 @@ export default function SystemLogsPage() {
     }
     return true
   })
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-slate-200 rounded w-1/4"></div>
+            <div className="h-64 bg-slate-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!logStats || !logAggregations || logEntries.length === 0) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center">
+            <div className="text-slate-500">
+              <div className="w-12 h-12 mx-auto mb-4 opacity-50 bg-slate-300 rounded"></div>
+              <h3 className="text-lg font-semibold mb-2">No System Logs Available</h3>
+              <p>Backend API must be fully functional to display system logs.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -456,7 +302,7 @@ export default function SystemLogsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {logAggregations.byHour.map((hourData, index) => (
+                    {logAggregations.byHour.map((hourData: any, index: number) => (
                       <tr key={index} className="border-b border-gray-100">
                         <td className="py-2 text-[#374151]">{hourData.hour}</td>
                         <td className="py-2 text-right text-[#374151]">{formatNumber(hourData.count)}</td>
@@ -478,7 +324,7 @@ export default function SystemLogsPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h2 className="text-xl font-semibold text-[#1e3a8a] mb-4">Log Levels</h2>
               <div className="space-y-3">
-                {Object.entries(logAggregations.byLevel).map(([level, count]) => (
+                {Object.entries(logAggregations.byLevel).map(([level, count]: [string, any]) => (
                   <div key={level} className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getLevelColor(level)}`}>
@@ -500,9 +346,9 @@ export default function SystemLogsPage() {
               <h2 className="text-xl font-semibold text-[#1e3a8a] mb-4">Top Services</h2>
               <div className="space-y-3">
                 {Object.entries(logAggregations.byService)
-                  .sort(([,a], [,b]) => b - a)
+                  .sort(([,a], [,b]) => (b as number) - (a as number))
                   .slice(0, 6)
-                  .map(([service, count]) => (
+                  .map(([service, count]: [string, any]) => (
                   <div key={service} className="flex items-center justify-between">
                     <span className="text-sm text-[#374151] capitalize">{service.replace('_', ' ')}</span>
                     <div className="text-right">
@@ -519,11 +365,11 @@ export default function SystemLogsPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h2 className="text-xl font-semibold text-[#1e3a8a] mb-4">Search Filters</h2>
               <div className="space-y-4">
-                {searchFilters.map((filter) => (
+                {searchFilters.map((filter: any) => (
                   <div key={filter.id}>
                     <h3 className="font-medium text-[#374151] mb-2">{filter.name}</h3>
                     <div className="flex flex-wrap gap-1">
-                      {filter.values.map((value) => (
+                      {filter.values.map((value: any) => (
                         <button
                           key={value}
                           onClick={() => setSearchQuery(value)}
@@ -559,7 +405,7 @@ export default function SystemLogsPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h2 className="text-xl font-semibold text-[#1e3a8a] mb-4">Top Error Services</h2>
               <div className="space-y-2">
-                {logStats.topErrorServices.map((service, index) => (
+                {logStats.topErrorServices.map((service: any, index: number) => (
                   <div key={service} className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-red-600">#{index + 1}</span>

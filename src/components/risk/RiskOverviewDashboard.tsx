@@ -34,18 +34,27 @@ export default function RiskOverviewDashboard() {
   }
 
   if (error) {
+    const isWarmupError = error.includes('warming up') || error.includes('temporarily unavailable');
+    
     return (
-      <div className={`${bloombergClasses.terminal.card} border-red-600`}>
-        <div className={`flex items-center gap-3 ${bloombergClasses.text.error}`}>
+      <div className={`${bloombergClasses.terminal.card} ${isWarmupError ? 'border-yellow-600' : 'border-red-600'}`}>
+        <div className={`flex items-center gap-3 ${isWarmupError ? bloombergClasses.text.warning : bloombergClasses.text.error}`}>
           <AlertTriangle className="w-5 h-5" />
-          <span className={bloombergClasses.text.primary}>Risk Data Unavailable</span>
+          <span className={bloombergClasses.text.primary}>
+            {isWarmupError ? 'System Initializing' : 'Risk Data Unavailable'}
+          </span>
         </div>
         <p className={`${bloombergClasses.text.muted} mt-2`}>{error}</p>
+        {isWarmupError && (
+          <p className={`${bloombergClasses.text.secondary} mt-2 text-sm`}>
+            The backend is connecting to data sources and populating the cache. This typically takes 1-2 minutes.
+          </p>
+        )}
         <button 
           onClick={refetch}
           className={`${bloombergClasses.button.primary} mt-4`}
         >
-          Retry
+          {isWarmupError ? 'Check Again' : 'Retry'}
         </button>
       </div>
     );
