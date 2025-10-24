@@ -54,10 +54,10 @@ export default function Header() {
                 <span className="text-white font-bold text-lg">R</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">
+                <h1 className="text-xl font-bold text-heading">
                   RiskX Intelligence
                 </h1>
-                <p className="text-xs text-slate-500 font-mono">
+                <p className="text-xs text-muted font-mono">
                   Risk Intelligence Observatory
                 </p>
               </div>
@@ -72,7 +72,7 @@ export default function Header() {
               size="sm"
             />
             {systemHealth?.components && (
-              <div className="flex items-center space-x-2 text-xs text-slate-500">
+              <div className="flex items-center space-x-2 text-xs text-muted">
                 <span>API:</span>
                 <StatusBadge 
                   status={systemHealth.components.api === 'operational' ? 'online' : 'offline'}
@@ -86,16 +86,16 @@ export default function Header() {
           {/* Right - Time and Environment */}
           <div className="flex items-center space-x-4">
             <div className="text-right">
-              <div className="text-sm font-mono text-slate-900">
+              <div className="text-sm font-mono text-heading">
                 {currentTime.toLocaleTimeString()}
               </div>
-              <div className="text-xs text-slate-500">
+              <div className="text-xs text-muted">
                 {currentTime.toLocaleDateString()}
               </div>
             </div>
             <div className="text-xs bg-slate-50 px-2 py-1 rounded border border-slate-200">
-              <span className="text-slate-500">ENV:</span>
-              <span className="text-slate-900 ml-1 font-mono">PROD</span>
+              <span className="text-muted">ENV:</span>
+              <span className="text-heading ml-1 font-mono">PROD</span>
             </div>
           </div>
         </div>

@@ -62,7 +62,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-center h-full bg-white">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-slate-500">Loading dashboard...</p>
+          <p className="mt-4 text-muted">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -73,10 +73,10 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">
+          <h1 className="text-3xl font-bold text-heading">
             Risk Intelligence Dashboard
           </h1>
-          <p className="text-slate-700">
+          <p className="text-secondary">
             Real-time risk assessment and economic monitoring
           </p>
         </div>

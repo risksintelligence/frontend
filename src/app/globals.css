@@ -10,7 +10,8 @@
   }
   
   body {
-    @apply bg-white text-slate-900 font-sans;
+    @apply bg-white font-sans;
+    color: #374151; /* Charcoal gray for body text */
     font-feature-settings: "cv01", "cv02", "cv03", "cv04";
   }
   
@@ -59,17 +60,20 @@
     @apply bg-white border border-slate-300 text-slate-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none placeholder:text-slate-400;
   }
   
-  /* Professional Status Colors with Proper Backgrounds */
+  /* Professional Status Colors with Improved Red */
   .risk-score-high {
-    @apply text-red-700 bg-red-50 border border-red-200 px-3 py-1 rounded-full text-sm;
+    color: #dc2626; /* Improved vibrant red */
+    @apply bg-red-50 border border-red-200 px-3 py-1 rounded-full text-sm;
   }
   
   .risk-score-medium {
-    @apply text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-sm;
+    color: #f59e0b; /* Vibrant amber */
+    @apply bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-sm;
   }
   
   .risk-score-low {
-    @apply text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-sm;
+    color: #10b981; /* Modern green */
+    @apply bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-sm;
   }
   
   /* Professional Status Indicators */
@@ -78,19 +82,23 @@
   }
   
   .status-online {
-    @apply text-emerald-700 bg-emerald-50 border border-emerald-200;
+    color: #10b981; /* Modern green */
+    @apply bg-emerald-50 border border-emerald-200;
   }
   
   .status-offline {
-    @apply text-red-700 bg-red-50 border border-red-200;
+    color: #dc2626; /* Improved vibrant red */
+    @apply bg-red-50 border border-red-200;
   }
   
   .status-warning {
-    @apply text-amber-700 bg-amber-50 border border-amber-200;
+    color: #f59e0b; /* Vibrant amber */
+    @apply bg-amber-50 border border-amber-200;
   }
   
   .status-info {
-    @apply text-blue-700 bg-blue-50 border border-blue-200;
+    color: #1e3a8a; /* Navy blue for info */
+    @apply bg-blue-50 border border-blue-200;
   }
   
   /* Sophisticated Metric Card System */
@@ -99,44 +107,48 @@
   }
   
   .metric-title {
-    @apply text-sm font-medium text-slate-500 uppercase tracking-wide;
+    @apply text-sm font-medium uppercase tracking-wide;
+    color: #6b7280; /* Light gray for labels */
   }
   
   .metric-value {
-    @apply text-2xl font-bold font-mono text-slate-900;
+    @apply text-2xl font-bold font-mono;
+    color: #1e3a8a; /* Navy blue for primary values */
   }
   
   .metric-change-positive {
-    @apply text-emerald-700;
+    color: #10b981; /* Modern green */
   }
   
   .metric-change-negative {
-    @apply text-red-700;
+    color: #dc2626; /* Improved vibrant red */
   }
   
   .metric-change-neutral {
-    @apply text-slate-500;
+    color: #6b7280; /* Light gray */
   }
   
-  /* Professional Typography Hierarchy */
+  /* Professional Typography Hierarchy - Navy Blue & Charcoal Gray */
   .text-primary {
-    @apply text-slate-900 font-semibold;
+    @apply font-semibold;
+    color: #1e3a8a; /* Navy blue for primary headings */
   }
   
   .text-secondary {
-    @apply text-slate-700;
+    color: #374151; /* Charcoal gray for body text */
   }
   
   .text-muted {
-    @apply text-slate-500;
+    color: #6b7280; /* Light gray for muted text */
   }
   
   .text-heading {
-    @apply text-slate-900 font-bold;
+    @apply font-bold;
+    color: #1e3a8a; /* Navy blue for headings */
   }
   
   .text-accent {
-    @apply text-sky-700;
+    color: #3b82f6; /* Professional blue for links */
   }
   
   /* Professional Table Styling */
@@ -149,7 +161,8 @@
   }
   
   .table-header-cell {
-    @apply px-4 py-3 text-slate-900 font-semibold text-sm uppercase tracking-wide text-left;
+    @apply px-4 py-3 font-semibold text-sm uppercase tracking-wide text-left;
+    color: #1e3a8a; /* Navy blue for table headers */
   }
   
   .table-row {
@@ -157,7 +170,8 @@
   }
   
   .table-cell {
-    @apply px-4 py-3 text-slate-700 text-sm;
+    @apply px-4 py-3 text-sm;
+    color: #374151; /* Charcoal gray for table cells */
   }
   
   /* Professional Navigation Styling */
@@ -166,11 +180,17 @@
   }
   
   .nav-item-active {
-    @apply bg-blue-50 text-blue-700 border border-blue-200;
+    @apply bg-blue-50 border border-blue-200;
+    color: #1e3a8a; /* Navy blue for active nav items */
   }
   
   .nav-item-inactive {
-    @apply text-slate-600 hover:text-slate-900 hover:bg-slate-50;
+    color: #6b7280; /* Light gray for inactive items */
+    @apply hover:bg-slate-50;
+  }
+  
+  .nav-item-inactive:hover {
+    color: #374151; /* Charcoal gray on hover */
   }
   
   .nav-group-header {
@@ -178,10 +198,15 @@
   }
   
   .nav-group-active {
-    @apply text-slate-900;
+    color: #1e3a8a; /* Navy blue for active groups */
   }
   
   .nav-group-inactive {
-    @apply text-slate-600 hover:text-slate-900 hover:bg-slate-50;
+    color: #6b7280; /* Light gray for inactive groups */
+    @apply hover:bg-slate-50;
+  }
+  
+  .nav-group-inactive:hover {
+    color: #374151; /* Charcoal gray on hover */
   }
 }

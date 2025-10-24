@@ -8,17 +8,17 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // Sophisticated White Background Design System
+      // Professional White Background Design System with Navy Blue & Charcoal Gray
       colors: {
-        // Legacy risk colors (kept for compatibility)
+        // Modern Professional Color Palette
         'risk': {
-          'primary': '#0f172a',      // Deep slate for maximum readability
-          'secondary': '#334155',    // Medium slate for secondary content  
-          'accent': '#0369a1',       // Professional blue for links/accents
-          'success': '#047857',      // Deep emerald for success
-          'warning': '#a16207',      // Deep amber for warnings
-          'danger': '#b91c1c',       // Deep red for errors
-          'info': '#1d4ed8'          // Deep blue for info
+          'primary': '#1e3a8a',      // Navy blue for primary headings
+          'secondary': '#374151',    // Charcoal gray for body text  
+          'accent': '#3b82f6',       // Professional blue for links/accents
+          'success': '#10b981',      // Modern green for success states
+          'warning': '#f59e0b',      // Vibrant amber for warnings
+          'danger': '#dc2626',       // Improved red for errors (more vibrant)
+          'info': '#1e3a8a'          // Navy blue for info (brand consistency)
         },
         
         // Sophisticated White Background colors
@@ -26,15 +26,15 @@ module.exports = {
           'bg': '#ffffff',           // Pure white main background
           'surface': '#f8fafc',      // Very subtle off-white for cards (bg-slate-50)
           'border': '#e2e8f0',       // Subtle slate borders (border-slate-200)
-          'text': '#0f172a',         // Deep slate for maximum readability (text-slate-900)
-          'muted': '#64748b',        // Light slate for muted text (text-slate-500)
-          'green': '#047857',        // Deep emerald for success (text-emerald-700)
-          'orange': '#a16207',       // Deep amber for warnings (text-amber-700)
-          'red': '#b91c1c',          // Deep red for errors (text-red-700)
-          'blue': '#1d4ed8',         // Deep blue for info (text-blue-700)
+          'text': '#1e3a8a',         // Navy blue for primary text
+          'muted': '#6b7280',        // Light gray for muted text (improved readability)
+          'green': '#10b981',        // Modern green for success
+          'orange': '#f59e0b',       // Vibrant amber for warnings
+          'red': '#dc2626',          // Improved red for errors
+          'blue': '#1e3a8a',         // Navy blue for info
           'purple': '#7c3aed',       // Deep purple accent
-          'cyan': '#0891b2',         // Deep cyan accent
-          'pink': '#be185d'          // Deep pink accent
+          'cyan': '#06b6d4',         // Modern cyan accent
+          'pink': '#ec4899'          // Modern pink accent
         },
         
         // Professional white background hierarchy
@@ -45,19 +45,19 @@ module.exports = {
           'accent': '#f0f9ff',       // Light blue accent (bg-sky-50)
         },
         
-        // Professional typography colors
+        // Professional typography hierarchy (Navy Blue & Charcoal Gray)
         'text-hierarchy': {
-          'primary': '#0f172a',      // Deep slate for headings (text-slate-900)
-          'secondary': '#334155',    // Medium slate for body text (text-slate-700)
-          'muted': '#64748b',        // Light slate for descriptions (text-slate-500)
-          'accent': '#0369a1',       // Professional blue for links (text-sky-700)
+          'primary': '#1e3a8a',      // Navy blue for headings (strong, authoritative)
+          'secondary': '#374151',    // Charcoal gray for body text (professional)
+          'muted': '#6b7280',        // Light gray for descriptions/labels
+          'accent': '#3b82f6',       // Professional blue for links
         },
         
         // Professional border system
         'border-system': {
           'primary': '#e2e8f0',      // Subtle slate borders (border-slate-200)
           'secondary': '#cbd5e1',    // More defined borders (border-slate-300)
-          'accent': '#bae6fd',       // Light blue accent borders (border-sky-200)
+          'accent': '#bfdbfe',       // Light blue accent borders (border-blue-200)
           'focus': '#3b82f6',        // Focus state borders (border-blue-500)
         },
       },
