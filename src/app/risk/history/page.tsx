@@ -4,13 +4,66 @@ import RiskTrends from '@/components/risk/RiskTrends';
 import RiskScoreDisplay from '@/components/risk/RiskScoreDisplay';
 import ShapExplanation from '@/components/risk/ShapExplanation';
 import { Calendar, Download, Filter, Brain, BarChart3 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRiskOverview } from '@/hooks/useRiskOverview';
+
+interface RiskStatistics {
+  summary: {
+    high_score: number;
+    low_score: number;
+    average_score: number;
+    volatility_percent: number;
+  };
+  distribution: {
+    critical_days: number;
+    high_days: number;
+    moderate_days: number;
+    low_days: number;
+    total_days: number;
+  };
+  key_events: Array<{
+    date: string;
+    event: string;
+    impact: string;
+    risk_level: string;
+  }>;
+  correlations: {
+    economic_market: number;
+    market_geopolitical: number;
+    economic_technical: number;
+    geopolitical_technical: number;
+  };
+}
 
 export default function RiskHistoryPage() {
   const [selectedTimeRange, setSelectedTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
   const [selectedMetric, setSelectedMetric] = useState<'overall' | 'economic' | 'market' | 'geopolitical' | 'technical'>('overall');
+  const [statistics, setStatistics] = useState<RiskStatistics | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
   const { riskData, loading, error } = useRiskOverview();
+
+  useEffect(() => {
+    fetchStatistics();
+  }, [selectedTimeRange]);
+
+  const fetchStatistics = async () => {
+    try {
+      setStatsLoading(true);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/v1/risk/statistics?range=${selectedTimeRange}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === 'success' && data.data) {
+          setStatistics(data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching statistics:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -98,23 +151,31 @@ export default function RiskHistoryPage() {
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-terminal-muted font-mono text-xs mb-1">30-DAY HIGH</div>
-                <div className="text-xl font-mono font-bold text-terminal-red">82.3</div>
+                <div className="text-terminal-muted font-mono text-xs mb-1">{selectedTimeRange.toUpperCase()} HIGH</div>
+                <div className="text-xl font-mono font-bold text-terminal-red">
+                  {statsLoading ? '...' : (statistics?.summary?.high_score?.toFixed(1) || '0.0')}
+                </div>
               </div>
               
               <div>
-                <div className="text-terminal-muted font-mono text-xs mb-1">30-DAY LOW</div>
-                <div className="text-xl font-mono font-bold text-terminal-green">68.1</div>
+                <div className="text-terminal-muted font-mono text-xs mb-1">{selectedTimeRange.toUpperCase()} LOW</div>
+                <div className="text-xl font-mono font-bold text-terminal-green">
+                  {statsLoading ? '...' : (statistics?.summary?.low_score?.toFixed(1) || '0.0')}
+                </div>
               </div>
               
               <div>
                 <div className="text-terminal-muted font-mono text-xs mb-1">AVERAGE</div>
-                <div className="text-xl font-mono font-bold text-terminal-text">74.8</div>
+                <div className="text-xl font-mono font-bold text-terminal-text">
+                  {statsLoading ? '...' : (statistics?.summary?.average_score?.toFixed(1) || '0.0')}
+                </div>
               </div>
               
               <div>
                 <div className="text-terminal-muted font-mono text-xs mb-1">VOLATILITY</div>
-                <div className="text-xl font-mono font-bold text-terminal-text">4.2%</div>
+                <div className="text-xl font-mono font-bold text-terminal-text">
+                  {statsLoading ? '...' : (statistics?.summary?.volatility_percent?.toFixed(1) || '0.0')}%
+                </div>
               </div>
             </div>
           </div>
@@ -125,29 +186,25 @@ export default function RiskHistoryPage() {
             </h3>
             
             <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-terminal-red rounded-full mt-2"></div>
-                <div>
-                  <div className="font-mono text-sm text-terminal-text">Inflation Spike (Day -5)</div>
-                  <div className="font-mono text-xs text-terminal-muted">Risk score increased to 82.3</div>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-terminal-orange rounded-full mt-2"></div>
-                <div>
-                  <div className="font-mono text-sm text-terminal-text">Market Volatility (Day -12)</div>
-                  <div className="font-mono text-xs text-terminal-muted">VIX surge led to risk elevation</div>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-terminal-green rounded-full mt-2"></div>
-                <div>
-                  <div className="font-mono text-sm text-terminal-text">Policy Clarity (Day -18)</div>
-                  <div className="font-mono text-xs text-terminal-muted">Risk score decreased to 68.1</div>
-                </div>
-              </div>
+              {statsLoading ? (
+                <div className="text-terminal-muted font-mono text-sm">Loading events...</div>
+              ) : statistics?.key_events && statistics.key_events.length > 0 ? (
+                statistics.key_events.map((event, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className={`w-2 h-2 rounded-full mt-2 ${
+                      event.risk_level === 'high' ? 'bg-terminal-red' :
+                      event.risk_level === 'medium' ? 'bg-terminal-orange' :
+                      'bg-terminal-green'
+                    }`}></div>
+                    <div>
+                      <div className="font-mono text-sm text-terminal-text">{event.event}</div>
+                      <div className="font-mono text-xs text-terminal-muted">{event.impact}</div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-terminal-muted font-mono text-sm">No significant risk events in this period.</div>
+              )}
             </div>
           </div>
         </div>
@@ -238,45 +295,65 @@ export default function RiskHistoryPage() {
           </h3>
           
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-sm text-terminal-text">Critical (80-100)</span>
-              <div className="flex items-center gap-2">
-                <div className="w-16 bg-terminal-bg rounded-full h-2">
-                  <div className="bg-terminal-red h-2 rounded-full w-1/6"></div>
+            {statsLoading ? (
+              <div className="text-terminal-muted font-mono text-sm">Loading distribution...</div>
+            ) : statistics?.distribution ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-sm text-terminal-text">Critical (80-100)</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 bg-terminal-bg rounded-full h-2">
+                      <div 
+                        className="bg-terminal-red h-2 rounded-full" 
+                        style={{ width: `${(statistics.distribution.critical_days / Math.max(statistics.distribution.total_days, 1)) * 100}%` }}
+                      ></div>
+                    </div>
+                    <span className="font-mono text-xs text-terminal-muted">{statistics.distribution.critical_days} days</span>
+                  </div>
                 </div>
-                <span className="font-mono text-xs text-terminal-muted">3 days</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-sm text-terminal-text">High (60-80)</span>
-              <div className="flex items-center gap-2">
-                <div className="w-16 bg-terminal-bg rounded-full h-2">
-                  <div className="bg-terminal-orange h-2 rounded-full w-3/4"></div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-sm text-terminal-text">High (60-80)</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 bg-terminal-bg rounded-full h-2">
+                      <div 
+                        className="bg-terminal-orange h-2 rounded-full" 
+                        style={{ width: `${(statistics.distribution.high_days / Math.max(statistics.distribution.total_days, 1)) * 100}%` }}
+                      ></div>
+                    </div>
+                    <span className="font-mono text-xs text-terminal-muted">{statistics.distribution.high_days} days</span>
+                  </div>
                 </div>
-                <span className="font-mono text-xs text-terminal-muted">22 days</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-sm text-terminal-text">Moderate (40-60)</span>
-              <div className="flex items-center gap-2">
-                <div className="w-16 bg-terminal-bg rounded-full h-2">
-                  <div className="bg-terminal-yellow h-2 rounded-full w-1/6"></div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-sm text-terminal-text">Moderate (40-60)</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 bg-terminal-bg rounded-full h-2">
+                      <div 
+                        className="bg-terminal-yellow h-2 rounded-full" 
+                        style={{ width: `${(statistics.distribution.moderate_days / Math.max(statistics.distribution.total_days, 1)) * 100}%` }}
+                      ></div>
+                    </div>
+                    <span className="font-mono text-xs text-terminal-muted">{statistics.distribution.moderate_days} days</span>
+                  </div>
                 </div>
-                <span className="font-mono text-xs text-terminal-muted">5 days</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-sm text-terminal-text">Low (20-40)</span>
-              <div className="flex items-center gap-2">
-                <div className="w-16 bg-terminal-bg rounded-full h-2">
-                  <div className="bg-terminal-green h-2 rounded-full w-0"></div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-sm text-terminal-text">Low (20-40)</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 bg-terminal-bg rounded-full h-2">
+                      <div 
+                        className="bg-terminal-green h-2 rounded-full" 
+                        style={{ width: `${(statistics.distribution.low_days / Math.max(statistics.distribution.total_days, 1)) * 100}%` }}
+                      ></div>
+                    </div>
+                    <span className="font-mono text-xs text-terminal-muted">{statistics.distribution.low_days} days</span>
+                  </div>
                 </div>
-                <span className="font-mono text-xs text-terminal-muted">0 days</span>
-              </div>
-            </div>
+              </>
+            ) : (
+              <div className="text-terminal-muted font-mono text-sm">No distribution data available.</div>
+            )}
           </div>
         </div>
         
@@ -286,25 +363,45 @@ export default function RiskHistoryPage() {
           </h3>
           
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-sm text-terminal-text">Economic vs Market</span>
-              <span className="font-mono text-sm text-terminal-green">+0.78</span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-sm text-terminal-text">Market vs Geopolitical</span>
-              <span className="font-mono text-sm text-terminal-orange">+0.45</span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-sm text-terminal-text">Economic vs Technical</span>
-              <span className="font-mono text-sm text-terminal-muted">+0.12</span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-sm text-terminal-text">Geopolitical vs Technical</span>
-              <span className="font-mono text-sm text-terminal-red">-0.23</span>
-            </div>
+            {statsLoading ? (
+              <div className="text-terminal-muted font-mono text-sm">Loading correlations...</div>
+            ) : statistics?.correlations ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-sm text-terminal-text">Economic vs Market</span>
+                  <span className={`font-mono text-sm ${statistics.correlations.economic_market > 0.5 ? 'text-terminal-green' : 
+                    statistics.correlations.economic_market > 0 ? 'text-terminal-orange' : 'text-terminal-red'}`}>
+                    {statistics.correlations.economic_market > 0 ? '+' : ''}{statistics.correlations.economic_market.toFixed(2)}
+                  </span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-sm text-terminal-text">Market vs Geopolitical</span>
+                  <span className={`font-mono text-sm ${statistics.correlations.market_geopolitical > 0.5 ? 'text-terminal-green' : 
+                    statistics.correlations.market_geopolitical > 0 ? 'text-terminal-orange' : 'text-terminal-red'}`}>
+                    {statistics.correlations.market_geopolitical > 0 ? '+' : ''}{statistics.correlations.market_geopolitical.toFixed(2)}
+                  </span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-sm text-terminal-text">Economic vs Technical</span>
+                  <span className={`font-mono text-sm ${statistics.correlations.economic_technical > 0.5 ? 'text-terminal-green' : 
+                    statistics.correlations.economic_technical > 0 ? 'text-terminal-orange' : 'text-terminal-red'}`}>
+                    {statistics.correlations.economic_technical > 0 ? '+' : ''}{statistics.correlations.economic_technical.toFixed(2)}
+                  </span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-sm text-terminal-text">Geopolitical vs Technical</span>
+                  <span className={`font-mono text-sm ${statistics.correlations.geopolitical_technical > 0.5 ? 'text-terminal-green' : 
+                    statistics.correlations.geopolitical_technical > 0 ? 'text-terminal-orange' : 'text-terminal-red'}`}>
+                    {statistics.correlations.geopolitical_technical > 0 ? '+' : ''}{statistics.correlations.geopolitical_technical.toFixed(2)}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="text-terminal-muted font-mono text-sm">No correlation data available.</div>
+            )}
           </div>
         </div>
       </div>
