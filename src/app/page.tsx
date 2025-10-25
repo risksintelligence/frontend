@@ -147,7 +147,7 @@ export default function Dashboard() {
                   {key}
                 </div>
                 <div className="text-2xl font-bold font-mono text-slate-900">
-                  {value.toFixed(1)}
+                  {(value || 0).toFixed(1)}
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
                   <div 
@@ -155,7 +155,7 @@ export default function Dashboard() {
                       value >= 80 ? 'bg-red-700' :
                       value >= 60 ? 'bg-amber-700' : 'bg-emerald-700'
                     }`}
-                    style={{ width: `${Math.min(value, 100)}%` }}
+                    style={{ width: `${Math.min(value || 0, 100)}%` }}
                   />
                 </div>
               </div>
@@ -216,7 +216,7 @@ export default function Dashboard() {
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold font-mono text-slate-900">
-                    {factor.score.toFixed(1)}
+                    {(factor.score || 0).toFixed(1)}
                   </div>
                   <div className="text-xs text-slate-500">
                     risk score
