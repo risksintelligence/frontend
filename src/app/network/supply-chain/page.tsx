@@ -66,7 +66,7 @@ export default function SupplyChainPage() {
     const fetchSupplyChainData = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/v1/network/supply-chain')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/network/supply-chain`)
         
         if (response.ok) {
           const data = await response.json()

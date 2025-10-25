@@ -2,7 +2,8 @@
 
 import RiskTrends from '@/components/risk/RiskTrends';
 import RiskScoreDisplay from '@/components/risk/RiskScoreDisplay';
-import { Calendar, Download, Filter } from 'lucide-react';
+import ShapExplanation from '@/components/risk/ShapExplanation';
+import { Calendar, Download, Filter, Brain, BarChart3 } from 'lucide-react';
 import { useState } from 'react';
 
 export default function RiskHistoryPage() {
@@ -155,6 +156,77 @@ export default function RiskHistoryPage() {
         timeRange={selectedTimeRange} 
         showComponents={true} 
       />
+
+      {/* SHAP Feature Importance Over Time */}
+      <div className="bg-terminal-surface border border-terminal-border p-6 rounded">
+        <div className="flex items-center gap-3 mb-6">
+          <Brain className="w-5 h-5 text-terminal-green" />
+          <h3 className="font-mono font-semibold text-terminal-text">
+            FEATURE IMPORTANCE TRENDS (SHAP)
+          </h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-mono font-semibold text-terminal-text text-sm mb-4">
+              CURRENT RISK EXPLANATION
+            </h4>
+            <ShapExplanation 
+              riskScore={75.5}
+              predictionId="current-risk"
+              showDetails={true}
+              className="w-full"
+            />
+          </div>
+          
+          <div>
+            <h4 className="font-mono font-semibold text-terminal-text text-sm mb-4">
+              FEATURE IMPORTANCE CHANGES
+            </h4>
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-terminal-bg rounded border border-terminal-border">
+                <span className="font-mono text-sm text-terminal-text">Unemployment Rate</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs text-terminal-red">+15%</span>
+                  <BarChart3 className="w-3 h-3 text-terminal-red" />
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 bg-terminal-bg rounded border border-terminal-border">
+                <span className="font-mono text-sm text-terminal-text">Inflation Rate</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs text-terminal-red">+8%</span>
+                  <BarChart3 className="w-3 h-3 text-terminal-red" />
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 bg-terminal-bg rounded border border-terminal-border">
+                <span className="font-mono text-sm text-terminal-text">Market Volatility</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs text-terminal-green">-5%</span>
+                  <BarChart3 className="w-3 h-3 text-terminal-green" />
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 bg-terminal-bg rounded border border-terminal-border">
+                <span className="font-mono text-sm text-terminal-text">Interest Rates</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs text-terminal-green">-12%</span>
+                  <BarChart3 className="w-3 h-3 text-terminal-green" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-terminal-bg border border-terminal-border rounded">
+              <p className="text-xs font-mono text-terminal-muted">
+                Feature importance changes compared to {selectedTimeRange === '7d' ? '7 days' : selectedTimeRange === '30d' ? '30 days' : selectedTimeRange === '90d' ? '90 days' : '1 year'} ago.
+                Red indicates increased importance, green indicates decreased importance.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Risk Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

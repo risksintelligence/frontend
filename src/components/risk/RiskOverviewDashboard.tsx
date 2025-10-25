@@ -4,7 +4,8 @@ import { AlertTriangle, TrendingUp, TrendingDown, Minus, Shield } from 'lucide-r
 import { useRiskOverview } from '@/hooks/useRiskOverview';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import MetricCard from '@/components/ui/MetricCard';
-import { bloombergClasses, getStatusColor, formatNumber } from '@/lib/bloomberg-theme';
+import ShapExplanation from '@/components/risk/ShapExplanation';
+import { bloombergClasses, formatNumber } from '@/lib/bloomberg-theme';
 
 export default function RiskOverviewDashboard() {
   const { riskData, loading, error, lastUpdated, refetch } = useRiskOverview();
@@ -159,6 +160,19 @@ export default function RiskOverviewDashboard() {
             icon={Shield}
           />
         </div>
+      </div>
+
+      {/* SHAP Model Explanation */}
+      <div className="space-y-6">
+        <h2 className={`${bloombergClasses.text.primary} text-lg font-semibold uppercase tracking-wide`}>
+          MODEL EXPLANATION
+        </h2>
+        <ShapExplanation 
+          riskScore={riskData.overall_score}
+          predictionId={`risk-${Date.now()}`}
+          showDetails={true}
+          className="w-full"
+        />
       </div>
 
       {/* Risk Methodology Info */}

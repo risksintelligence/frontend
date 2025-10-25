@@ -62,7 +62,7 @@ export default function InfrastructurePage() {
     const fetchInfrastructureData = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/v1/network/infrastructure')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/network/infrastructure`)
         
         if (response.ok) {
           const data = await response.json()

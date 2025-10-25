@@ -68,6 +68,9 @@ export default function RiskMethodology() {
         'Feature engineering using economic domain expertise',
         'Time series analysis with ARIMA and LSTM neural networks',
         'Model explainability using SHAP (SHapley Additive exPlanations)',
+        'Individual feature contribution analysis for each prediction',
+        'Global feature importance ranking across all predictions', 
+        'Waterfall plots showing prediction decomposition',
         'Continuous model retraining and performance monitoring',
         'Cross-validation and backtesting for model validation'
       ]

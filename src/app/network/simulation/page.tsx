@@ -63,176 +63,82 @@ export default function ShockSimulationPage() {
   const [selectedShock, setSelectedShock] = useState<string>('')
   const [selectedResult, setSelectedResult] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchSimulationData = async () => {
-      try {
-        setLoading(true)
-        const response = await fetch('/api/v1/network/simulation')
-        
-        if (response.ok) {
-          const data = await response.json()
-          setSimulation(data)
-        } else {
-          
-          setSimulation({
-            availableShocks: [
-              {
-                id: 'shock_fed_failure',
-                name: 'Federal Reserve System Failure',
-                description: 'Complete failure of Federal Reserve operations and monetary policy transmission',
-                targetNode: 'fed_001',
-                intensity: 0.95,
-                type: 'Financial System Shock'
+  const fetchSimulationData = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/network/simulation`)
+      
+      if (response.ok) {
+        const result = await response.json()
+        if (result.status === 'success') {
+          // Transform backend data to expected format
+          const transformedData = {
+            availableShocks: result.data.available_scenarios?.map((scenario: any) => ({
+              id: scenario.scenario_id,
+              name: scenario.scenario_name,
+              description: scenario.description,
+              targetNode: scenario.target_node,
+              intensity: scenario.shock_intensity,
+              type: scenario.shock_type
+            })) || [],
+            recentSimulations: result.data.recent_simulations?.map((sim: any) => ({
+              id: sim.simulation_id,
+              name: sim.simulation_name,
+              description: sim.description,
+              initialShock: {
+                nodeId: sim.initial_shock.node_id,
+                nodeName: sim.initial_shock.node_name,
+                shockType: sim.initial_shock.shock_type,
+                intensity: sim.initial_shock.intensity
               },
-              {
-                id: 'shock_tsmc_disruption',
-                name: 'TSMC Manufacturing Disruption',
-                description: 'Major disruption to Taiwan Semiconductor manufacturing capacity',
-                targetNode: 'tsmc_001',
-                intensity: 0.87,
-                type: 'Supply Chain Shock'
-              },
-              {
-                id: 'shock_suez_blockage',
-                name: 'Suez Canal Complete Blockage',
-                description: 'Complete blockage of Suez Canal affecting global trade routes',
-                targetNode: 'suez_001',
-                intensity: 0.74,
-                type: 'Trade Route Shock'
-              },
-              {
-                id: 'shock_aws_outage',
-                name: 'AWS Global Infrastructure Failure',
-                description: 'Complete failure of Amazon Web Services global infrastructure',
-                targetNode: 'aws_001',
-                intensity: 0.68,
-                type: 'Infrastructure Shock'
-              },
-              {
-                id: 'shock_cyber_financial',
-                name: 'Financial System Cyber Attack',
-                description: 'Coordinated cyber attack on major financial institutions',
-                targetNode: 'financial_network',
-                intensity: 0.81,
-                type: 'Cyber Security Shock'
-              }
-            ],
-            recentSimulations: [
-              {
-                id: 'sim_001',
-                name: 'Federal Reserve Failure Cascade',
-                description: 'Analysis of systemic failure propagation from Federal Reserve disruption',
-                initialShock: {
-                  nodeId: 'fed_001',
-                  nodeName: 'Federal Reserve System',
-                  shockType: 'Financial System Shock',
-                  intensity: 0.95
-                },
-                timeSteps: 48,
-                totalAffectedNodes: 247,
-                cascadeLevels: 6,
-                peakImpactTime: 12,
-                totalRecoveryTime: 168,
-                systemicDamage: 0.89,
-                resilienceScore: 0.23,
-                affectedNodes: [
-                  {
-                    nodeId: 'fed_001',
-                    name: 'Federal Reserve System',
-                    sector: 'Banking',
-                    initialState: 'failed',
-                    currentState: 'failed',
-                    impactTime: 0,
-                    cascadeLevel: 0,
-                    recoveryTime: 168
-                  },
-                  {
-                    nodeId: 'primary_dealers',
-                    name: 'Primary Dealers',
-                    sector: 'Banking',
-                    initialState: 'operational',
-                    currentState: 'degraded',
-                    impactTime: 2,
-                    cascadeLevel: 1,
-                    recoveryTime: 72
-                  },
-                  {
-                    nodeId: 'major_banks',
-                    name: 'Major Commercial Banks',
-                    sector: 'Banking',
-                    initialState: 'operational',
-                    currentState: 'degraded',
-                    impactTime: 4,
-                    cascadeLevel: 2,
-                    recoveryTime: 96
-                  }
-                ],
-                impactByLevel: [
-                  { level: 0, nodeCount: 1, sectors: ['Banking'] },
-                  { level: 1, nodeCount: 12, sectors: ['Banking', 'Investment'] },
-                  { level: 2, nodeCount: 45, sectors: ['Banking', 'Insurance', 'Credit'] },
-                  { level: 3, nodeCount: 89, sectors: ['Real Estate', 'Corporate Finance'] },
-                  { level: 4, nodeCount: 67, sectors: ['Consumer Finance', 'Small Business'] },
-                  { level: 5, nodeCount: 33, sectors: ['International Trade', 'Commodities'] }
-                ],
-                completed: true,
-                timestamp: new Date(Date.now() - 3600000).toISOString()
-              },
-              {
-                id: 'sim_002',
-                name: 'Semiconductor Supply Shock',
-                description: 'Global technology disruption from Taiwan semiconductor shortage',
-                initialShock: {
-                  nodeId: 'tsmc_001',
-                  nodeName: 'Taiwan Semiconductor',
-                  shockType: 'Supply Chain Shock',
-                  intensity: 0.87
-                },
-                timeSteps: 72,
-                totalAffectedNodes: 167,
-                cascadeLevels: 4,
-                peakImpactTime: 24,
-                totalRecoveryTime: 336,
-                systemicDamage: 0.74,
-                resilienceScore: 0.41,
-                affectedNodes: [
-                  {
-                    nodeId: 'tsmc_001',
-                    name: 'Taiwan Semiconductor',
-                    sector: 'Technology',
-                    initialState: 'disrupted',
-                    currentState: 'recovering',
-                    impactTime: 0,
-                    cascadeLevel: 0,
-                    recoveryTime: 336
-                  }
-                ],
-                impactByLevel: [
-                  { level: 0, nodeCount: 1, sectors: ['Technology'] },
-                  { level: 1, nodeCount: 23, sectors: ['Technology', 'Electronics'] },
-                  { level: 2, nodeCount: 67, sectors: ['Automotive', 'Data Centers'] },
-                  { level: 3, nodeCount: 76, sectors: ['Consumer Goods', 'Telecommunications'] }
-                ],
-                completed: true,
-                timestamp: new Date(Date.now() - 7200000).toISOString()
-              }
-            ],
+              timeSteps: sim.time_steps,
+              totalAffectedNodes: sim.total_affected_nodes,
+              cascadeLevels: sim.cascade_levels,
+              peakImpactTime: sim.peak_impact_time,
+              totalRecoveryTime: sim.total_recovery_time,
+              systemicDamage: sim.systemic_damage_score,
+              resilienceScore: sim.resilience_score,
+              affectedNodes: sim.affected_nodes?.map((node: any) => ({
+                nodeId: node.node_id,
+                name: node.node_name,
+                sector: node.sector,
+                initialState: node.initial_state,
+                currentState: node.current_state,
+                impactTime: node.impact_time,
+                cascadeLevel: node.cascade_level,
+                recoveryTime: node.recovery_time
+              })) || [],
+              impactByLevel: sim.impact_by_level?.map((level: any) => ({
+                level: level.level,
+                nodeCount: level.node_count,
+                sectors: level.affected_sectors
+              })) || [],
+              completed: sim.status === 'completed',
+              timestamp: sim.timestamp
+            })) || [],
             systemMetrics: {
-              averageCascadeDepth: 4.8,
-              averageRecoveryTime: 152,
-              systemFragility: 0.67,
-              lastSimulation: new Date().toISOString()
+              averageCascadeDepth: result.data.system_metrics?.average_cascade_depth || 0,
+              averageRecoveryTime: result.data.system_metrics?.average_recovery_time || 0,
+              systemFragility: result.data.system_metrics?.system_fragility || 0,
+              lastSimulation: result.data.system_metrics?.last_simulation || new Date().toISOString()
             }
-          })
+          }
+          setSimulation(transformedData)
+        } else {
+          throw new Error(result.message || 'Failed to fetch simulation data')
         }
-      } catch (error) {
-        console.error('Error fetching simulation data:', error)
-        setSimulation(null)
-      } finally {
-        setLoading(false)
+      } else {
+        throw new Error(`HTTP error ${response.status}`)
       }
+    } catch (error) {
+      console.error('Error fetching simulation data:', error)
+      setSimulation(null)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchSimulationData()
   }, [])
 
@@ -241,19 +147,36 @@ export default function ShockSimulationPage() {
     
     setRunningSimulation(true)
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/network/simulation/run`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          scenario_id: selectedShock,
+          simulation_parameters: {
+            time_steps: 48,
+            propagation_threshold: 0.1
+          }
+        })
+      })
       
-      // In real implementation, would call:
-      // const response = await fetch('/api/v1/network/simulation/run', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ shockId: selectedShock })
-      // })
-      
-      // Refresh simulation data
-      // fetchSimulationData()
+      if (response.ok) {
+        const result = await response.json()
+        if (result.status === 'success') {
+          // Refresh simulation data to include the new simulation
+          await fetchSimulationData()
+          setSelectedShock('')
+        } else {
+          throw new Error(result.message || 'Simulation failed')
+        }
+      } else {
+        throw new Error(`HTTP error ${response.status}`)
+      }
     } catch (error) {
       console.error('Error running simulation:', error)
+      // Show error to user - in a real app, would use proper error handling
+      alert(`Simulation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setRunningSimulation(false)
     }

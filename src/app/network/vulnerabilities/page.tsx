@@ -47,166 +47,49 @@ export default function VulnerabilityAssessmentPage() {
     const fetchVulnerabilityData = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/v1/network/vulnerabilities')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/network/vulnerabilities`)
         
         if (response.ok) {
-          const data = await response.json()
-          setAnalysis(data)
+          const result = await response.json()
+          if (result.status === 'success') {
+            // Transform backend data to expected format
+            const transformedData = {
+              summary: {
+                totalVulnerabilities: result.data.vulnerability_summary?.total_vulnerabilities || 0,
+                criticalVulnerabilities: result.data.vulnerability_summary?.critical_vulnerabilities || 0,
+                highRiskNodes: result.data.vulnerability_summary?.high_risk_nodes || 0,
+                singlePointsOfFailure: result.data.vulnerability_summary?.single_points_failure || 0,
+                cascadeRiskScore: result.data.vulnerability_summary?.cascade_risk_score || 0,
+                resilienceIndex: result.data.vulnerability_summary?.resilience_index || 0,
+                lastAssessment: new Date().toISOString()
+              },
+              vulnerabilities: result.data.vulnerabilities?.map((vuln: any) => ({
+                id: vuln.vulnerability_id,
+                name: vuln.vulnerability_name,
+                type: vuln.vulnerability_type,
+                severity: vuln.severity_level,
+                impact: vuln.potential_impact,
+                likelihood: vuln.likelihood,
+                riskScore: vuln.risk_score,
+                affectedNodes: vuln.affected_nodes || 0,
+                criticalPath: vuln.is_critical_path || false,
+                description: vuln.description,
+                sector: vuln.sector || 'Unknown',
+                mitigation: vuln.mitigation_strategies || []
+              })) || [],
+              riskCategories: result.data.risk_categories?.map((cat: any) => ({
+                category: cat.category,
+                count: cat.count,
+                avgSeverity: cat.average_severity,
+                totalImpact: cat.total_impact
+              })) || []
+            }
+            setAnalysis(transformedData)
+          } else {
+            throw new Error(result.message || 'Failed to fetch vulnerability data')
+          }
         } else {
-          
-          setAnalysis({
-            summary: {
-              totalVulnerabilities: 47,
-              criticalVulnerabilities: 8,
-              highRiskNodes: 23,
-              singlePointsOfFailure: 12,
-              cascadeRiskScore: 0.67,
-              resilienceIndex: 0.34,
-              lastAssessment: new Date().toISOString()
-            },
-            vulnerabilities: [
-              {
-                id: 'vuln_001',
-                name: 'Federal Reserve System Single Point of Failure',
-                type: 'Single Point of Failure',
-                severity: 'critical',
-                impact: 0.95,
-                likelihood: 0.23,
-                riskScore: 0.87,
-                affectedNodes: 247,
-                criticalPath: true,
-                description: 'The Federal Reserve system represents a critical single point of failure for the US financial system',
-                sector: 'Banking',
-                mitigation: [
-                  'Implement distributed monetary policy mechanisms',
-                  'Establish backup financial clearing systems',
-                  'Create emergency liquidity protocols'
-                ]
-              },
-              {
-                id: 'vuln_002',
-                name: 'SWIFT Network Centralization Risk',
-                type: 'Infrastructure Bottleneck',
-                severity: 'critical',
-                impact: 0.89,
-                likelihood: 0.19,
-                riskScore: 0.82,
-                affectedNodes: 198,
-                criticalPath: true,
-                description: 'SWIFT network centralization creates global financial messaging vulnerability',
-                sector: 'Financial Infrastructure',
-                mitigation: [
-                  'Develop alternative messaging protocols',
-                  'Increase network redundancy',
-                  'Establish regional backup systems'
-                ]
-              },
-              {
-                id: 'vuln_003',
-                name: 'Taiwan Semiconductor Dependency',
-                type: 'Supply Chain Concentration',
-                severity: 'high',
-                impact: 0.82,
-                likelihood: 0.34,
-                riskScore: 0.78,
-                affectedNodes: 167,
-                criticalPath: true,
-                description: 'Global semiconductor supply chain heavily dependent on Taiwan manufacturing',
-                sector: 'Technology',
-                mitigation: [
-                  'Diversify semiconductor manufacturing',
-                  'Build strategic chip reserves',
-                  'Invest in alternative production facilities'
-                ]
-              },
-              {
-                id: 'vuln_004',
-                name: 'Suez Canal Transportation Bottleneck',
-                type: 'Geographic Chokepoint',
-                severity: 'high',
-                impact: 0.76,
-                likelihood: 0.28,
-                riskScore: 0.74,
-                affectedNodes: 134,
-                criticalPath: true,
-                description: 'Critical maritime trade route with limited alternative paths',
-                sector: 'Logistics',
-                mitigation: [
-                  'Develop alternative shipping routes',
-                  'Increase canal capacity',
-                  'Build strategic cargo reserves'
-                ]
-              },
-              {
-                id: 'vuln_005',
-                name: 'Amazon Web Services Concentration',
-                type: 'Cloud Infrastructure Risk',
-                severity: 'high',
-                impact: 0.71,
-                likelihood: 0.31,
-                riskScore: 0.69,
-                affectedNodes: 234,
-                criticalPath: false,
-                description: 'High concentration of internet services on single cloud provider',
-                sector: 'Technology',
-                mitigation: [
-                  'Promote multi-cloud strategies',
-                  'Increase cloud provider diversity',
-                  'Improve disaster recovery protocols'
-                ]
-              },
-              {
-                id: 'vuln_006',
-                name: 'Undersea Cable Network Vulnerability',
-                type: 'Infrastructure Vulnerability',
-                severity: 'medium',
-                impact: 0.68,
-                likelihood: 0.25,
-                riskScore: 0.61,
-                affectedNodes: 89,
-                criticalPath: false,
-                description: 'Global internet backbone dependent on vulnerable undersea cables',
-                sector: 'Telecommunications',
-                mitigation: [
-                  'Increase cable route redundancy',
-                  'Improve cable protection systems',
-                  'Develop satellite backup networks'
-                ]
-              }
-            ],
-            riskCategories: [
-              {
-                category: 'Single Points of Failure',
-                count: 12,
-                avgSeverity: 0.84,
-                totalImpact: 8.7
-              },
-              {
-                category: 'Supply Chain Concentration',
-                count: 15,
-                avgSeverity: 0.71,
-                totalImpact: 7.2
-              },
-              {
-                category: 'Infrastructure Bottlenecks',
-                count: 9,
-                avgSeverity: 0.78,
-                totalImpact: 6.8
-              },
-              {
-                category: 'Geographic Chokepoints',
-                count: 7,
-                avgSeverity: 0.69,
-                totalImpact: 5.4
-              },
-              {
-                category: 'Technology Dependencies',
-                count: 4,
-                avgSeverity: 0.66,
-                totalImpact: 3.9
-              }
-            ]
-          })
+          throw new Error(`HTTP error ${response.status}`)
         }
       } catch (error) {
         console.error('Error fetching vulnerability data:', error)

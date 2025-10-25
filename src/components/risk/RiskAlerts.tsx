@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Bell, AlertTriangle, Info, CheckCircle, X, Clock, Filter } from 'lucide-react';
+import { Bell, AlertTriangle, Info, CheckCircle, X, Clock, Filter, Brain, ChevronDown, ChevronRight } from 'lucide-react';
+import ShapExplanation from './ShapExplanation';
 
 interface RiskAlert {
   id: string;
@@ -24,6 +25,7 @@ interface RiskAlertsProps {
 export default function RiskAlerts({ showFilters = true, maxAlerts }: RiskAlertsProps) {
   const [alerts, setAlerts] = useState<RiskAlert[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedShap, setExpandedShap] = useState<string[]>([]);
   const [filter, setFilter] = useState<{
     type: string;
     category: string;
@@ -79,6 +81,14 @@ export default function RiskAlerts({ showFilters = true, maxAlerts }: RiskAlerts
           ? { ...alert, status: 'resolved' }
           : alert
       )
+    );
+  };
+
+  const toggleShapExplanation = (alertId: string) => {
+    setExpandedShap(prev =>
+      prev.includes(alertId)
+        ? prev.filter(id => id !== alertId)
+        : [...prev, alertId]
     );
   };
 
@@ -325,6 +335,22 @@ export default function RiskAlerts({ showFilters = true, maxAlerts }: RiskAlerts
                         </ul>
                       </div>
                     )}
+
+                    {/* SHAP Explanation Toggle */}
+                    <div className="mt-3 pt-3 border-t border-terminal-border">
+                      <button
+                        onClick={() => toggleShapExplanation(alert.id)}
+                        className="flex items-center gap-2 text-xs font-mono text-terminal-green hover:text-terminal-text transition-colors"
+                      >
+                        <Brain className="w-3 h-3" />
+                        <span>Why was this alert triggered?</span>
+                        {expandedShap.includes(alert.id) ? (
+                          <ChevronDown className="w-3 h-3" />
+                        ) : (
+                          <ChevronRight className="w-3 h-3" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
                 
@@ -346,6 +372,26 @@ export default function RiskAlerts({ showFilters = true, maxAlerts }: RiskAlerts
                   </div>
                 )}
               </div>
+
+              {/* SHAP Explanation */}
+              {expandedShap.includes(alert.id) && (
+                <div className="mt-4 pt-4 border-t border-terminal-border">
+                  <div className="mb-3">
+                    <h4 className="font-mono font-semibold text-terminal-text text-xs mb-2">
+                      ALERT TRIGGER ANALYSIS (SHAP)
+                    </h4>
+                    <p className="text-xs font-mono text-terminal-muted">
+                      Model explanation showing which factors contributed to triggering this alert.
+                    </p>
+                  </div>
+                  <ShapExplanation 
+                    riskScore={alert.severity}
+                    predictionId={`alert-${alert.id}`}
+                    showDetails={false}
+                    className="w-full"
+                  />
+                </div>
+              )}
             </div>
           ))
         )}

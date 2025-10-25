@@ -43,102 +43,51 @@ export default function CentralityAnalysisPage() {
     const fetchCentralityData = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/v1/network/centrality')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/network/centrality`)
         
         if (response.ok) {
-          const data = await response.json()
-          setAnalysis(data)
-        } else {
-          
-          setAnalysis({
-            summary: {
-              totalNodes: 1247,
-              averageBetweenness: 0.23,
-              averageCloseness: 0.41,
-              averageEigenvector: 0.19,
-              networkCentralization: 0.67,
-              lastAnalysis: new Date().toISOString()
-            },
-            topNodes: [
-              {
-                nodeId: 'fed_001',
-                name: 'Federal Reserve System',
-                sector: 'Banking',
-                betweennessCentrality: 0.92,
-                closenessCentrality: 0.89,
-                eigenvectorCentrality: 0.94,
-                pagerank: 0.087,
-                degreeCentrality: 0.85,
-                totalConnections: 247,
-                influenceScore: 0.91,
-                riskLevel: 'critical'
+          const result = await response.json()
+          if (result.status === 'success') {
+            // Transform backend data to expected format
+            const transformedData = {
+              summary: {
+                totalNodes: result.data.metric_summaries?.betweenness?.count || 0,
+                averageBetweenness: result.data.metric_summaries?.betweenness?.mean || 0,
+                averageCloseness: result.data.metric_summaries?.closeness?.mean || 0,
+                averageEigenvector: result.data.metric_summaries?.eigenvector?.mean || 0,
+                networkCentralization: result.data.network_centralization || 0,
+                lastAnalysis: new Date().toISOString()
               },
-              {
-                nodeId: 'jpm_001',
-                name: 'JPMorgan Chase & Co.',
-                sector: 'Banking',
-                betweennessCentrality: 0.84,
-                closenessCentrality: 0.82,
-                eigenvectorCentrality: 0.88,
-                pagerank: 0.063,
-                degreeCentrality: 0.79,
-                totalConnections: 198,
-                influenceScore: 0.84,
-                riskLevel: 'high'
-              },
-              {
-                nodeId: 'tsmc_001',
-                name: 'Taiwan Semiconductor',
-                sector: 'Technology',
-                betweennessCentrality: 0.78,
-                closenessCentrality: 0.71,
-                eigenvectorCentrality: 0.83,
-                pagerank: 0.052,
-                degreeCentrality: 0.74,
-                totalConnections: 167,
-                influenceScore: 0.77,
-                riskLevel: 'high'
-              },
-              {
-                nodeId: 'aws_001',
-                name: 'Amazon Web Services',
-                sector: 'Technology',
-                betweennessCentrality: 0.72,
-                closenessCentrality: 0.78,
-                eigenvectorCentrality: 0.76,
-                pagerank: 0.048,
-                degreeCentrality: 0.81,
-                totalConnections: 234,
-                influenceScore: 0.74,
-                riskLevel: 'high'
-              },
-              {
-                nodeId: 'suez_001',
-                name: 'Suez Canal Authority',
-                sector: 'Logistics',
-                betweennessCentrality: 0.69,
-                closenessCentrality: 0.65,
-                eigenvectorCentrality: 0.58,
-                pagerank: 0.041,
-                degreeCentrality: 0.67,
-                totalConnections: 134,
-                influenceScore: 0.65,
-                riskLevel: 'medium'
-              }
-            ],
-            distributionData: [
-              {
+              topNodes: result.data.nodes_analysis?.map((node: any) => ({
+                nodeId: node.node_id,
+                name: node.node_id, // Backend provides node_id, we use it as name
+                sector: 'Unknown', // Backend doesn't provide sector info
+                betweennessCentrality: node.centrality_measures.betweenness,
+                closenessCentrality: node.centrality_measures.closeness,
+                eigenvectorCentrality: node.centrality_measures.eigenvector,
+                pagerank: node.centrality_measures.pagerank,
+                degreeCentrality: node.centrality_measures.degree,
+                totalConnections: Math.round(node.centrality_measures.degree * 100),
+                influenceScore: node.influence_score,
+                riskLevel: node.risk_level
+              })) || [],
+              distributionData: [{
                 metric: 'betweenness',
                 distribution: [
-                  { range: '0.0-0.2', count: 623, percentage: 49.96 },
-                  { range: '0.2-0.4', count: 312, percentage: 25.02 },
-                  { range: '0.4-0.6', count: 187, percentage: 15.00 },
-                  { range: '0.6-0.8', count: 89, percentage: 7.14 },
-                  { range: '0.8-1.0', count: 36, percentage: 2.88 }
+                  { range: '0.0-0.2', count: 0, percentage: 0 },
+                  { range: '0.2-0.4', count: 0, percentage: 0 },
+                  { range: '0.4-0.6', count: 0, percentage: 0 },
+                  { range: '0.6-0.8', count: 0, percentage: 0 },
+                  { range: '0.8-1.0', count: 0, percentage: 0 }
                 ]
-              }
-            ]
-          })
+              }]
+            }
+            setAnalysis(transformedData)
+          } else {
+            throw new Error(result.message || 'Failed to fetch centrality data')
+          }
+        } else {
+          throw new Error(`HTTP error ${response.status}`)
         }
       } catch (error) {
         console.error('Error fetching centrality data:', error)

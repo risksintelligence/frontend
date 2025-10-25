@@ -1,6 +1,8 @@
 'use client';
 
-import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useState } from 'react';
+import { LucideIcon, TrendingUp, TrendingDown, Minus, Brain, ChevronDown, ChevronRight } from 'lucide-react';
+import ShapExplanation from './ShapExplanation';
 
 interface RiskFactor {
   name: string;
@@ -16,6 +18,7 @@ interface RiskFactorCardProps {
 }
 
 export default function RiskFactorCard({ factor, icon: Icon }: RiskFactorCardProps) {
+  const [showShap, setShowShap] = useState(false);
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-terminal-red';
     if (score >= 60) return 'text-terminal-orange';
@@ -99,7 +102,33 @@ export default function RiskFactorCard({ factor, icon: Icon }: RiskFactorCardPro
             {factor.description}
           </p>
         )}
+
+        {/* SHAP Explanation Toggle */}
+        <button
+          onClick={() => setShowShap(!showShap)}
+          className="flex items-center gap-2 text-xs font-mono text-terminal-green hover:text-terminal-text transition-colors w-full justify-center py-2 mt-2 border border-terminal-border rounded hover:bg-terminal-bg"
+        >
+          <Brain className="w-3 h-3" />
+          <span>Explanation</span>
+          {showShap ? (
+            <ChevronDown className="w-3 h-3" />
+          ) : (
+            <ChevronRight className="w-3 h-3" />
+          )}
+        </button>
       </div>
+
+      {/* SHAP Explanation */}
+      {showShap && (
+        <div className="border-t border-terminal-border p-4">
+          <ShapExplanation 
+            riskScore={factor.score}
+            predictionId={`factor-${factor.name}`}
+            showDetails={false}
+            className="w-full"
+          />
+        </div>
+      )}
     </div>
   );
 }
