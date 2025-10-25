@@ -54,146 +54,34 @@ export default function FeatureAnalysisPage() {
     const fetchFeatureAnalysis = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/v1/explainability/features/${selectedModel}`)
-        if (response.ok) {
-          const data = await response.json()
-          setAnalysis(data)
-        } else {
-          setAnalysis({
-            modelName: 'Economic Risk Model',
-            totalFeatures: 24,
-            importantFeatures: 12,
-            featureImportances: [
-              {
-                feature: 'GDP Growth Rate',
-                globalImportance: 0.34,
-                meanShapValue: 8.7,
-                interactionStrength: 0.67,
-                category: 'Economic',
-                dataType: 'Continuous',
-                description: 'Quarterly GDP growth rate percentage'
-              },
-              {
-                feature: 'Unemployment Rate',
-                globalImportance: 0.28,
-                meanShapValue: -6.4,
-                interactionStrength: 0.54,
-                category: 'Economic',
-                dataType: 'Continuous',
-                description: 'Monthly unemployment rate percentage'
-              },
-              {
-                feature: 'Interest Rate Spread',
-                globalImportance: 0.22,
-                meanShapValue: -4.2,
-                interactionStrength: 0.43,
-                category: 'Financial',
-                dataType: 'Continuous',
-                description: 'Spread between 10Y and 2Y treasury rates'
-              },
-              {
-                feature: 'Inflation Rate',
-                globalImportance: 0.16,
-                meanShapValue: 3.1,
-                interactionStrength: 0.38,
-                category: 'Economic',
-                dataType: 'Continuous',
-                description: 'Year-over-year inflation rate'
-              },
-              {
-                feature: 'Consumer Confidence',
-                globalImportance: 0.12,
-                meanShapValue: 2.8,
-                interactionStrength: 0.29,
-                category: 'Sentiment',
-                dataType: 'Index',
-                description: 'Consumer confidence index'
-              },
-              {
-                feature: 'Industrial Production',
-                globalImportance: 0.09,
-                meanShapValue: 1.9,
-                interactionStrength: 0.24,
-                category: 'Economic',
-                dataType: 'Index',
-                description: 'Industrial production index'
-              },
-              {
-                feature: 'Housing Starts',
-                globalImportance: 0.06,
-                meanShapValue: -1.2,
-                interactionStrength: 0.18,
-                category: 'Economic',
-                dataType: 'Count',
-                description: 'Monthly housing starts in millions'
-              },
-              {
-                feature: 'Market Volatility',
-                globalImportance: 0.05,
-                meanShapValue: 2.3,
-                interactionStrength: 0.31,
-                category: 'Financial',
-                dataType: 'Index',
-                description: 'VIX volatility index'
-              }
-            ],
-            featureInteractions: [
-              {
-                feature1: 'GDP Growth Rate',
-                feature2: 'Unemployment Rate',
-                interactionStrength: 0.78,
-                correlationCoeff: -0.72,
-                jointImportance: 0.45
-              },
-              {
-                feature1: 'Interest Rate Spread',
-                feature2: 'Inflation Rate',
-                interactionStrength: 0.65,
-                correlationCoeff: 0.58,
-                jointImportance: 0.34
-              },
-              {
-                feature1: 'Consumer Confidence',
-                feature2: 'Market Volatility',
-                interactionStrength: 0.52,
-                correlationCoeff: -0.61,
-                jointImportance: 0.28
-              },
-              {
-                feature1: 'GDP Growth Rate',
-                feature2: 'Industrial Production',
-                interactionStrength: 0.48,
-                correlationCoeff: 0.74,
-                jointImportance: 0.25
-              }
-            ],
-            partialDependence: {
-              'GDP Growth Rate': {
-                values: [-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0],
-                predictions: [85.2, 78.4, 68.5, 58.7, 48.2, 38.9, 32.1],
-                importance: 0.34
-              },
-              'Unemployment Rate': {
-                values: [3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0],
-                predictions: [42.1, 48.7, 55.3, 62.8, 69.4, 75.2, 81.6],
-                importance: 0.28
-              },
-              'Interest Rate Spread': {
-                values: [-1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0],
-                predictions: [68.4, 64.2, 58.7, 52.3, 47.9, 44.1, 41.8],
-                importance: 0.22
-              }
-            },
-            lastUpdated: new Date().toISOString()
-          })
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'
+        
+        const response = await fetch(`${baseUrl}/api/v1/explainability/feature-importance/${selectedModel}`)
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch feature analysis')
         }
+
+        const result = await response.json()
+        
+        if (result.status !== 'success') {
+          throw new Error('API returned invalid data format')
+        }
+
+        const data = result.data
+        
+        if (!data.feature_importances) {
+          throw new Error('Invalid API response - missing required feature importance data')
+        }
+
+        setAnalysis(data)
       } catch (error) {
-        console.error('Error fetching feature analysis:', error)
-        setAnalysis(null)
+        console.error('Error fetching feature analysis:', error);
+        setAnalysis(null);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
     fetchFeatureAnalysis()
   }, [selectedModel])

@@ -1,518 +1,412 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useMemo } from 'react'
-import { Brain, BarChart3, ArrowRight, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
-import StatusBadge from '@/components/ui/StatusBadge'
+import { useState, useEffect } from 'react';
+import { Shuffle, BarChart3, AlertTriangle, Target, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface ModelComparison {
   model1: {
-    id: string
-    name: string
-    accuracy: number
-    explainabilityScore: number
-    featureImportance: { [feature: string]: number }
-    biasScore: number
-    lastUpdated: string
-  }
+    id: string;
+    name: string;
+    accuracy: number;
+    precision: number;
+    recall: number;
+    f1Score: number;
+    lastTrained: string;
+  };
   model2: {
-    id: string
-    name: string
-    accuracy: number
-    explainabilityScore: number
-    featureImportance: { [feature: string]: number }
-    biasScore: number
-    lastUpdated: string
-  }
-  consistency: {
-    predictionCorrelation: number
-    explanationSimilarity: number
-    featureRankingAgreement: number
-    stabilityScore: number
-  }
-  recommendations: string[]
+    id: string;
+    name: string;
+    accuracy: number;
+    precision: number;
+    recall: number;
+    f1Score: number;
+    lastTrained: string;
+  };
+  featureImportanceComparison: Array<{
+    feature: string;
+    model1Importance: number;
+    model2Importance: number;
+    difference: number;
+    consensus: 'high' | 'medium' | 'low';
+  }>;
+  performanceMetrics: {
+    accuracyDifference: number;
+    precisionDifference: number;
+    recallDifference: number;
+    f1Difference: number;
+    overallConsistency: number;
+  };
+  predictions: Array<{
+    id: string;
+    input: Record<string, number>;
+    model1Prediction: number;
+    model2Prediction: number;
+    actualOutcome?: number;
+    difference: number;
+  }>;
 }
 
 export default function ModelComparisonPage() {
-  const [comparison, setComparison] = useState<ModelComparison | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [model1, setModel1] = useState('economic-risk')
-  const [model2, setModel2] = useState('market-volatility')
+  const [comparison, setComparison] = useState<ModelComparison | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [model1, setModel1] = useState('economic-risk');
+  const [model2, setModel2] = useState('market-volatility');
 
-  const models = useMemo(() => [
+  const models = [
     { id: 'economic-risk', name: 'Economic Risk Model' },
     { id: 'market-volatility', name: 'Market Volatility Model' },
-    { id: 'supply-chain', name: 'Supply Chain Risk Model' },
-    { id: 'geopolitical', name: 'Geopolitical Risk Model' }
-  ], [])
+    { id: 'supply-chain', name: 'Supply Chain Risk Model' }
+  ];
 
   useEffect(() => {
     const fetchModelComparison = async () => {
       try {
-        setLoading(true)
-        const response = await fetch(`/api/v1/explainability/comparison?model1=${model1}&model2=${model2}`)
-        if (response.ok) {
-          const data = await response.json()
-          setComparison(data)
-        } else {
-          setComparison({
-            model1: {
-              id: model1,
-              name: models.find(m => m.id === model1)?.name || 'Model 1',
-              accuracy: 0.892,
-              explainabilityScore: 0.87,
-              featureImportance: {
-                'GDP Growth Rate': 0.34,
-                'Unemployment Rate': 0.28,
-                'Interest Rate Spread': 0.22,
-                'Inflation Rate': 0.16,
-                'Consumer Confidence': 0.12,
-                'Industrial Production': 0.09,
-                'Housing Starts': 0.06
-              },
-              biasScore: 0.15,
-              lastUpdated: new Date().toISOString()
-            },
-            model2: {
-              id: model2,
-              name: models.find(m => m.id === model2)?.name || 'Model 2',
-              accuracy: 0.876,
-              explainabilityScore: 0.82,
-              featureImportance: {
-                'Market Volatility': 0.31,
-                'Interest Rate Spread': 0.26,
-                'GDP Growth Rate': 0.24,
-                'Currency Exchange Rate': 0.19,
-                'Commodity Prices': 0.15,
-                'Trading Volume': 0.12,
-                'Inflation Rate': 0.08
-              },
-              biasScore: 0.18,
-              lastUpdated: new Date().toISOString()
-            },
-            consistency: {
-              predictionCorrelation: 0.74,
-              explanationSimilarity: 0.68,
-              featureRankingAgreement: 0.52,
-              stabilityScore: 0.71
-            },
-            recommendations: [
-              'Models show moderate agreement in predictions',
-              'Feature importance rankings differ significantly',
-              'Consider ensemble approach for improved accuracy',
-              'Monitor explanation consistency over time',
-              'Bias scores within acceptable range for both models'
-            ]
-          })
+        setLoading(true);
+        
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${apiUrl}/api/v1/explainability/compare-models?model1=${model1}&model2=${model2}`);
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            console.warn('Model comparison endpoint not found');
+            setComparison(null);
+            return;
+          }
+          throw new Error(`Failed to fetch model comparison: ${response.status}`);
         }
+        
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.data) {
+          setComparison(data.data);
+        } else if (data.status === 'loading') {
+          console.info('Model comparison is being calculated:', data.message);
+          setComparison(null);
+        }
+        
       } catch (error) {
-        console.error('Error fetching model comparison:', error)
-        setComparison(null)
+        console.error('Error fetching model comparison:', error);
+        setComparison(null);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
     if (model1 !== model2) {
-      fetchModelComparison()
+      fetchModelComparison();
     }
-  }, [model1, model2, models])
+  }, [model1, model2]);
 
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-heading">Model Comparison</h1>
-          <p className="text-secondary mt-2">Compare model explanations</p>
+        <div className="flex items-center justify-between">
+          <div className="h-8 bg-slate-200 rounded w-1/3 animate-pulse"></div>
+          <div className="h-6 bg-slate-200 rounded w-1/4 animate-pulse"></div>
         </div>
-        <div className="animate-pulse space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="h-48 bg-slate-200 rounded"></div>
-            <div className="h-48 bg-slate-200 rounded"></div>
-          </div>
-          <div className="h-64 bg-slate-200 rounded"></div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="h-96 bg-slate-200 rounded animate-pulse"></div>
+          <div className="h-96 bg-slate-200 rounded animate-pulse"></div>
         </div>
       </div>
-    )
+    );
   }
 
-  if (!comparison || model1 === model2) {
+  if (!comparison && model1 === model2) {
     return (
       <div className="space-y-6">
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-heading">Model Comparison</h1>
-            <p className="text-secondary mt-2">
-              Side-by-side model comparison and explanation consistency analysis
-            </p>
+          <div className="flex items-center gap-3">
+            <Shuffle className="w-8 h-8 text-purple-700" />
+            <div>
+              <h1 className="text-2xl font-mono font-bold text-slate-900">
+                MODEL COMPARISON
+              </h1>
+              <p className="text-slate-700 font-mono text-sm">
+                Compare performance and feature importance across models
+              </p>
+            </div>
           </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-heading mb-2">Model 1</label>
-            <select 
-              value={model1} 
-              onChange={(e) => setModel1(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg text-secondary focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              {models.map(model => (
-                <option key={model.id} value={model.id}>{model.name}</option>
-              ))}
-            </select>
+
+        {/* Model Selection */}
+        <div className="bg-white border border-slate-200 p-6 rounded-lg shadow-sm">
+          <h3 className="font-mono font-semibold text-slate-900 mb-4">SELECT MODELS TO COMPARE</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-mono text-slate-700 mb-2">Model 1</label>
+              <select
+                value={model1}
+                onChange={(e) => setModel1(e.target.value)}
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg font-mono text-sm"
+              >
+                {models.map(model => (
+                  <option key={model.id} value={model.id}>{model.name}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-mono text-slate-700 mb-2">Model 2</label>
+              <select
+                value={model2}
+                onChange={(e) => setModel2(e.target.value)}
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg font-mono text-sm"
+              >
+                {models.map(model => (
+                  <option key={model.id} value={model.id}>{model.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-heading mb-2">Model 2</label>
-            <select 
-              value={model2} 
-              onChange={(e) => setModel2(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg text-secondary focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              {models.map(model => (
-                <option key={model.id} value={model.id}>{model.name}</option>
-              ))}
-            </select>
-          </div>
+          
+          {model1 === model2 && (
+            <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-amber-700 font-mono text-sm">
+                Please select two different models to compare.
+              </p>
+            </div>
+          )}
         </div>
-        
-        {model1 === model2 && (
-          <div className="terminal-card p-8 text-center">
-            <AlertCircle className="h-12 w-12 text-amber-600 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-heading mb-2">Select Different Models</h2>
-            <p className="text-muted">Please select two different models to compare.</p>
-          </div>
-        )}
       </div>
-    )
+    );
   }
-
-  const getConsistencyStatus = (score: number) => {
-    if (score >= 0.8) return 'good'
-    if (score >= 0.6) return 'warning'
-    return 'critical'
-  }
-
-  const getConsistencyLabel = (score: number) => {
-    if (score >= 0.8) return 'High'
-    if (score >= 0.6) return 'Medium'
-    return 'Low'
-  }
-
-  const commonFeatures = Object.keys(comparison.model1.featureImportance).filter(
-    feature => Object.keys(comparison.model2.featureImportance).includes(feature)
-  )
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-heading">Model Comparison</h1>
-          <p className="text-secondary mt-2">
-            Side-by-side comparison of {comparison.model1.name} and {comparison.model2.name}
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-heading mb-2">Model 1</label>
-          <select 
-            value={model1} 
-            onChange={(e) => setModel1(e.target.value)}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg text-secondary focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            {models.map(model => (
-              <option key={model.id} value={model.id}>{model.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-heading mb-2">Model 2</label>
-          <select 
-            value={model2} 
-            onChange={(e) => setModel2(e.target.value)}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg text-secondary focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            {models.map(model => (
-              <option key={model.id} value={model.id}>{model.name}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="terminal-card p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <BarChart3 className="h-5 w-5 text-blue-600" />
-            <span className="text-sm font-medium text-muted">Prediction Correlation</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="text-2xl font-bold font-mono text-heading">
-              {(comparison.consistency.predictionCorrelation * 100).toFixed(0)}%
-            </div>
-            <StatusBadge 
-              status={getConsistencyStatus(comparison.consistency.predictionCorrelation)}
-              text={getConsistencyLabel(comparison.consistency.predictionCorrelation)}
-              size="sm"
-            />
-          </div>
-        </div>
-
-        <div className="terminal-card p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Brain className="h-5 w-5 text-purple-600" />
-            <span className="text-sm font-medium text-muted">Explanation Similarity</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="text-2xl font-bold font-mono text-heading">
-              {(comparison.consistency.explanationSimilarity * 100).toFixed(0)}%
-            </div>
-            <StatusBadge 
-              status={getConsistencyStatus(comparison.consistency.explanationSimilarity)}
-              text={getConsistencyLabel(comparison.consistency.explanationSimilarity)}
-              size="sm"
-            />
-          </div>
-        </div>
-
-        <div className="terminal-card p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <CheckCircle className="h-5 w-5 text-emerald-600" />
-            <span className="text-sm font-medium text-muted">Feature Agreement</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="text-2xl font-bold font-mono text-heading">
-              {(comparison.consistency.featureRankingAgreement * 100).toFixed(0)}%
-            </div>
-            <StatusBadge 
-              status={getConsistencyStatus(comparison.consistency.featureRankingAgreement)}
-              text={getConsistencyLabel(comparison.consistency.featureRankingAgreement)}
-              size="sm"
-            />
-          </div>
-        </div>
-
-        <div className="terminal-card p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <AlertCircle className="h-5 w-5 text-cyan-600" />
-            <span className="text-sm font-medium text-muted">Stability Score</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="text-2xl font-bold font-mono text-heading">
-              {(comparison.consistency.stabilityScore * 100).toFixed(0)}%
-            </div>
-            <StatusBadge 
-              status={getConsistencyStatus(comparison.consistency.stabilityScore)}
-              text={getConsistencyLabel(comparison.consistency.stabilityScore)}
-              size="sm"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="terminal-card">
-          <div className="terminal-card-header">
-            <div className="flex items-center gap-2">
-              <Brain className="h-5 w-5 text-blue-600" />
-              <h3 className="font-semibold text-heading">{comparison.model1.name}</h3>
-            </div>
-          </div>
-          <div className="terminal-card-content space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-sm text-muted">Accuracy</div>
-                <div className="text-xl font-bold text-heading">
-                  {(comparison.model1.accuracy * 100).toFixed(1)}%
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-muted">Explainability</div>
-                <div className="text-xl font-bold text-heading">
-                  {(comparison.model1.explainabilityScore * 100).toFixed(0)}%
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-muted">Bias Score</div>
-                <div className="text-xl font-bold text-heading">
-                  {(comparison.model1.biasScore * 100).toFixed(1)}%
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-muted">Features</div>
-                <div className="text-xl font-bold text-heading">
-                  {Object.keys(comparison.model1.featureImportance).length}
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="font-medium text-heading mb-2">Top Features</h4>
-              <div className="space-y-2">
-                {Object.entries(comparison.model1.featureImportance)
-                  .sort(([,a], [,b]) => b - a)
-                  .slice(0, 5)
-                  .map(([feature, importance]) => (
-                    <div key={feature} className="flex items-center justify-between">
-                      <span className="text-sm text-secondary">{feature}</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 bg-slate-200 rounded-full h-1">
-                          <div 
-                            className="bg-blue-600 h-1 rounded-full" 
-                            style={{ width: `${importance * 100}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-xs font-mono text-heading w-10 text-right">
-                          {(importance * 100).toFixed(0)}%
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="terminal-card">
-          <div className="terminal-card-header">
-            <div className="flex items-center gap-2">
-              <Brain className="h-5 w-5 text-purple-600" />
-              <h3 className="font-semibold text-heading">{comparison.model2.name}</h3>
-            </div>
-          </div>
-          <div className="terminal-card-content space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-sm text-muted">Accuracy</div>
-                <div className="text-xl font-bold text-heading">
-                  {(comparison.model2.accuracy * 100).toFixed(1)}%
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-muted">Explainability</div>
-                <div className="text-xl font-bold text-heading">
-                  {(comparison.model2.explainabilityScore * 100).toFixed(0)}%
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-muted">Bias Score</div>
-                <div className="text-xl font-bold text-heading">
-                  {(comparison.model2.biasScore * 100).toFixed(1)}%
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-muted">Features</div>
-                <div className="text-xl font-bold text-heading">
-                  {Object.keys(comparison.model2.featureImportance).length}
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="font-medium text-heading mb-2">Top Features</h4>
-              <div className="space-y-2">
-                {Object.entries(comparison.model2.featureImportance)
-                  .sort(([,a], [,b]) => b - a)
-                  .slice(0, 5)
-                  .map(([feature, importance]) => (
-                    <div key={feature} className="flex items-center justify-between">
-                      <span className="text-sm text-secondary">{feature}</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 bg-slate-200 rounded-full h-1">
-                          <div 
-                            className="bg-purple-600 h-1 rounded-full" 
-                            style={{ width: `${importance * 100}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-xs font-mono text-heading w-10 text-right">
-                          {(importance * 100).toFixed(0)}%
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {commonFeatures.length > 0 && (
-        <div className="terminal-card">
-          <div className="terminal-card-header">
-            <h3 className="font-semibold text-heading">Common Features Comparison</h3>
-            <p className="text-sm text-muted mt-1">
-              Feature importance comparison for features present in both models
+        <div className="flex items-center gap-3">
+          <Shuffle className="w-8 h-8 text-purple-700" />
+          <div>
+            <h1 className="text-2xl font-mono font-bold text-slate-900">
+              MODEL COMPARISON
+            </h1>
+            <p className="text-slate-700 font-mono text-sm">
+              Compare performance and feature importance across models
             </p>
           </div>
-          <div className="terminal-card-content">
-            <div className="space-y-4">
-              {commonFeatures
-                .sort((a, b) => 
-                  Math.max(comparison.model1.featureImportance[b] || 0, comparison.model2.featureImportance[b] || 0) -
-                  Math.max(comparison.model1.featureImportance[a] || 0, comparison.model2.featureImportance[a] || 0)
-                )
-                .map(feature => {
-                  const imp1 = comparison.model1.featureImportance[feature] || 0
-                  const imp2 = comparison.model2.featureImportance[feature] || 0
-                  const diff = Math.abs(imp1 - imp2)
-                  
-                  return (
-                    <div key={feature} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-secondary">{feature}</span>
-                        <StatusBadge 
-                          status={diff < 0.05 ? 'good' : diff < 0.15 ? 'warning' : 'critical'}
-                          text={`${(diff * 100).toFixed(1)}% diff`}
-                          size="sm"
-                        />
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="flex-1">
-                          <div className="text-xs text-blue-600 mb-1">{comparison.model1.name}</div>
-                          <div className="w-full bg-slate-200 rounded-full h-2">
-                            <div 
-                              className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${imp1 * 100}%` }}
-                            ></div>
-                          </div>
-                          <div className="text-xs font-mono text-muted mt-1">{(imp1 * 100).toFixed(1)}%</div>
-                        </div>
-                        <ArrowRight className="h-4 w-4 text-slate-400 flex-shrink-0" />
-                        <div className="flex-1">
-                          <div className="text-xs text-purple-600 mb-1">{comparison.model2.name}</div>
-                          <div className="w-full bg-slate-200 rounded-full h-2">
-                            <div 
-                              className="bg-purple-600 h-2 rounded-full" 
-                              style={{ width: `${imp2 * 100}%` }}
-                            ></div>
-                          </div>
-                          <div className="text-xs font-mono text-muted mt-1">{(imp2 * 100).toFixed(1)}%</div>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-            </div>
-          </div>
         </div>
-      )}
+        
+        <div className="text-slate-500 font-mono text-sm">
+          {comparison ? 'Comparison Complete' : 'Select Models'}
+        </div>
+      </div>
 
-      <div className="terminal-card">
-        <div className="terminal-card-header">
-          <h3 className="font-semibold text-heading">Analysis Recommendations</h3>
-        </div>
-        <div className="terminal-card-content">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {comparison.recommendations.map((recommendation, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-                <div className="w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-semibold text-blue-800">{index + 1}</span>
-                </div>
-                <span className="text-sm text-blue-900">{recommendation}</span>
-              </div>
-            ))}
+      {/* Model Selection */}
+      <div className="bg-white border border-slate-200 p-6 rounded-lg shadow-sm">
+        <h3 className="font-mono font-semibold text-slate-900 mb-4">COMPARE MODELS</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-mono text-slate-700 mb-2">Model 1</label>
+            <select
+              value={model1}
+              onChange={(e) => setModel1(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg font-mono text-sm"
+            >
+              {models.map(model => (
+                <option key={model.id} value={model.id}>{model.name}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-mono text-slate-700 mb-2">Model 2</label>
+            <select
+              value={model2}
+              onChange={(e) => setModel2(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg font-mono text-sm"
+            >
+              {models.map(model => (
+                <option key={model.id} value={model.id}>{model.name}</option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
+
+      {!comparison ? (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
+            <h3 className="font-mono font-semibold text-amber-800">No Comparison Data Available</h3>
+          </div>
+          <p className="text-amber-700 font-mono text-sm mb-4">
+            Model comparison data is not currently available. This could mean:
+          </p>
+          <div className="text-amber-600 font-mono text-xs">
+            • Models are still training or being evaluated
+            <br />
+            • Backend comparison service is initializing
+            <br />
+            • Selected models may not have comparable data yet
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {/* Performance Comparison */}
+          <div className="bg-white border border-slate-200 p-6 rounded-lg shadow-sm">
+            <h3 className="font-mono font-semibold text-slate-900 mb-4">
+              PERFORMANCE COMPARISON
+            </h3>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-mono font-semibold text-slate-900 text-sm mb-3">
+                  {comparison.model1.name}
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="font-mono text-sm text-slate-600">Accuracy:</span>
+                    <span className="font-mono text-sm font-bold">{(comparison.model1.accuracy * 100).toFixed(2)}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-mono text-sm text-slate-600">Precision:</span>
+                    <span className="font-mono text-sm font-bold">{(comparison.model1.precision * 100).toFixed(2)}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-mono text-sm text-slate-600">Recall:</span>
+                    <span className="font-mono text-sm font-bold">{(comparison.model1.recall * 100).toFixed(2)}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-mono text-sm text-slate-600">F1 Score:</span>
+                    <span className="font-mono text-sm font-bold">{(comparison.model1.f1Score * 100).toFixed(2)}%</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="font-mono font-semibold text-slate-900 text-sm mb-3">
+                  {comparison.model2.name}
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="font-mono text-sm text-slate-600">Accuracy:</span>
+                    <span className="font-mono text-sm font-bold">{(comparison.model2.accuracy * 100).toFixed(2)}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-mono text-sm text-slate-600">Precision:</span>
+                    <span className="font-mono text-sm font-bold">{(comparison.model2.precision * 100).toFixed(2)}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-mono text-sm text-slate-600">Recall:</span>
+                    <span className="font-mono text-sm font-bold">{(comparison.model2.recall * 100).toFixed(2)}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-mono text-sm text-slate-600">F1 Score:</span>
+                    <span className="font-mono text-sm font-bold">{(comparison.model2.f1Score * 100).toFixed(2)}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6 p-4 bg-slate-50 rounded-lg">
+              <h4 className="font-mono font-semibold text-slate-900 text-sm mb-3">Overall Consistency</h4>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 bg-slate-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full" 
+                    style={{ width: `${comparison.performanceMetrics.overallConsistency * 100}%` }}
+                  ></div>
+                </div>
+                <span className="font-mono text-sm font-bold">
+                  {(comparison.performanceMetrics.overallConsistency * 100).toFixed(1)}%
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Feature Importance Comparison */}
+          <div className="bg-white border border-slate-200 p-6 rounded-lg shadow-sm">
+            <h3 className="font-mono font-semibold text-slate-900 mb-4">
+              FEATURE IMPORTANCE COMPARISON
+            </h3>
+            
+            <div className="space-y-3">
+              {comparison.featureImportanceComparison
+                .sort((a, b) => Math.abs(b.difference) - Math.abs(a.difference))
+                .map((feature, index) => (
+                <div key={index} className="p-3 bg-slate-50 rounded">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono text-sm font-semibold text-slate-900">
+                      {feature.feature}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {feature.difference > 0 ? (
+                        <TrendingUp className="w-4 h-4 text-red-600" />
+                      ) : (
+                        <TrendingDown className="w-4 h-4 text-emerald-600" />
+                      )}
+                      <span className={`font-mono text-xs ${
+                        Math.abs(feature.difference) > 0.1 ? 'text-red-600' : 'text-slate-600'
+                      }`}>
+                        {feature.difference > 0 ? '+' : ''}{feature.difference.toFixed(3)}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-xs font-mono text-slate-500">
+                        {comparison.model1.name}: 
+                      </span>
+                      <span className="text-xs font-mono font-bold">
+                        {feature.model1Importance.toFixed(3)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-xs font-mono text-slate-500">
+                        {comparison.model2.name}: 
+                      </span>
+                      <span className="text-xs font-mono font-bold">
+                        {feature.model2Importance.toFixed(3)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Prediction Comparison */}
+          {comparison.predictions && comparison.predictions.length > 0 && (
+            <div className="bg-white border border-slate-200 p-6 rounded-lg shadow-sm">
+              <h3 className="font-mono font-semibold text-slate-900 mb-4">
+                PREDICTION COMPARISON (Sample)
+              </h3>
+              
+              <div className="space-y-3">
+                {comparison.predictions.slice(0, 5).map((pred, index) => (
+                  <div key={index} className="p-3 bg-slate-50 rounded">
+                    <div className="grid grid-cols-3 gap-4 text-xs font-mono">
+                      <div>
+                        <span className="text-slate-500">{comparison.model1.name}: </span>
+                        <span className="font-bold">{pred.model1Prediction.toFixed(2)}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">{comparison.model2.name}: </span>
+                        <span className="font-bold">{pred.model2Prediction.toFixed(2)}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Difference: </span>
+                        <span className={`font-bold ${
+                          Math.abs(pred.difference) > 10 ? 'text-red-600' : 'text-slate-900'
+                        }`}>
+                          {pred.difference > 0 ? '+' : ''}{pred.difference.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
-  )
+  );
 }

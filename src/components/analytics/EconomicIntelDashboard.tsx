@@ -32,25 +32,75 @@ export default function EconomicIntelDashboard({ timeRange = '3m' }: EconomicInt
   const fetchEconomicData = async () => {
     try {
       setLoading(true);
-      // In production, fetch from API
-      // const response = await fetch(`/api/v1/analytics/economic?range=${timeRange}`);
-      // const data = await response.json();
       
-      // Load real economic indicators from API
-      const response = await fetch(`/api/v1/analytics/economic?range=${timeRange}`);
+      // Build API URL - use external APIs endpoint which provides economic data
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/v1/external/fred/indicators`);
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch economic indicators');
+        if (response.status === 404) {
+          console.warn('FRED indicators endpoint not found');
+          setIndicators([]);
+          return;
+        }
+        throw new Error(`Failed to fetch economic indicators: ${response.status}`);
       }
       
       const data = await response.json();
-      const realIndicators: EconomicIndicator[] = data.indicators || [];
       
-      setIndicators(realIndicators);
+      // Transform FRED API response to our indicator format
+      let indicators: EconomicIndicator[] = [];
+      if (data.status === 'success' && data.data) {
+        // Transform FRED data structure to our component format
+        indicators = transformFredDataToIndicators(data.data);
+      } else if (data.status === 'loading') {
+        console.info('Economic indicators are being loaded:', data.message);
+        setIndicators([]);
+        return;
+      }
+      
+      setIndicators(indicators);
     } catch (error) {
       console.error('Error fetching economic data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const transformFredDataToIndicators = (fredData: any): EconomicIndicator[] => {
+    const indicators: EconomicIndicator[] = [];
+    
+    // Transform FRED API data structure to our component format
+    const indicatorMap = {
+      'GDP': { name: 'Gross Domestic Product', category: 'growth' as const, unit: 'Trillions USD' },
+      'UNRATE': { name: 'Unemployment Rate', category: 'employment' as const, unit: '%' },
+      'CPIAUCSL': { name: 'Consumer Price Index', category: 'inflation' as const, unit: 'Index' },
+      'FEDFUNDS': { name: 'Federal Funds Rate', category: 'inflation' as const, unit: '%' },
+    };
+    
+    // Process each indicator from FRED data
+    Object.entries(fredData).forEach(([key, value]: [string, any]) => {
+      const mapping = indicatorMap[key as keyof typeof indicatorMap];
+      if (mapping && value && typeof value === 'object') {
+        const currentValue = value.value || value.latest_value || 0;
+        const change = value.change || value.period_change || 0;
+        
+        indicators.push({
+          id: key,
+          name: mapping.name,
+          value: currentValue,
+          unit: mapping.unit,
+          change: change,
+          changePercent: value.change_percent || 0,
+          trend: change > 0 ? 'rising' : change < 0 ? 'falling' : 'stable',
+          category: mapping.category,
+          lastUpdated: value.last_updated || new Date().toISOString(),
+          description: `Real-time ${mapping.name} data from FRED`
+        });
+      }
+    });
+    
+    return indicators;
   };
 
   const getCategoryIcon = (category: string) => {

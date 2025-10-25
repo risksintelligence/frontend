@@ -69,11 +69,11 @@ export default function RiskFactorCard({ factor, icon: Icon }: RiskFactorCardPro
         <div className="flex items-center justify-between">
           <span className="text-terminal-muted font-mono text-xs">Risk Score</span>
           <div className="text-right">
-            <div className={`text-lg font-mono font-bold ${getScoreColor(factor.score)}`}>
-              {factor.score.toFixed(1)}
+            <div className={`text-lg font-mono font-bold ${getScoreColor(factor.score || 0)}`}>
+              {(factor.score || 0).toFixed(1)}
             </div>
-            <div className={`text-xs font-mono ${getScoreColor(factor.score)}`}>
-              {getScoreLevel(factor.score)}
+            <div className={`text-xs font-mono ${getScoreColor(factor.score || 0)}`}>
+              {getScoreLevel(factor.score || 0)}
             </div>
           </div>
         </div>
@@ -90,8 +90,8 @@ export default function RiskFactorCard({ factor, icon: Icon }: RiskFactorCardPro
         <div className="space-y-1">
           <div className="w-full bg-terminal-bg rounded-full h-1.5">
             <div 
-              className={`h-1.5 rounded-full ${getScoreColor(factor.score).replace('text-', 'bg-')}`}
-              style={{ width: `${factor.score}%` }}
+              className={`h-1.5 rounded-full ${getScoreColor(factor.score || 0).replace('text-', 'bg-')}`}
+              style={{ width: `${factor.score || 0}%` }}
             ></div>
           </div>
         </div>
@@ -122,8 +122,8 @@ export default function RiskFactorCard({ factor, icon: Icon }: RiskFactorCardPro
       {showShap && (
         <div className="border-t border-terminal-border p-4">
           <ShapExplanation 
-            riskScore={factor.score}
-            predictionId={`factor-${factor.name}`}
+            riskScore={factor.score || 0}
+            predictionId={`factor-${factor.name || 'unknown'}`}
             showDetails={false}
             className="w-full"
           />

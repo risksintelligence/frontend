@@ -44,14 +44,36 @@ export default function ModelPerformancePage() {
     const fetchPerformanceMetrics = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'}/api/v1/explainability/performance/${selectedModel}`)
-        const data = await response.json()
-        
-        if (data.status === 'success' && data.data?.metrics) {
-          setMetrics(data.data.metrics)
-        } else {
-          throw new Error('Performance metrics not available from backend')
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'
+        const response = await fetch(`${baseUrl}/api/v1/explainability/model-performance`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model_id: selectedModel,
+            model_type: "tree",
+            feature_names: ['market_volatility', 'credit_rating', 'economic_indicators', 'sector_exposure', 'liquidity_ratio']
+          })
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch performance metrics')
         }
+
+        const result = await response.json()
+        
+        if (result.status !== 'success') {
+          throw new Error('API returned invalid data format')
+        }
+
+        const data = result.data
+        
+        if (!data.accuracy || !data.confusionMatrix) {
+          throw new Error('Invalid API response - missing required performance data')
+        }
+        
+        setMetrics(data)
       } catch (error) {
         console.error('Error fetching performance metrics:', error)
         setMetrics(null)

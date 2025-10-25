@@ -5,10 +5,12 @@ import RiskScoreDisplay from '@/components/risk/RiskScoreDisplay';
 import ShapExplanation from '@/components/risk/ShapExplanation';
 import { Calendar, Download, Filter, Brain, BarChart3 } from 'lucide-react';
 import { useState } from 'react';
+import { useRiskOverview } from '@/hooks/useRiskOverview';
 
 export default function RiskHistoryPage() {
   const [selectedTimeRange, setSelectedTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
   const [selectedMetric, setSelectedMetric] = useState<'overall' | 'economic' | 'market' | 'geopolitical' | 'technical'>('overall');
+  const { riskData, loading, error } = useRiskOverview();
 
   return (
     <div className="space-y-6">
@@ -80,9 +82,9 @@ export default function RiskHistoryPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1">
           <RiskScoreDisplay
-            score={75.5}
-            trend="stable"
-            confidence={0.87}
+            score={riskData?.overall_score || 0}
+            trend={riskData?.trend || "stable"}
+            confidence={riskData?.confidence || 0}
             size="lg"
             showDetails={true}
           />
@@ -172,7 +174,7 @@ export default function RiskHistoryPage() {
               CURRENT RISK EXPLANATION
             </h4>
             <ShapExplanation 
-              riskScore={75.5}
+              riskScore={riskData?.overall_score || 0}
               predictionId="current-risk"
               showDetails={true}
               className="w-full"

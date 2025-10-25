@@ -50,71 +50,53 @@ export default function BiasDetectionPage() {
     const fetchBiasAnalysis = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/v1/explainability/bias/${selectedModel}`)
-        if (response.ok) {
-          const data = await response.json()
-          setAnalysis(data)
-        } else {
-          setAnalysis({
-            modelName: 'Economic Risk Model',
-            overallBiasScore: 0.15,
-            riskLevel: 'acceptable',
-            demographicParity: {
-              region: {
-                parityDifference: 0.08,
-                parityRatio: 1.12,
-                groups: {
-                  'North America': 0.74,
-                  'Europe': 0.68,
-                  'Asia Pacific': 0.71,
-                  'Latin America': 0.66
-                }
-              },
-              sector: {
-                parityDifference: 0.06,
-                parityRatio: 1.09,
-                groups: {
-                  'Technology': 0.72,
-                  'Financial': 0.69,
-                  'Healthcare': 0.66,
-                  'Manufacturing': 0.67
-                }
-              }
-            },
-            equalizedOdds: {
-              region: {
-                tprDifference: 0.04,
-                fprDifference: 0.03
-              },
-              sector: {
-                tprDifference: 0.05,
-                fprDifference: 0.02
-              }
-            },
-            fairnessMetrics: {
-              region: {
-                'North America': { accuracy: 0.89, precision: 0.87, recall: 0.91, sampleSize: 1247 },
-                'Europe': { accuracy: 0.86, precision: 0.84, recall: 0.88, sampleSize: 892 },
-                'Asia Pacific': { accuracy: 0.88, precision: 0.86, recall: 0.90, sampleSize: 756 },
-                'Latin America': { accuracy: 0.85, precision: 0.82, recall: 0.87, sampleSize: 432 }
-              },
-              sector: {
-                'Technology': { accuracy: 0.91, precision: 0.89, recall: 0.93, sampleSize: 634 },
-                'Financial': { accuracy: 0.88, precision: 0.86, recall: 0.90, sampleSize: 789 },
-                'Healthcare': { accuracy: 0.87, precision: 0.84, recall: 0.89, sampleSize: 567 },
-                'Manufacturing': { accuracy: 0.86, precision: 0.85, recall: 0.88, sampleSize: 1337 }
-              }
-            },
-            recommendations: [
-              'Monitor regional prediction disparities closely',
-              'Consider rebalancing training data across sectors',
-              'Implement fairness constraints in model training',
-              'Regular bias audits recommended quarterly',
-              'Evaluate feature selection for potential bias sources'
-            ],
-            lastAnalysis: new Date().toISOString()
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'
+        
+        const response = await fetch(`${baseUrl}/api/v1/explainability/bias-analysis`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model_id: selectedModel,
+            validation_data: [[0.75, 0.85, 0.68, 0.54, 0.42]],
+            test_labels: [0.75],
+            protected_attributes: {
+              'gender': ['male', 'female'],
+              'age_group': ['young', 'middle', 'senior'],
+              'geographic_region': ['north', 'south', 'east', 'west']
+            }
           })
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch bias analysis')
         }
+
+        const result = await response.json()
+        
+        if (result.status !== 'success') {
+          throw new Error('API returned invalid data format')
+        }
+
+        const data = result.data
+        
+        if (!data.demographic_parity || !data.equalized_odds || !data.group_fairness_metrics) {
+          throw new Error('Invalid API response - missing required bias analysis data')
+        }
+
+        const analysis: BiasAnalysis = {
+          modelName: selectedModel,
+          overallBiasScore: data.bias_score,
+          riskLevel: data.bias_score > 0.2 ? 'High' : data.bias_score > 0.1 ? 'Medium' : 'Low',
+          demographicParity: data.demographic_parity,
+          equalizedOdds: data.equalized_odds,
+          fairnessMetrics: data.group_fairness_metrics,
+          recommendations: data.fairness_recommendations || [],
+          lastAnalysis: data.timestamp || new Date().toISOString()
+        }
+
+        setAnalysis(analysis)
       } catch (error) {
         console.error('Error fetching bias analysis:', error)
         setAnalysis(null)

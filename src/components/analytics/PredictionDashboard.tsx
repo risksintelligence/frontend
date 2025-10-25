@@ -42,11 +42,8 @@ export default function PredictionDashboard() {
   const fetchPredictions = async () => {
     try {
       setLoading(true);
-      // In production, fetch from API
-      // const response = await fetch('/api/v1/analytics/predictions');
-      // const data = await response.json();
       
-      // Load real predictions from API
+      // Build API URL - use analytics predictions endpoint
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const response = await fetch(`${apiUrl}/api/v1/analytics/predictions`);
       

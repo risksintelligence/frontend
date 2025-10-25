@@ -16,31 +16,74 @@ interface RiskFactor {
 export default function RiskFactorsPage() {
   const [riskFactors, setRiskFactors] = useState<RiskFactor[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'cards' | 'heatmap'>('cards');
 
   useEffect(() => {
     fetchRiskFactors();
-  }, []);
+    
+    // Auto-retry every 30 seconds if there's an error
+    const interval = setInterval(() => {
+      if (error && !loading) {
+        fetchRiskFactors();
+      }
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [error, loading]);
 
   const fetchRiskFactors = async () => {
     try {
       setLoading(true);
-      // fetch from API
-      // const response = await fetch('/api/v1/risk/factors');
-      // const data = await response.json();
+      setError(null);
       
-      // Load real risk factors from API
-      const response = await fetch('/api/v1/risk/factors');
+      // Build API URL
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/v1/risk/factors`);
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch risk factors');
+        if (response.status === 404) {
+          setError('Risk factors endpoint not found. Backend may still be initializing.');
+          setRiskFactors([]);
+          return;
+        }
+        throw new Error(`Failed to fetch risk factors: ${response.status}`);
       }
       
       const data = await response.json();
-      const realFactors: RiskFactor[] = data.factors || [];
       
-      setRiskFactors(realFactors);
+      // Handle different response formats
+      let factors: RiskFactor[] = [];
+      
+      if (data.status === 'success' && data.data?.factors) {
+        // Standard success response
+        factors = data.data.factors;
+      } else if (data.status === 'loading') {
+        // Backend is still loading data
+        setError(`Risk factors are being calculated: ${data.message || 'Please wait...'}`);
+        setRiskFactors([]);
+        return;
+      } else if (Array.isArray(data)) {
+        // Direct array response (fallback)
+        factors = data;
+      }
+      
+      // Validate and sanitize factor data
+      const validFactors = factors.filter(factor => 
+        factor && 
+        typeof factor.name === 'string' && 
+        typeof factor.score === 'number' &&
+        factor.impact &&
+        factor.trend
+      );
+      
+      setRiskFactors(validFactors);
+      setError(null); // Clear error on success
+      
     } catch (error) {
       console.error('Error fetching risk factors:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load risk factors');
+      setRiskFactors([]);
     } finally {
       setLoading(false);
     }
@@ -105,6 +148,42 @@ export default function RiskFactorsPage() {
     );
   }
 
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6 p-6 bg-white min-h-screen">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-mono font-bold text-slate-900">
+            RISK FACTORS ANALYSIS
+          </h1>
+          <button
+            onClick={fetchRiskFactors}
+            className="px-4 py-2 bg-blue-600 text-white font-mono text-sm rounded hover:bg-blue-700 transition-colors"
+          >
+            RETRY
+          </button>
+        </div>
+        
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
+            <h3 className="font-mono font-semibold text-amber-800">Data Loading Issue</h3>
+          </div>
+          <p className="text-amber-700 font-mono text-sm mb-4">
+            {error}
+          </p>
+          <div className="text-amber-600 font-mono text-xs">
+            • Backend may be starting up (this is normal for the first few minutes)
+            <br />
+            • External data sources may be temporarily unavailable
+            <br />
+            • Try refreshing in a few moments
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 p-6 bg-white min-h-screen">
       {/* Header */}
@@ -136,6 +215,14 @@ export default function RiskFactorsPage() {
               HEATMAP
             </button>
           </div>
+          
+          <button
+            onClick={fetchRiskFactors}
+            disabled={loading}
+            className="px-3 py-1 text-sm font-mono rounded border border-slate-200 hover:bg-slate-50 transition-colors disabled:opacity-50"
+          >
+            {loading ? 'LOADING...' : 'REFRESH'}
+          </button>
           
           <div className="text-slate-500 font-mono text-sm">
             {riskFactors.length} factors monitored

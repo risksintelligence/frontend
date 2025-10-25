@@ -36,29 +36,52 @@ export default function ShapAnalysisPage() {
     const fetchShapAnalysis = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/v1/explainability/shap/${selectedModel}`)
-        if (response.ok) {
-          const data = await response.json()
-          setAnalysis(data)
-        } else {
-          setAnalysis({
-            predictionId: 'pred_001',
-            modelName: 'Economic Risk Model',
-            prediction: 73.2,
-            expectedValue: 45.8,
-            confidence: 0.87,
-            shapValues: [
-              { feature: 'GDP Growth Rate', value: 2.1, impact: 12.4, importance: 0.34 },
-              { feature: 'Unemployment Rate', value: 3.8, impact: -8.7, importance: 0.28 },
-              { feature: 'Interest Rate Spread', value: 1.2, impact: -5.3, importance: 0.22 },
-              { feature: 'Inflation Rate', value: 2.4, impact: 4.1, importance: 0.16 },
-              { feature: 'Consumer Confidence', value: 89.2, impact: 3.8, importance: 0.12 },
-              { feature: 'Industrial Production', value: 101.4, impact: 2.9, importance: 0.09 },
-              { feature: 'Housing Starts', value: 1.68, impact: -1.2, importance: 0.06 }
-            ],
-            timestamp: new Date().toISOString()
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'
+        
+        const response = await fetch(`${baseUrl}/api/v1/explainability/explain-prediction`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model_id: selectedModel,
+            input_features: [0.75, 0.85, 0.68, 0.54, 0.42],
+            feature_names: ['market_volatility', 'credit_rating', 'economic_indicators', 'sector_exposure', 'liquidity_ratio']
           })
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch SHAP analysis')
         }
+
+        const result = await response.json()
+        
+        if (result.status !== 'success') {
+          throw new Error('API returned invalid data format')
+        }
+
+        const data = result.data
+        
+        if (!data.prediction_id || !data.shap_values) {
+          throw new Error('Invalid API response - missing required data')
+        }
+
+        const analysis: ShapAnalysis = {
+          predictionId: data.prediction_id,
+          modelName: data.model_id,
+          prediction: data.model_prediction,
+          expectedValue: data.expected_value,
+          confidence: data.confidence_score,
+          timestamp: data.timestamp,
+          shapValues: data.shap_values.map((value: number, index: number) => ({
+            feature: data.feature_names[index],
+            value: data.feature_values[index],
+            impact: value,
+            importance: Math.abs(value)
+          }))
+        }
+
+        setAnalysis(analysis)
       } catch (error) {
         console.error('Error fetching SHAP analysis:', error)
         setAnalysis(null)

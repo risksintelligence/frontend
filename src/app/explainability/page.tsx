@@ -32,48 +32,67 @@ export default function ExplainabilityPage() {
   useEffect(() => {
     const fetchOverview = async () => {
       try {
-        const response = await fetch('/api/v1/explainability/overview')
-        if (response.ok) {
-          const data = await response.json()
-          setOverview(data)
-        } else {
-          setOverview({
-            totalModels: 12,
-            explainedPredictions: 2847,
-            biasScore: 0.15,
-            fairnessLevel: 'acceptable',
-            lastAnalysis: new Date().toISOString(),
-            topFeatures: [
-              { name: 'GDP Growth Rate', importance: 0.34, impact: 'positive' },
-              { name: 'Unemployment Rate', importance: 0.28, impact: 'negative' },
-              { name: 'Interest Rate Spread', importance: 0.22, impact: 'negative' },
-              { name: 'Inflation Rate', importance: 0.16, impact: 'neutral' }
-            ],
-            recentExplanations: [
-              {
-                id: 'exp_001',
-                modelName: 'Economic Risk Model',
-                predictionType: 'Recession Probability',
-                confidence: 0.87,
-                timestamp: new Date().toISOString()
-              },
-              {
-                id: 'exp_002',
-                modelName: 'Market Volatility Model',
-                predictionType: 'VIX Forecast',
-                confidence: 0.92,
-                timestamp: new Date().toISOString()
-              },
-              {
-                id: 'exp_003',
-                modelName: 'Supply Chain Risk Model',
-                predictionType: 'Disruption Risk',
-                confidence: 0.78,
-                timestamp: new Date().toISOString()
-              }
-            ]
-          })
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-2-bz1u.onrender.com'
+        
+        const [modelsResponse, historyResponse] = await Promise.all([
+          fetch(`${baseUrl}/api/v1/explainability/registered-models`),
+          fetch(`${baseUrl}/api/v1/explainability/explanation-history`)
+        ])
+
+        if (!modelsResponse.ok || !historyResponse.ok) {
+          throw new Error('Failed to fetch explainability data')
         }
+
+        const modelsData = await modelsResponse.json()
+        const historyData = await historyResponse.json()
+
+        if (modelsData.status !== 'success' || historyData.status !== 'success') {
+          throw new Error('API returned invalid data format')
+        }
+
+        const models = modelsData.data.registered_models || []
+        const history = historyData.data.explanations || []
+
+        const recentExplanations = history.slice(0, 5).map((item: any) => ({
+          id: item.prediction_id,
+          modelName: 'Risk Model',
+          predictionType: 'Risk Assessment',
+          confidence: item.confidence_score,
+          timestamp: item.timestamp
+        }))
+
+        let totalExplained = history.length
+        let biasScore = 0.15
+        let fairnessLevel = 'Good'
+
+        if (history.length > 0) {
+          const avgConfidence = history.reduce((sum: number, item: any) => 
+            sum + (item.confidence_score || 0.8), 0) / history.length
+          biasScore = Math.max(0.05, 0.25 - avgConfidence * 0.2)
+          fairnessLevel = biasScore <= 0.1 ? 'High' : biasScore <= 0.2 ? 'Good' : 'Fair'
+        }
+
+        const topFeatures = models.length > 0 && models[0].feature_importance ? 
+          Object.entries(models[0].feature_importance as Record<string, number>)
+            .sort(([,a], [,b]) => (b as number) - (a as number))
+            .slice(0, 5)
+            .map(([name, importance]) => ({
+              name,
+              importance: importance as number,
+              impact: (importance as number) > 0.5 ? 'positive' : 'neutral'
+            })) : []
+
+        const overview: ExplainabilityOverview = {
+          totalModels: models.length,
+          explainedPredictions: totalExplained,
+          biasScore,
+          fairnessLevel,
+          lastAnalysis: history.length > 0 ? history[0].timestamp : new Date().toISOString(),
+          topFeatures,
+          recentExplanations
+        }
+
+        setOverview(overview)
       } catch (error) {
         console.error('Error fetching explainability overview:', error)
         setOverview(null)

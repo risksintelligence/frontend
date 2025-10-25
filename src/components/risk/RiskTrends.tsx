@@ -26,18 +26,34 @@ export default function RiskTrends({ timeRange = '30d', showComponents = true }:
   const fetchTrendData = useCallback(async () => {
     try {
       setLoading(true);
-      // In production, fetch from API
-      // const response = await fetch(`/api/v1/risk/trends?range=${timeRange}`);
-      // const data = await response.json();
+      // Build API URL with environment variable
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/v1/risk/trends?range=${timeRange}`);
       
-      // Load real trend data from API
-      const response = await fetch(`/api/v1/risk/trends?range=${timeRange}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch trend data');
+        if (response.status === 404) {
+          console.warn('Risk trends endpoint not found');
+          setTrendData([]);
+          return;
+        }
+        throw new Error(`Failed to fetch trend data: ${response.status}`);
       }
       
       const data = await response.json();
-      setTrendData(data.trends || []);
+      
+      // Handle different response formats
+      let trends: RiskTrendData[] = [];
+      if (data.status === 'success' && data.data?.trends) {
+        trends = data.data.trends;
+      } else if (data.status === 'loading') {
+        console.info('Risk trends are being calculated:', data.message);
+        setTrendData([]);
+        return;
+      } else if (Array.isArray(data.trends)) {
+        trends = data.trends;
+      }
+      
+      setTrendData(trends);
     } catch (error) {
       console.error('Error fetching trend data:', error);
     } finally {

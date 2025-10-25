@@ -43,20 +43,54 @@ export default function RiskAlerts({ showFilters = true, maxAlerts }: RiskAlerts
   const fetchAlerts = async () => {
     try {
       setLoading(true);
-      // In production, fetch from API
-      // const response = await fetch('/api/v1/risk/alerts');
-      // const data = await response.json();
       
-      // Load real alerts from API
-      const response = await fetch('/api/v1/risk/alerts');
+      // Build API URL with environment variable and filters
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const params = new URLSearchParams();
+      
+      if (filter.type !== 'all') {
+        params.append('severity', filter.type);
+      }
+      if (maxAlerts) {
+        params.append('limit', maxAlerts.toString());
+      }
+      
+      const queryString = params.toString();
+      const url = `${apiUrl}/api/v1/risk/alerts${queryString ? `?${queryString}` : ''}`;
+      
+      const response = await fetch(url);
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch risk alerts');
+        if (response.status === 404) {
+          console.warn('Risk alerts endpoint not found');
+          setAlerts([]);
+          return;
+        }
+        throw new Error(`Failed to fetch alerts: ${response.status}`);
       }
       
       const data = await response.json();
-      const realAlerts: RiskAlert[] = data.alerts || [];
       
-      setAlerts(realAlerts);
+      // Handle different response formats
+      let alertsData: RiskAlert[] = [];
+      if (data.status === 'success' && data.data?.alerts) {
+        alertsData = data.data.alerts;
+      } else if (data.status === 'loading') {
+        console.info('Risk alerts are being generated:', data.message);
+        setAlerts([]);
+        return;
+      } else if (Array.isArray(data.alerts)) {
+        alertsData = data.alerts;
+      }
+      
+      // Apply client-side filters
+      let filteredAlerts = alertsData.filter(alert => {
+        if (filter.status !== 'all' && alert.status !== filter.status) return false;
+        if (filter.category !== 'all' && alert.category !== filter.category) return false;
+        return true;
+      });
+      
+      setAlerts(filteredAlerts);
     } catch (error) {
       console.error('Error fetching alerts:', error);
     } finally {

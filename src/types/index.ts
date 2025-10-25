@@ -23,19 +23,40 @@ export interface RiskScore {
   data_sources?: string[];
 }
 
-export interface RiskFactor {
-  id: number;
+// Backend API RiskFactor interface (matches backend response)
+export interface BackendRiskFactor {
   name: string;
-  category: 'economic' | 'market' | 'geopolitical' | 'technical';
-  description?: string;
-  current_value: number;
-  current_score: number;
-  impact_level: 'low' | 'moderate' | 'high' | 'critical';
-  weight: number;
-  data_source: string;
-  series_id?: string;
+  score: number;
+  impact: 'low' | 'moderate' | 'high';
+  trend: 'rising' | 'falling' | 'stable';
+  description: string;
+}
+
+// Backend API response structure for risk factors
+export interface RiskFactorsResponse {
+  factors: BackendRiskFactor[];
+  count: number;
   last_updated: string;
-  thresholds: {
+  data_source: string;
+}
+
+// Legacy RiskFactor interface (kept for compatibility)
+export interface RiskFactor {
+  id?: number;
+  name: string;
+  category?: 'economic' | 'market' | 'geopolitical' | 'technical';
+  description?: string;
+  current_value?: number;
+  current_score?: number;
+  score: number; // Primary score field
+  impact_level?: 'low' | 'moderate' | 'high' | 'critical';
+  impact: 'low' | 'moderate' | 'high'; // Backend uses this field
+  trend: 'rising' | 'falling' | 'stable';
+  weight?: number;
+  data_source?: string;
+  series_id?: string;
+  last_updated?: string;
+  thresholds?: {
     low?: number;
     high?: number;
   };
