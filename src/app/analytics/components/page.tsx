@@ -2,10 +2,8 @@
 
 import { useMemoizedApi } from '../../../hooks/use-memo-api';
 import { api } from '../../../lib/api';
-import LazyChart from '../../../components/lazy-chart';
 
 export default function ComponentsPage() {
-  // Components data will be derived from GERI drivers for now
   const { data: geri } = useMemoizedApi('geri', () => api.getGeri());
 
   const componentGroups = {
@@ -15,64 +13,68 @@ export default function ComponentsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">Component Analysis</h1>
-        <p className="text-gray-600 font-mono text-sm">
-          Individual component breakdowns, z-scores, and contribution analysis
-        </p>
-      </div>
+    <main className="min-h-screen bg-[#f8fafc] p-6 font-mono text-[#0f172a]">
+      <header className="hero-panel" aria-label="Component Analysis Overview">
+        <div>
+          <p className="hero-eyebrow">RRIO Component Insights</p>
+          <h1 className="hero-title">Finance, supply chain, macro pillars</h1>
+          <p className="hero-subtitle">
+            Every component inherits semantic color cues, provenance links, and regime-aware annotations per the design system.
+          </p>
+          <ul className="hero-bullets">
+            <li>Driver contributions and z-scores updated in real time</li>
+            <li>Shared panel system for finance, supply chain, macro pillars</li>
+            <li>Regime-aware weighting for cross-domain coherence</li>
+          </ul>
+        </div>
+        <div className="hero-metric-card">
+          <p className="hero-metric-label">Components</p>
+          <p className="hero-metric-value">{geri?.drivers?.length ?? 8}</p>
+          <p className="hero-metric-footnote">From /api/v1/analytics/geri</p>
+        </div>
+      </header>
 
-      {/* Current Contributions */}
-      <section className="mb-8">
-        <div className="rounded-xl border border-gray-200 bg-white p-6">
-          <h2 className="text-lg font-semibold mb-4">Current Component Contributions</h2>
-          <div className="space-y-3">
-            {geri?.drivers?.map((driver, index) => (
-              <div key={index} className="flex items-center gap-4 p-3 border border-gray-100 rounded-lg">
-                <div className="flex-shrink-0 w-24 text-xs font-mono text-gray-600">
-                  {driver.component}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="text-sm font-semibold">
-                      {(driver.impact / 10).toFixed(1)}% contribution
-                    </div>
-                    <div 
-                      className="px-2 py-1 rounded text-xs text-white"
-                      style={{ 
-                        backgroundColor: driver.impact > 0 ? '#D50000' : '#00C853' 
-                      }}
-                    >
-                      {driver.impact > 0 ? 'Risk' : 'Support'}
-                    </div>
+      <section className="mt-8 panel">
+        <h2 className="section-label">Current Component Contributions</h2>
+        <div className="space-y-3">
+          {geri?.drivers?.map((driver, index) => (
+            <div key={index} className="flex items-center gap-4 p-3 border border-[#e2e8f0] rounded-lg">
+              <div className="flex-shrink-0 w-24 text-xs font-mono text-terminal-muted">
+                {driver.component}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="text-sm font-semibold">
+                    {(driver.impact / 10).toFixed(1)}% contribution
                   </div>
                   <div 
-                    className="h-2 rounded-full"
+                    className="px-2 py-1 rounded text-xs text-white"
                     style={{ 
-                      backgroundColor: '#f3f4f6',
-                      width: '100%'
+                      backgroundColor: driver.impact > 0 ? 'var(--risk-high)' : 'var(--risk-minimal)' 
                     }}
                   >
-                    <div 
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        backgroundColor: driver.impact > 0 ? '#DC2626' : '#059669',
-                        width: `${Math.abs(driver.impact) * 2}%`
-                      }}
-                    />
+                    {driver.impact > 0 ? 'Risk factor' : 'Stabilizer'}
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 font-mono">
-                  {driver.contribution?.toFixed(3)}
+                <div className="h-2 rounded-full bg-[#f1f5f9]">
+                  <div 
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      backgroundColor: driver.impact > 0 ? 'var(--risk-high)' : 'var(--risk-minimal)',
+                      width: `${Math.min(Math.abs(driver.impact) * 2, 100)}%`
+                    }}
+                  />
                 </div>
               </div>
-            )) || (
-              <div className="text-center py-8 text-gray-500">
-                <p>Loading component data...</p>
+              <div className="text-xs text-terminal-muted font-mono">
+                {driver.contribution?.toFixed(3)}
               </div>
-            )}
-          </div>
+            </div>
+          )) || (
+            <div className="text-center py-8 text-terminal-muted">
+              <p>Loading component data...</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -217,6 +219,6 @@ export default function ComponentsPage() {
           </div>
         </div>
       </section>
-    </div>
+    </main>
   );
 }

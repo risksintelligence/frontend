@@ -133,6 +133,7 @@ export default function RootLayout({
               </div>
             </div>
             <a href="/transparency" className="nav-link hover:text-blue-300 transition-colors">Transparency</a>
+            <a href="/communication" className="nav-link hover:text-blue-300 transition-colors">Communication</a>
             <a href="/community" className="nav-link hover:text-blue-300 transition-colors">Community</a>
             <a href="/community/admin" className="nav-link hover:text-blue-300 transition-colors">Reviewer</a>
           </div>
