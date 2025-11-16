@@ -81,8 +81,8 @@ const Dashboard = memo(function Dashboard() {
         <RRIOCommentary geri={geri} regime={regime} forecast={forecast} />
       </section>
       <section className="mt-6 grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border border-[#e2e8f0] bg-white p-4">
-          <h3 className="text-sm uppercase" style={{ color: 'var(--terminal-muted)' }}>Drivers</h3>
+        <div className="risk-card">
+          <h3 className="section-label">Risk Drivers</h3>
           <ComponentGrid drivers={geri?.drivers} />
           <DriverNarrative drivers={geri?.drivers} />
           <PillarGrid drivers={geri?.drivers} />
@@ -175,7 +175,7 @@ const Dashboard = memo(function Dashboard() {
       <section className="mt-6 grid gap-4 md:grid-cols-2">
         <NewsletterStatus statusData={newsletterStatus} />
         <ScenarioStudioPrompt 
-          anomalyScore={(anomaly as any)?.score}
+          anomalyScore={(anomaly as any)?.anomalies?.[0]?.score ?? (anomaly as any)?.summary?.max_severity ?? (anomaly as any)?.score}
           currentRegime={(regime as any)?.regime}
           recentScenarios={scenarioCards}
           summary={scenarioPrompts?.summary}

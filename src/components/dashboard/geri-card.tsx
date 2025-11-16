@@ -1,48 +1,57 @@
 import { GeriResponse } from '../../lib/api';
-import { semanticColors } from '../../lib/theme';
-
-const bandColorMap: Record<string, string> = {
-  minimal: 'var(--minimal-risk)',
-  low: 'var(--low-risk)',
-  moderate: 'var(--moderate-risk)',
-  high: 'var(--high-risk)',
-  critical: 'var(--critical-risk)',
-};
+import { getRiskBandClass, getRiskBandColor } from '../../lib/theme';
 
 export default function GERICard({ data, narrative }: { data: GeriResponse | undefined; narrative: string }) {
+  const bandClass = data?.band ? getRiskBandClass(data.band) : 'text-risk-moderate';
+  const bandColor = data?.band ? getRiskBandColor(data.band) : '#FFD600';
+  
   return (
-    <div className="rounded-xl border border-[#e2e8f0] bg-white p-4" aria-label="GRII Risk Score">
-      <h2 className="text-sm uppercase tracking-wide" style={{ color: 'var(--terminal-muted)' }}>GRII Score</h2>
-      <div className="flex items-baseline gap-2">
-        <p
-          className="text-4xl font-bold"
-          style={{ color: bandColorMap[data?.band ?? ''] || bandColorMap.moderate }}
-        >
+    <div className="risk-card" aria-label="GRII Risk Score">
+      <h2 className="section-label">GRII Score</h2>
+      <div className="flex items-baseline gap-2 mt-2">
+        <p className={`geri-score ${bandClass}`}>
           {data?.score ?? '--'}
         </p>
-        {data?.confidence_interval && (
-          <span className="text-sm text-[#64748b]">
-            ±{((data.confidence_interval[1] - data.confidence_interval[0]) / 2).toFixed(1)}
+        {data?.change_24h !== undefined && (
+          <span className="text-sm font-medium text-slate-600">
+            {data.change_24h > 0 ? '+' : ''}{data.change_24h.toFixed(1)}
           </span>
         )}
       </div>
-      <div className="flex items-center justify-between">
-        <p className="text-sm" style={{ color: 'var(--terminal-muted)' }}>
+      <div className="flex items-center justify-between mt-1">
+        <p className="text-sm font-medium text-terminal-muted capitalize">
           {data?.band ?? 'loading...'}
         </p>
         {data?.confidence && (
-          <span className="text-xs px-2 py-1 rounded bg-[#f1f5f9] text-[#475569]">
-            {(data.confidence * 100).toFixed(0)}% confidence
+          <span className="text-xs px-2 py-1 rounded-md bg-slate-100 text-slate-700 font-medium">
+            {typeof data.confidence === 'number' 
+              ? `${data.confidence.toFixed(0)}% confidence`
+              : `${(data.confidence * 100).toFixed(0)}% confidence`
+            }
           </span>
         )}
       </div>
-      <p className="mt-2 text-xs text-[#94a3b8]">
-        Source: GRII API v1 | Updated: {data?.updated_at}
-        {data?.confidence_interval && (
-          <> | CI: [{data.confidence_interval[0].toFixed(1)}, {data.confidence_interval[1].toFixed(1)}]</>
-        )}
+      
+      {/* Visual indicator bar */}
+      <div className="mt-3 w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+        <div 
+          className="h-full rounded-full transition-all duration-500"
+          style={{ 
+            width: `${data?.score ?? 0}%`, 
+            backgroundColor: bandColor 
+          }}
+        />
+      </div>
+      
+      <p className="mt-3 text-xs text-slate-500">
+        Source: GERII API v1 | Updated: {data?.updated_at ? new Date(data.updated_at).toLocaleTimeString() : '--'}
       </p>
-      <p className="mt-3 text-xs text-[#475569]">{narrative}</p>
+      
+      {narrative && (
+        <div className="mt-4 p-3 bg-slate-50 rounded-lg border-l-4" style={{ borderLeftColor: bandColor }}>
+          <p className="text-sm text-slate-700 leading-relaxed">{narrative}</p>
+        </div>
+      )}
     </div>
   );
 }

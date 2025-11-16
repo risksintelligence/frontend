@@ -107,21 +107,30 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
+        {/* Preload JetBrains Mono font */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link 
+          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" 
+          rel="stylesheet"
+        />
       </head>
       <body>
-        <nav className="flex items-center justify-between bg-[#0f172a] px-6 py-3 font-mono text-white">
+        <nav className="flex items-center justify-between px-6 py-3 text-white" style={{ backgroundColor: '#0f172a' }}>
           <div>
             <span className="text-lg font-bold">RRIO Dashboard</span>
-            <p className="text-xs text-[#94a3b8]">Ethical AI risk intelligence for U.S. finance & supply chain</p>
+            <p className="text-xs" style={{ color: '#94a3b8' }}>Ethical AI risk intelligence for U.S. finance & supply chain</p>
           </div>
-          <div className="text-xs space-x-4">
-            <a href="/" className="hover:underline">Dashboard</a>
-            <a href="/transparency" className="hover:underline">Transparency</a>
-            <a href="/community" className="hover:underline">Community</a>
-            <a href="/community/admin" className="hover:underline">Reviewer</a>
+          <div className="text-xs flex gap-4">
+            <a href="/" className="nav-link">Dashboard</a>
+            <a href="/transparency" className="nav-link">Transparency</a>
+            <a href="/community" className="nav-link">Community</a>
+            <a href="/community/admin" className="nav-link">Reviewer</a>
           </div>
         </nav>
-        {children}
+        <main className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
+          {children}
+        </main>
       </body>
     </html>
   );

@@ -16,6 +16,9 @@ export type GeriResponse = {
   change_24h: number;
   confidence: number;
   confidence_interval?: [number, number];
+  contributions?: Record<string, number>;
+  component_scores?: Record<string, number>;
+  metadata?: any;
 };
 
 export type PartnerLab = {
@@ -144,25 +147,76 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://backend-9t5o.o
 
 import { authManager } from './auth';
 
-async function fetchJson<T>(path: string): Promise<T> {
+async function fetchJson<T>(path: string, retries = 2): Promise<T> {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...authManager.getAuthHeaders()
   };
 
-  const res = await fetch(`${BASE_URL}${path}`, { 
-    cache: 'no-store',
-    headers 
-  });
-  if (!res.ok) throw new Error(`Failed to fetch ${path}: ${res.status}`);
-  return res.json() as Promise<T>;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const res = await fetch(`${BASE_URL}${path}`, { 
+        cache: 'no-store',
+        headers,
+        signal: AbortSignal.timeout(10000) // 10 second timeout
+      });
+      
+      if (!res.ok) {
+        // Don't retry on 4xx errors (client errors)
+        if (res.status >= 400 && res.status < 500 && i === 0) {
+          throw new Error(`Failed to fetch ${path}: ${res.status} ${res.statusText}`);
+        }
+        // Retry on 5xx errors (server errors)
+        if (i < retries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Exponential backoff
+          continue;
+        }
+        throw new Error(`Failed to fetch ${path}: ${res.status} ${res.statusText}`);
+      }
+      
+      return res.json() as Promise<T>;
+    } catch (error) {
+      if (i < retries && (error instanceof TypeError || error.name === 'NetworkError')) {
+        // Retry on network errors
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+        continue;
+      }
+      throw error;
+    }
+  }
+  
+  throw new Error(`Failed to fetch ${path} after ${retries + 1} attempts`);
 }
 
 export const api = {
   getGeri: () => fetchJson<GeriResponse>('/analytics/geri'),
-  getRegime: () => fetchJson('/ai/regime/current'),
-  getForecast: () => fetchJson('/ai/forecast/next-24h'),
-  getAnomalies: () => fetchJson('/anomalies/latest'),
+  getRegime: () => fetchJson<{
+    regime: string;
+    probabilities: Record<string, number>;
+    weights?: Record<string, number>;
+    confidence: number;
+    updated_at: string;
+  }>('/ai/regime/current'),
+  getForecast: () => fetchJson<{
+    delta: number;
+    p_gt_5: number;
+    confidence_interval: [number, number];
+    drivers: Array<{component: string; impact: number}>;
+    updated_at: string;
+  }>('/ai/forecast/next-24h'),
+  getAnomalies: () => fetchJson<{
+    anomalies: Array<{
+      score: number;
+      classification: string;
+      drivers?: Array<{component: string; impact: number}>;
+      timestamp: string;
+    }>;
+    summary: {
+      total_anomalies: number;
+      max_severity: number;
+      updated_at: string;
+    };
+  }>('/anomalies/latest'),
   getRas: () => fetchJson('/impact/ras'),
   getDataFreshness: () => fetchJson('/transparency/data-freshness'),
   getUpdateLog: () => fetchJson('/transparency/update-log'),
