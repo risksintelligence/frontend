@@ -2,9 +2,10 @@
 
 import { useMemoizedApi } from '../../../hooks/use-memo-api';
 import { api } from '../../../lib/api';
+import ComponentHeatmap from '../../../components/charts/heatmap';
 
 export default function ComponentsPage() {
-  const { data: geri } = useMemoizedApi('geri', () => api.getGeri());
+  const { data: geri } = useMemoizedApi('components-geri', () => api.getGeri());
 
   const componentGroups = {
     'Financial Stress': ['VIX', 'YIELD_CURVE', 'CREDIT_SPREAD'],
@@ -84,50 +85,15 @@ export default function ComponentsPage() {
           <div className="rounded-xl border border-gray-200 bg-white p-6">
             <h2 className="text-lg font-semibold mb-4">{groupName} Components</h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {componentList.map((component) => {
-                const currentDriver = geri?.drivers?.find(d => d.component === component);
-                return (
-                  <div key={component} className="border border-gray-100 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-semibold">{component.replace('_', ' ')}</h3>
-                      <div className="text-xs text-gray-500">
-                        Z: {currentDriver ? (currentDriver.impact / 10).toFixed(2) : 'N/A'}
-                      </div>
-                    </div>
-                    
-                    <div className="text-center py-4 text-gray-400 text-xs">
-                      Component history chart
-                      <br />
-                      (Requires /api/v1/analytics/components endpoint)
-                    </div>
-                    
-                    <div className="mt-3 space-y-1 text-xs">
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Current Impact:</span>
-                        <span className="font-mono">
-                          {currentDriver ? `${currentDriver.impact.toFixed(1)}bp` : 'N/A'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Contribution:</span>
-                        <span className="font-mono">
-                          {currentDriver ? currentDriver.contribution.toFixed(3) : 'N/A'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Provider:</span>
-                        <span className="font-mono">FRED</span>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <button className="text-xs text-blue-600 hover:underline">
-                        View detailed history →
-                      </button>
-                    </div>
+              {componentList.map((component) => (
+                <div key={component} className="border border-gray-100 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold">{component.replace('_', ' ')}</h3>
+                    <div className="text-xs text-gray-500">Z data via API</div>
                   </div>
-                );
-              })}
+                  <ComponentHeatmap componentId={component} />
+                </div>
+              ))}
             </div>
           </div>
         </section>

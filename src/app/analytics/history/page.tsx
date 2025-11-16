@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useMemoizedApi } from '../../../hooks/use-memo-api';
 import { api } from '../../../lib/api';
+import LazyChart from '../../../components/lazy-chart';
 
 const notableEvents = [
   {
@@ -29,10 +30,17 @@ const notableEvents = [
 ];
 
 export default function HistoryPage() {
-  const { data: geri } = useMemoizedApi('geri', () => api.getGeri());
-  const { data: history } = useMemoizedApi('geri-history', () => Promise.resolve(null));
+  const { data: geri } = useMemoizedApi('history-geri', () => api.getGeri());
+  const { data: history } = useMemoizedApi('history-geri-series', () => api.getGeriHistory(60));
 
   const currentScore = geri?.score ?? '--';
+  const chartData = useMemo(() => {
+    return history?.geri_history?.map((entry) => ({
+      timestamp: entry.date,
+      z_score: (entry.score - 50) / 10,
+      component: 'GERII'
+    })) ?? [];
+  }, [history]);
 
   return (
     <main className="min-h-screen bg-[#f8fafc] p-6 font-mono text-[#0f172a]">
@@ -58,20 +66,19 @@ export default function HistoryPage() {
 
       <section className="mt-8 panel">
         <h2 className="section-label mb-3">GERII Score Over Time</h2>
-        <div className="text-sm text-terminal-muted">
-          <p>
-            Historical endpoint `/api/v1/analytics/geri/history` will populate this chart with GERII score trajectories,
-            regime transitions, and component-attribution callouts. Until then, this panel provides context around the current score.
-          </p>
-        </div>
+        <LazyChart
+          type="zscore"
+          data={chartData}
+          component="GERII"
+        />
         <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div>
             <div className="text-xs text-terminal-muted uppercase">Period</div>
-            <div className="text-sm font-mono">30 days</div>
+            <div className="text-sm font-mono">{history?.period?.days ?? 60} days</div>
           </div>
           <div>
             <div className="text-xs text-terminal-muted uppercase">Data Points</div>
-            <div className="text-sm font-mono">150</div>
+            <div className="text-sm font-mono">{history?.geri_history?.length ?? '--'}</div>
           </div>
           <div>
             <div className="text-xs text-terminal-muted uppercase">Last Updated</div>

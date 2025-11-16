@@ -143,6 +143,31 @@ export type ScenarioPromptsResponse = {
   generated_at: string;
 };
 
+export type GeriHistoryResponse = {
+  period: { start: string; end: string; days: number };
+  geri_history: Array<{ date: string; score: number; band: string; color: string }>;
+  components: Record<string, Array<{ date: string; value: number; z_score: number; contribution: number }>>;
+  metadata: {
+    total_observations: number;
+    series_count: number;
+    generated_at: string;
+  };
+};
+
+export type ComponentHistoryResponse = {
+  component_id: string;
+  period: { start: string; end: string; days: number };
+  history: Array<{ date: string; value: number; z_score: number; percentile: number; contribution: number; freshness: string }>;
+  statistics: {
+    mean: number;
+    min: number;
+    max: number;
+    current_z_score: number;
+    volatility: number;
+  };
+  metadata: { total_points: number; latest_update: string | null; generated_at: string };
+};
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://backend-9t5o.onrender.com/api/v1';
 
 import { authManager } from './auth';
@@ -233,15 +258,6 @@ async function postJson<T>(path: string, data: any, retries = 2): Promise<T> {
 
 export const api = {
   getGeri: () => fetchJson<GeriResponse>('/analytics/geri'),
-  getGeriHistory: (limit?: number, offset?: number) => fetchJson<{
-    series: Array<{timestamp: string; score: number}>;
-    pagination: {
-      limit: number;
-      offset: number; 
-      total: number;
-      has_more: boolean;
-    };
-  }>(`/analytics/geri/history${limit ? `?limit=${limit}&offset=${offset || 0}` : ''}`),
   getGeriComponents: () => fetchJson<{
     components: Array<{
       id: string;
@@ -292,6 +308,8 @@ export const api = {
   }>>('/transparency/update-log'),
   getSystemReleases: () => fetchJson('/system/releases'),
   getNewsletterPreview: (type: string) => fetchJson(`/communication/newsletter/preview?newsletter_type=${type}`),
+  getGeriHistory: (days: number = 30) => fetchJson<GeriHistoryResponse>(`/analytics/history?days=${days}`),
+  getComponentHistory: (componentId: string, days: number = 30) => fetchJson<ComponentHistoryResponse>(`/analytics/components/${componentId}/history?days=${days}`),
   
   // Community APIs
   getPartnerLabs: () => fetchJson<PartnerLabsResponse>('/community/partner-labs'),

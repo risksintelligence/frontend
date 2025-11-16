@@ -123,6 +123,8 @@ export default function RootLayout({
           </div>
           <div className="text-xs flex gap-4">
             <a href="/" className="nav-link hover:text-blue-300 transition-colors">Dashboard</a>
+            <a href="/grii" className="nav-link hover:text-blue-300 transition-colors">GRII Intelligence</a>
+            <a href="/rrio" className="nav-link hover:text-blue-300 transition-colors">RRIO Hub</a>
             <div className="relative group">
               <a href="/analytics" className="nav-link hover:text-blue-300 transition-colors">Analytics ▾</a>
               <div className="absolute top-full left-0 mt-1 w-48 bg-white text-gray-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
