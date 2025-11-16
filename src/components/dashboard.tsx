@@ -27,6 +27,7 @@ import DataFreshnessMeter from './data-freshness-meter';
 import RegimeCard from './regime-card';
 import OverviewSection from './dashboard/overview-section';
 import RRIOCommentary from './rrio-commentary';
+import AlertBanner from './dashboard/alert-banner';
 import { memo, useMemo } from 'react';
 import { useMemoizedApi, useMemoizedCompute } from '../hooks/use-memo-api';
 import LazyChart from './lazy-chart';
@@ -76,6 +77,11 @@ const Dashboard = memo(function Dashboard() {
         {geri ? `GRII score updated: ${geri.score}` : ''}
       </div>
       <main id="main-content" className="min-h-screen bg-[#f8fafc] p-6 font-mono text-[#0f172a]" role="main">
+      <AlertBanner 
+        geri={geri} 
+        anomalyScore={(anomaly as any)?.summary?.max_severity || (anomaly as any)?.score}
+        forecastDelta={(forecast as any)?.delta}
+      />
       <OverviewSection geri={geri} narrative={narrative} regime={regime} />
       <section className="mt-6">
         <RRIOCommentary geri={geri} regime={regime} forecast={forecast} />

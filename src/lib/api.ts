@@ -218,8 +218,20 @@ export const api = {
     };
   }>('/anomalies/latest'),
   getRas: () => fetchJson('/impact/ras'),
-  getDataFreshness: () => fetchJson('/transparency/data-freshness'),
-  getUpdateLog: () => fetchJson('/transparency/update-log'),
+  getDataFreshness: () => fetchJson<Array<{
+    component: string;
+    status: string;
+    last_updated: string;
+    cache_tier?: string;
+    ttl_remaining?: number;
+  }>>('/system/data-freshness'),
+  getUpdateLog: () => fetchJson<Array<{
+    date: string;
+    description: string;
+    event_type?: string;
+  }>>('/transparency/update-log'),
+  getSystemReleases: () => fetchJson('/system/releases'),
+  getNewsletterPreview: (type: string) => fetchJson(`/communication/newsletter/preview?newsletter_type=${type}`),
   
   // Community APIs
   getPartnerLabs: () => fetchJson<PartnerLabsResponse>('/community/partner-labs'),

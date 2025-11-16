@@ -122,10 +122,19 @@ export default function RootLayout({
             <p className="text-xs" style={{ color: '#94a3b8' }}>Ethical AI risk intelligence for U.S. finance & supply chain</p>
           </div>
           <div className="text-xs flex gap-4">
-            <a href="/" className="nav-link">Dashboard</a>
-            <a href="/transparency" className="nav-link">Transparency</a>
-            <a href="/community" className="nav-link">Community</a>
-            <a href="/community/admin" className="nav-link">Reviewer</a>
+            <a href="/" className="nav-link hover:text-blue-300 transition-colors">Dashboard</a>
+            <div className="relative group">
+              <a href="/analytics" className="nav-link hover:text-blue-300 transition-colors">Analytics ▾</a>
+              <div className="absolute top-full left-0 mt-1 w-48 bg-white text-gray-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <a href="/analytics/history" className="block px-4 py-2 hover:bg-gray-100 rounded-t-lg">GERII History</a>
+                <a href="/analytics/components" className="block px-4 py-2 hover:bg-gray-100">Component Analysis</a>
+                <a href="/analytics/regimes" className="block px-4 py-2 hover:bg-gray-100">Regime Detection</a>
+                <a href="/analytics/forecasts" className="block px-4 py-2 hover:bg-gray-100 rounded-b-lg">Forecasting</a>
+              </div>
+            </div>
+            <a href="/transparency" className="nav-link hover:text-blue-300 transition-colors">Transparency</a>
+            <a href="/community" className="nav-link hover:text-blue-300 transition-colors">Community</a>
+            <a href="/community/admin" className="nav-link hover:text-blue-300 transition-colors">Reviewer</a>
           </div>
         </nav>
         <main className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
