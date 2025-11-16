@@ -1,17 +1,38 @@
-export type Driver = { component: string; contribution: number };
+export type Driver = { 
+  component: string; 
+  contribution: number;
+  impact: number;
+  confidence?: number;
+  z_score?: number;
+};
+
 export type GeriResponse = {
   score: number;
   band: string;
+  band_color: string;
   color: string;
   updated_at: string;
   drivers: Driver[];
+  change_24h: number;
+  confidence: number;
+  confidence_interval?: [number, number];
 };
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:10000/api/v1';
 
+import { authManager } from './auth';
+
 async function fetchJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`Failed to fetch ${path}`);
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...authManager.getAuthHeaders()
+  };
+
+  const res = await fetch(`${BASE_URL}${path}`, { 
+    cache: 'no-store',
+    headers 
+  });
+  if (!res.ok) throw new Error(`Failed to fetch ${path}: ${res.status}`);
   return res.json() as Promise<T>;
 }
 
@@ -23,4 +44,14 @@ export const api = {
   getRas: () => fetchJson('/impact/ras'),
   getDataFreshness: () => fetchJson('/transparency/data-freshness'),
   getUpdateLog: () => fetchJson('/transparency/update-log'),
+  
+  // Community APIs
+  getPartnerLabs: () => fetchJson('/community/partner-labs'),
+  getMediaKit: () => fetchJson('/community/media-kit'),
+  getScenarioPrompts: () => fetchJson('/community/scenario-prompts'),
+  getSubmissionsSummary: () => fetchJson('/community/submissions/summary'),
+  
+  // Communication APIs  
+  getNewsletterStatus: () => fetchJson('/communication/newsletter/status'),
+  getPublishingCalendar: () => fetchJson('/communication/publishing-calendar'),
 };

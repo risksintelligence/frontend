@@ -30,7 +30,7 @@ const dummyHistory = [
 ];
 
 export default function TransparencyPage() {
-  const { data: ras } = useSWR('ras-transparency', () => api.getRas());
+  const { data: ras } = useSWR('ras-transparency', () => api.getRas()) as { data?: { composite?: number; components?: Record<string, number>; calculated_at?: string } };
   return (
     <main className="min-h-screen bg-[#f1f5f9] p-6 font-mono text-[#0f172a]">
       <h1 className="text-2xl font-bold">Transparency Portal</h1>
@@ -55,7 +55,6 @@ export default function TransparencyPage() {
             ))}
         </ul>
         <p className="mt-2 text-xs text-[#94a3b8]">Last calculated: {ras?.calculated_at}</p>
-      </section>
       </section>
       <section className="mt-4">
         <MissionHighlight
