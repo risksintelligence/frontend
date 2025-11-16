@@ -23,8 +23,8 @@ test.describe('Dashboard smoke tests', () => {
     console.log('Main content elements found:', hasMainContent);
     
     // The app should either show content OR a graceful error message
-    const pageWorking = page.locator('body').locator('text=/GERII|System Unavailable|Loading/');
-    await expect(pageWorking).toBeVisible({ timeout: 15000 });
+    const hasLoadingState = page.locator('text=/Loading.*intelligence|System Unavailable|GERII.*Score/').first();
+    await expect(hasLoadingState).toBeVisible({ timeout: 15000 });
     
     // Look for key content that should be present (even in error states)
     await expect(page.locator('body')).toContainText(/GERII|Intelligence|Dashboard/, { timeout: 10000 });
