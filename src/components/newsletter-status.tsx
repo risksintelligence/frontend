@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { semanticColors } from '../lib/theme';
 import type { NewsletterStatusResponse } from '../lib/api';
 
@@ -38,20 +38,21 @@ export default function NewsletterStatus({
   onSubscribe,
   onUnsubscribe 
 }: Props) {
-  const derivedSubscription: NewsletterSubscription = statusData
-    ? {
-        status: 'subscribed',
-        email: 'intel@risksx.org',
-        preferences: {
-          daily_brief: statusData.daily_flash.automation?.enabled ?? true,
-          weekly_analysis: statusData.weekly_wrap.automation?.enabled ?? true,
-          anomaly_alerts: true,
-          regime_shifts: true
-        },
-        last_sent: statusData.daily_flash.last_published,
-        next_schedule: statusData.daily_flash.next_scheduled
-      }
-    : subscription;
+  const derivedSubscription = useMemo<NewsletterSubscription>(() => {
+    if (!statusData) return subscription;
+    return {
+      status: 'subscribed',
+      email: 'intel@risksx.org',
+      preferences: {
+        daily_brief: statusData.daily_flash.automation?.enabled ?? true,
+        weekly_analysis: statusData.weekly_wrap.automation?.enabled ?? true,
+        anomaly_alerts: true,
+        regime_shifts: true
+      },
+      last_sent: statusData.daily_flash.last_published,
+      next_schedule: statusData.daily_flash.next_scheduled
+    };
+  }, [statusData, subscription]);
 
   const [email, setEmail] = useState('');
   const [preferences, setPreferences] = useState(derivedSubscription.preferences);
@@ -59,7 +60,7 @@ export default function NewsletterStatus({
 
   useEffect(() => {
     setPreferences(derivedSubscription.preferences);
-  }, [statusData, subscription]);
+  }, [derivedSubscription]);
 
   const getStatusColor = () => {
     switch (derivedSubscription.status) {

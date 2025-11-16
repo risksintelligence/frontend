@@ -1,31 +1,24 @@
 import { useMemo } from 'react';
 import useSWR from 'swr';
 
-// Memoized API hook to prevent unnecessary re-renders
 export function useMemoizedApi<T>(
   key: string,
-  fetcher: () => Promise<T>,
-  dependencies: any[] = []
+  fetcher: () => Promise<T>
 ) {
-  const memoizedKey = useMemo(() => key, [key, ...dependencies]);
-  const memoizedFetcher = useMemo(() => fetcher, [fetcher, ...dependencies]);
-  
-  return useSWR<T>(memoizedKey, memoizedFetcher, {
+  return useSWR<T>(key, fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: true,
-    refreshInterval: 30000, // 30 seconds for live data
-    dedupingInterval: 5000, // 5 seconds deduping
+    refreshInterval: 30000,
+    dedupingInterval: 5000,
   });
 }
 
-// Optimized data transformation hook
 export function useMemoizedCompute<T, R>(
   data: T | undefined,
-  computeFn: (data: T) => R,
-  dependencies: any[] = []
+  computeFn: (data: T) => R
 ): R | undefined {
   return useMemo(() => {
     if (!data) return undefined;
     return computeFn(data);
-  }, [data, computeFn, ...dependencies]);
+  }, [data, computeFn]);
 }

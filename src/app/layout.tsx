@@ -1,5 +1,12 @@
 import type { Metadata } from 'next'
 import './globals.css';
+import { JetBrains_Mono } from 'next/font/google';
+
+const jetbrains = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-jetbrains'
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://rrio.risksx.com'),
@@ -107,15 +114,8 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
-        {/* Preload JetBrains Mono font */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link 
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" 
-          rel="stylesheet"
-        />
       </head>
-      <body>
+      <body className={jetbrains.className}>
         <nav className="flex items-center justify-between px-6 py-3 text-white" style={{ backgroundColor: '#0f172a' }}>
           <div>
             <span className="text-lg font-bold">RRIO Dashboard</span>
