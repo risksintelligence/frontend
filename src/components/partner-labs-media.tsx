@@ -1,77 +1,7 @@
 import { semanticColors } from '../lib/theme';
-import useSWR from 'swr';
-import { api } from '../lib/api';
+import type { MediaKitResponse, PartnerLabsResponse } from '../lib/api';
 
-// Backend API interfaces
-interface BackendLab {
-  id: string;
-  name: string;
-  institution: string;
-  sector: string;
-  status: 'active' | 'onboarding';
-  enrolled_date: string;
-  mission: string;
-  current_projects: Array<{
-    title: string;
-    status: string;
-    contributors: number;
-    due_date?: string;
-    completion_date?: string;
-  }>;
-  recent_submissions: number;
-  impact_metrics: {
-    ras_contribution: number;
-    community_engagement: number;
-    data_usage: string;
-  };
-}
-
-interface BackendMediaKit {
-  speaker_bios: Array<{
-    name: string;
-    title: string;
-    bio: string;
-    photo_url: string;
-    topics: string[];
-  }>;
-  testimonials: Array<{
-    author: string;
-    title: string;
-    quote: string;
-    date: string;
-    sector: string;
-  }>;
-  highlight_reels: Array<{
-    title: string;
-    description: string;
-    duration: string;
-    url: string;
-    thumbnail: string;
-  }>;
-}
-
-interface PartnerLabsResponse {
-  partner_labs: BackendLab[];
-  summary: {
-    total_labs: number;
-    active_labs: number;
-    onboarding_labs: number;
-    total_projects: number;
-    sectors_covered: number;
-    total_ras_contribution: number;
-    average_engagement: number;
-  };
-  upcoming_showcases: Array<{
-    title: string;
-    date: string;
-    participating_labs: string[];
-    registration_url: string;
-  }>;
-  generated_at: string;
-}
-
-// Legacy interfaces for backward compatibility
-interface Lab {
+interface LabDisplay {
   name: string;
   sector: string;
   showcase_date: string;
@@ -84,7 +14,12 @@ interface MediaAsset {
   url: string;
 }
 
-const defaultLabs: Lab[] = [
+interface Props {
+  data?: PartnerLabsResponse;
+  mediaKit?: MediaKitResponse;
+}
+
+const defaultLabs: LabDisplay[] = [
   { name: 'Cornell Tech AI Lab', sector: 'Education', showcase_date: '2024-12-15', status: 'active' },
   { name: 'UC Berkeley Resilience Hub', sector: 'Public Policy', showcase_date: '2024-11-30', status: 'upcoming' },
   { name: 'MIT Economic Intelligence', sector: 'Financial Services', showcase_date: '2024-11-20', status: 'completed' }
@@ -96,52 +31,41 @@ const defaultAssets: MediaAsset[] = [
   { type: 'testimonial', title: 'Partner Testimonials', url: '/media/testimonials.pdf' }
 ];
 
-export default function PartnerLabsMedia() {
-  // Fetch partner labs data from backend
-  const { data: partnerLabsData, error: labsError } = useSWR<PartnerLabsResponse>(
-    'partner-labs',
-    () => api.getPartnerLabs(),
-    { refreshInterval: 300000 } // Refresh every 5 minutes
-  );
-
-  // Fetch media kit data from backend
-  const { data: mediaKitData, error: mediaError } = useSWR<BackendMediaKit>(
-    'media-kit',
-    () => api.getMediaKit(),
-    { refreshInterval: 600000 } // Refresh every 10 minutes
-  );
-
-  // Transform backend data to component format
-  const labs: Lab[] = partnerLabsData?.partner_labs.map(lab => ({
+function mapLabs(data?: PartnerLabsResponse): LabDisplay[] {
+  if (!data?.partner_labs?.length) return defaultLabs;
+  return data.partner_labs.map((lab) => ({
     name: lab.name,
     sector: lab.sector,
-    showcase_date: partnerLabsData.upcoming_showcases[0]?.date || new Date().toISOString(),
-    status: lab.status === 'active' ? 'active' : 'upcoming'
-  })) || defaultLabs;
+    showcase_date:
+      lab.current_projects?.[0]?.due_date ||
+      lab.current_projects?.[0]?.completion_date ||
+      lab.enrolled_date,
+    status: lab.status === 'active' ? 'active' : lab.status === 'onboarding' ? 'upcoming' : 'completed'
+  }));
+}
 
-  // Transform media kit data
-  const mediaAssets: MediaAsset[] = [
-    ...(mediaKitData?.speaker_bios.slice(0, 1).map(bio => ({
-      type: 'bio' as const,
-      title: 'Speaker Bios',
-      url: bio.photo_url || '/media/speaker-bios.pdf'
-    })) || []),
-    ...(mediaKitData?.highlight_reels.slice(0, 1).map(reel => ({
-      type: 'reel' as const,
-      title: reel.title,
-      url: reel.url
-    })) || []),
-    ...(mediaKitData?.testimonials.slice(0, 1).map(testimonial => ({
-      type: 'testimonial' as const,
-      title: 'Testimonials',
-      url: '/media/testimonials.pdf'
-    })) || [])
-  ];
+function mapMediaAssets(mediaKit?: MediaKitResponse): MediaAsset[] {
+  if (!mediaKit) return defaultAssets;
+  const assets: MediaAsset[] = [];
 
-  // Fallback to defaults if no data
-  const finalMediaAssets = mediaAssets.length > 0 ? mediaAssets : defaultAssets;
+  mediaKit.speaker_bios?.slice(0, 1).forEach((bio) => {
+    assets.push({ type: 'bio', title: bio.name, url: '/media/speaker-bios.pdf' });
+  });
+  mediaKit.highlight_reels?.slice(0, 1).forEach((reel) => {
+    assets.push({ type: 'reel', title: reel.title, url: reel.url });
+  });
+  mediaKit.testimonials?.slice(0, 1).forEach((testimonial, index) => {
+    assets.push({ type: 'testimonial', title: testimonial.author, url: `/media/testimonials-${index}.pdf` });
+  });
 
-  const getStatusColor = (status: Lab['status']) => {
+  return assets.length ? assets : defaultAssets;
+}
+
+export default function PartnerLabsMedia({ data, mediaKit }: Props) {
+  const labs = mapLabs(data).slice(0, 3);
+  const mediaAssets = mapMediaAssets(mediaKit);
+
+  const getStatusColor = (status: LabDisplay['status']) => {
     switch (status) {
       case 'active': return semanticColors.minimalRisk;
       case 'upcoming': return semanticColors.moderateRisk;
@@ -159,33 +83,24 @@ export default function PartnerLabsMedia() {
     }
   };
 
-  // Show loading state
-  if (labsError || mediaError) {
-    return (
-      <div className="rounded-xl border border-[#e2e8f0] bg-white p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm uppercase font-semibold" style={{ color: 'var(--terminal-muted)' }}>
-            Partner Labs & Media
-          </h3>
-          <span className="text-xs px-2 py-1 rounded bg-[#ef4444] text-white">
-            Error
-          </span>
-        </div>
-        <p className="text-sm text-[#64748b]">
-          Unable to load partner labs data. Using cached information.
-        </p>
-      </div>
-    );
-  }
+  const summary = data?.summary;
+  const showcase = data?.upcoming_showcases?.[0];
 
   return (
     <div className="rounded-xl border border-[#e2e8f0] bg-white p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm uppercase font-semibold" style={{ color: 'var(--terminal-muted)' }}>
-          Partner Labs & Media
-        </h3>
+        <div>
+          <h3 className="text-sm uppercase font-semibold" style={{ color: 'var(--terminal-muted)' }}>
+            Partner Labs & Media
+          </h3>
+          {summary && (
+            <p className="text-xs text-[#94a3b8]">
+              {summary.active_labs} active labs • {summary.total_projects} live projects
+            </p>
+          )}
+        </div>
         <span className="text-xs px-2 py-1 rounded bg-[#1e3a8a] text-white">
-          {partnerLabsData?.summary.active_labs || labs.filter(lab => lab.status === 'active').length} Active
+          {summary?.active_labs ?? labs.filter((lab) => lab.status === 'active').length} Active
         </span>
       </div>
 
@@ -193,13 +108,10 @@ export default function PartnerLabsMedia() {
         <div>
           <h4 className="text-xs font-semibold text-[#475569] mb-2">Current Labs</h4>
           <div className="space-y-2">
-            {labs.slice(0, 3).map((lab, index) => (
+            {labs.map((lab, index) => (
               <div key={index} className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  <span 
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: getStatusColor(lab.status) }}
-                  />
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: getStatusColor(lab.status) }} />
                   <span className="font-medium">{lab.name}</span>
                   <span className="text-xs text-[#64748b]">({lab.sector})</span>
                 </div>
@@ -214,7 +126,7 @@ export default function PartnerLabsMedia() {
         <div className="border-t border-[#e2e8f0] pt-3">
           <h4 className="text-xs font-semibold text-[#475569] mb-2">Resilience Media Kit</h4>
           <div className="grid grid-cols-3 gap-2">
-            {finalMediaAssets.map((asset, index) => (
+            {mediaAssets.map((asset, index) => (
               <button
                 key={index}
                 onClick={() => window.open(asset.url, '_blank')}
@@ -229,19 +141,21 @@ export default function PartnerLabsMedia() {
           </div>
         </div>
 
-        <div className="border-t border-[#e2e8f0] pt-3">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-[#64748b]">
-              Sectors: Education, Policy, FinTech | Next showcase: Nov 30
-            </span>
-            <button 
-              className="underline hover:no-underline text-[#1e3a8a]"
-              onClick={() => window.open('/partnerships', '_blank')}
-            >
-              View All →
-            </button>
+        {showcase && (
+          <div className="border-t border-[#e2e8f0] pt-3">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-[#64748b]">
+                Next showcase: {new Date(showcase.date).toLocaleDateString()}
+              </span>
+              <button
+                className="underline hover:no-underline text-[#1e3a8a]"
+                onClick={() => window.open(showcase.registration_url, '_blank')}
+              >
+                View All →
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ interface Scenario {
   id: string;
   title: string;
   description: string;
-  status: 'draft' | 'submitted' | 'reviewed' | 'published';
+  status: 'draft' | 'submitted' | 'reviewed' | 'published' | 'active';
   created_at: string;
   contributor?: string;
 }
@@ -15,6 +15,11 @@ interface Props {
   currentRegime?: string;
   recentScenarios?: Scenario[];
   onSubmitScenario?: (scenario: { title: string; description: string }) => void;
+  summary?: {
+    active_prompts: number;
+    total_submissions: number;
+    participation_rate: number;
+  };
 }
 
 const defaultScenarios: Scenario[] = [
@@ -39,7 +44,8 @@ export default function ScenarioStudioPrompt({
   anomalyScore = 0.3,
   currentRegime = 'Calm',
   recentScenarios = defaultScenarios,
-  onSubmitScenario
+  onSubmitScenario,
+  summary
 }: Props) {
   const [isCreating, setIsCreating] = useState(false);
   const [newScenario, setNewScenario] = useState({ title: '', description: '' });
@@ -48,6 +54,7 @@ export default function ScenarioStudioPrompt({
 
   const getStatusColor = (status: Scenario['status']) => {
     switch (status) {
+      case 'active': return semanticColors.moderateRisk;
       case 'published': return semanticColors.minimalRisk;
       case 'reviewed': return semanticColors.moderateRisk;
       case 'submitted': return semanticColors.highRisk;
@@ -202,6 +209,11 @@ export default function ScenarioStudioPrompt({
               View All →
             </button>
           </div>
+          {summary && (
+            <p className="mt-2 text-xs text-[#64748b]">
+              Active prompts: {summary.active_prompts} • Participation rate: {summary.participation_rate}% • Total submissions: {summary.total_submissions}
+            </p>
+          )}
         </div>
       </div>
     </div>

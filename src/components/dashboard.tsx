@@ -1,6 +1,5 @@
 'use client';
 
-import useSWR from 'swr';
 import { api, GeriResponse } from '../lib/api';
 
 function generateBloombergNarrative(geri: GeriResponse): string {
@@ -28,7 +27,7 @@ import DataFreshnessMeter from './data-freshness-meter';
 import RegimeCard from './regime-card';
 import OverviewSection from './dashboard/overview-section';
 import RRIOCommentary from './rrio-commentary';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { useMemoizedApi, useMemoizedCompute } from '../hooks/use-memo-api';
 import LazyChart from './lazy-chart';
 import Sparkline from './charts/sparkline';
@@ -37,14 +36,6 @@ import ResilienceActivationScore from './resilience-activation-score';
 import NewsletterStatus from './newsletter-status';
 import ScenarioStudioPrompt from './scenario-studio-prompt';
 
-const bandColorMap: Record<string, string> = {
-  minimal: 'var(--minimal-risk)',
-  low: 'var(--low-risk)',
-  moderate: 'var(--moderate-risk)',
-  high: 'var(--high-risk)',
-  critical: 'var(--critical-risk)',
-};
-
 const Dashboard = memo(function Dashboard() {
   const { data: geri } = useMemoizedApi<GeriResponse>('geri', () => api.getGeri());
   const { data: regime } = useMemoizedApi('regime', () => api.getRegime());
@@ -52,6 +43,22 @@ const Dashboard = memo(function Dashboard() {
   const { data: anomaly } = useMemoizedApi('anomaly', () => api.getAnomalies());
   const { data: ras } = useMemoizedApi('ras', () => api.getRas());
   const { data: freshness } = useMemoizedApi('freshness', () => api.getDataFreshness());
+  const { data: partnerLabs } = useMemoizedApi('partner-labs', () => api.getPartnerLabs());
+  const { data: mediaKit } = useMemoizedApi('media-kit', () => api.getMediaKit());
+  const { data: newsletterStatus } = useMemoizedApi('newsletter-status', () => api.getNewsletterStatus());
+  const { data: scenarioPrompts } = useMemoizedApi('scenario-prompts', () => api.getScenarioPrompts());
+
+  const scenarioCards = useMemo(() => {
+    if (!scenarioPrompts?.current_prompts) return undefined;
+    return scenarioPrompts.current_prompts.map((prompt) => ({
+      id: prompt.id,
+      title: prompt.title,
+      description: prompt.description,
+      status: (prompt.status as 'active' | 'published') ?? 'active',
+      created_at: prompt.created_date,
+      contributor: prompt.featured_submission?.author ?? undefined,
+    }));
+  }, [scenarioPrompts]);
 
   // Memoized narrative computation
   const narrative = useMemoizedCompute(
@@ -92,7 +99,7 @@ const Dashboard = memo(function Dashboard() {
       </section>
       <section className="mt-6 grid gap-4 md:grid-cols-2">
         <AnomalyLedger anomaly={anomaly} />
-        <PartnerLabsMedia />
+        <PartnerLabsMedia data={partnerLabs} mediaKit={mediaKit} />
       </section>
       <section className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <LazyChart
@@ -166,10 +173,12 @@ const Dashboard = memo(function Dashboard() {
         </div>
       </section>
       <section className="mt-6 grid gap-4 md:grid-cols-2">
-        <NewsletterStatus />
+        <NewsletterStatus statusData={newsletterStatus} />
         <ScenarioStudioPrompt 
           anomalyScore={(anomaly as any)?.score}
           currentRegime={(regime as any)?.regime}
+          recentScenarios={scenarioCards}
+          summary={scenarioPrompts?.summary}
         />
       </section>
       </main>

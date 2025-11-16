@@ -56,6 +56,7 @@ class AuthManager {
     
     if (this.config.apiKey) {
       headers['X-RRIO-API-KEY'] = this.config.apiKey;
+      headers['X-API-Key'] = this.config.apiKey; // backwards compatibility
     }
     
     if (this.config.token && !this.isTokenExpired()) {
