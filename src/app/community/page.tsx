@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import CommunityMetrics from '../../components/community/metrics';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:10000/api/v1';
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
 const fetcher = async (url: string) => {
   const res = await fetch(url, { cache: 'no-store' });

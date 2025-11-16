@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import useSWR, { mutate } from 'swr';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:10000/api/v1';
-const reviewerKey = process.env.NEXT_PUBLIC_REVIEWER_API_KEY || '';
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
+const reviewerKey = process.env.NEXT_PUBLIC_REVIEWER_API_KEY!;
 
 const fetcher = async (url: string) => {
   const res = await fetch(url, { cache: 'no-store' });
