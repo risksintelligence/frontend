@@ -26,7 +26,7 @@ test.describe('Transparency portal', () => {
     await page.goto(`${base}/transparency`);
     await expect(page.getByText('Transparency Portal')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Data Freshness' })).toBeVisible();
-    await expect(page.getByText('Resilience Activation Score')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Resilience Activation Score' })).toBeVisible();
     // Skip screenshot in CI for now
     // await expect(page.locator('main')).toHaveScreenshot('transparency.png');
   });
