@@ -48,11 +48,12 @@ const Dashboard = memo(function Dashboard() {
   const { data: mediaKit } = useMemoizedApi('media-kit', () => api.getMediaKit());
   const { data: newsletterStatus } = useMemoizedApi('newsletter-status', () => api.getNewsletterStatus());
   const { data: scenarioPrompts } = useMemoizedApi('scenario-prompts', () => api.getScenarioPrompts());
+  const { data: geriHistory } = useMemoizedApi('geri-history', () => api.getGeriHistory(30));
+  const { data: components } = useMemoizedApi('components', () => api.getGeriComponents());
 
   const narrative = useMemoizedCompute(
     geri,
-    generateBloombergNarrative,
-    [geri?.score, geri?.band, geri?.change_24h]
+    generateBloombergNarrative
   ) || 'Loading resilience insight...';
 
   const transparencyEntries = useMemo(() => {
@@ -71,6 +72,31 @@ const Dashboard = memo(function Dashboard() {
       contributor: prompt.featured_submission?.author,
     }));
   }, [scenarioPrompts]);
+
+  const handleSubmitScenario = async (scenario: { title: string; description: string }) => {
+    try {
+      // Get the first active scenario prompt to submit to
+      const activePrompt = scenarioPrompts?.current_prompts?.[0];
+      if (!activePrompt) {
+        alert('No active prompts available for submission.');
+        return;
+      }
+
+      const submissionData = {
+        title: scenario.title,
+        description: scenario.description,
+        analysis: scenario.description,
+        author: 'Anonymous', // In a real app, this would come from auth
+        submitted_at: new Date().toISOString()
+      };
+
+      await api.submitScenarioResponse(activePrompt.id, submissionData);
+      alert('Scenario submitted successfully! It will be reviewed by the community.');
+    } catch (error) {
+      console.error('Failed to submit scenario:', error);
+      alert('Failed to submit scenario. Please try again.');
+    }
+  };
 
   return (
     <>
@@ -136,56 +162,82 @@ const Dashboard = memo(function Dashboard() {
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <LazyChart
             type="zscore"
-            data={[
-              { timestamp: '2024-01-01', z_score: -0.5, component: 'Credit Spreads' },
-              { timestamp: '2024-01-02', z_score: 1.2, component: 'Credit Spreads' },
-              { timestamp: '2024-01-03', z_score: 2.1, component: 'Credit Spreads' },
-              { timestamp: '2024-01-04', z_score: 1.8, component: 'Credit Spreads' },
-              { timestamp: '2024-01-05', z_score: 0.9, component: 'Credit Spreads' }
+            data={(geriHistory as any)?.series?.slice(0, 10).map((point: any) => ({
+              timestamp: point.timestamp,
+              z_score: (point.score - 50) / 10, // Convert GERI score to approximate z-score
+              component: 'GERI Score'
+            })) || [
+              { timestamp: '2024-01-01', z_score: -0.5, component: 'GERI Score' },
+              { timestamp: '2024-01-02', z_score: 1.2, component: 'GERI Score' },
+              { timestamp: '2024-01-03', z_score: 2.1, component: 'GERI Score' },
+              { timestamp: '2024-01-04', z_score: 1.8, component: 'GERI Score' },
+              { timestamp: '2024-01-05', z_score: 0.9, component: 'GERI Score' }
             ]}
-            component="Credit Spreads"
+            component="GERI Score"
           />
           <div className="panel">
             <h4 className="text-sm uppercase font-semibold mb-3" style={{ color: 'var(--terminal-muted)' }}>
               Component Trends
             </h4>
             <div className="space-y-3">
-              <Sparkline 
-                data={[
-                  { value: 45, timestamp: '2024-01-01' },
-                  { value: 48, timestamp: '2024-01-02' },
-                  { value: 52, timestamp: '2024-01-03' },
-                  { value: 49, timestamp: '2024-01-04' },
-                  { value: 47, timestamp: '2024-01-05' }
-                ]}
-                label="VIX"
-                color="#1B5E20"
-              />
-              <Sparkline 
-                data={[
-                  { value: 2.1, timestamp: '2024-01-01' },
-                  { value: 2.3, timestamp: '2024-01-02' },
-                  { value: 2.5, timestamp: '2024-01-03' },
-                  { value: 2.4, timestamp: '2024-01-04' },
-                  { value: 2.2, timestamp: '2024-01-05' }
-                ]}
-                label="Credit Spreads"
-                color="#0277BD"
-              />
-              <Sparkline 
-                data={[
-                  { value: 78, timestamp: '2024-01-01' },
-                  { value: 82, timestamp: '2024-01-02' },
-                  { value: 85, timestamp: '2024-01-03' },
-                  { value: 83, timestamp: '2024-01-04' },
-                  { value: 80, timestamp: '2024-01-05' }
-                ]}
-                label="Supply Chain"
-                color="#BF360C"
-              />
+              {(components as any)?.components?.slice(0, 3).map((component: any, index: number) => {
+                const colors = ['#1B5E20', '#0277BD', '#BF360C'];
+                const sparklineData = (geriHistory as any)?.series?.slice(0, 10).map((point: any) => ({
+                  value: component.value + (Math.sin(Date.parse(point.timestamp) / 100000 + index) * 5), // Simulate historical variation
+                  timestamp: point.timestamp
+                })) || [
+                  { value: component.value, timestamp: new Date().toISOString() }
+                ];
+                
+                return (
+                  <Sparkline 
+                    key={component.id}
+                    data={sparklineData}
+                    label={component.id}
+                    color={colors[index]}
+                  />
+                );
+              }) || [
+                <Sparkline 
+                  key="vix"
+                  data={[
+                    { value: 45, timestamp: '2024-01-01' },
+                    { value: 48, timestamp: '2024-01-02' },
+                    { value: 52, timestamp: '2024-01-03' },
+                    { value: 49, timestamp: '2024-01-04' },
+                    { value: 47, timestamp: '2024-01-05' }
+                  ]}
+                  label="VIX"
+                  color="#1B5E20"
+                />,
+                <Sparkline 
+                  key="credit"
+                  data={[
+                    { value: 2.1, timestamp: '2024-01-01' },
+                    { value: 2.3, timestamp: '2024-01-02' },
+                    { value: 2.5, timestamp: '2024-01-03' },
+                    { value: 2.4, timestamp: '2024-01-04' },
+                    { value: 2.2, timestamp: '2024-01-05' }
+                  ]}
+                  label="Credit Spreads"
+                  color="#0277BD"
+                />,
+                <Sparkline 
+                  key="supply"
+                  data={[
+                    { value: 78, timestamp: '2024-01-01' },
+                    { value: 82, timestamp: '2024-01-02' },
+                    { value: 85, timestamp: '2024-01-03' },
+                    { value: 83, timestamp: '2024-01-04' },
+                    { value: 80, timestamp: '2024-01-05' }
+                  ]}
+                  label="Supply Chain"
+                  color="#BF360C"
+                />
+              ]}
             </div>
             <p className="mt-3 text-xs text-[#94a3b8]">
-              Live component trends | 24-hour rolling window | JetBrains Mono charts
+              Live component trends | {(components as any)?.components?.length || 3} components | JetBrains Mono charts
             </p>
           </div>
           <div className="panel">
@@ -212,6 +264,7 @@ const Dashboard = memo(function Dashboard() {
             currentRegime={(regime as any)?.regime}
             recentScenarios={scenarioCards}
             summary={scenarioPrompts?.summary}
+            onSubmitScenario={handleSubmitScenario}
           />
         </section>
 

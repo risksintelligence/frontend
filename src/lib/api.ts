@@ -188,8 +188,68 @@ async function fetchJson<T>(path: string, retries = 2): Promise<T> {
   throw new Error(`Failed to fetch ${path} after ${retries + 1} attempts`);
 }
 
+async function postJson<T>(path: string, data: any, retries = 2): Promise<T> {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...authManager.getAuthHeaders()
+  };
+
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const res = await fetch(`${BASE_URL}${path}`, { 
+        method: 'POST',
+        cache: 'no-store',
+        headers,
+        body: JSON.stringify(data),
+        signal: AbortSignal.timeout(10000) // 10 second timeout
+      });
+      
+      if (!res.ok) {
+        // Don't retry on 4xx errors (client errors)
+        if (res.status >= 400 && res.status < 500 && i === 0) {
+          throw new Error(`Failed to post ${path}: ${res.status} ${res.statusText}`);
+        }
+        // Retry on 5xx errors (server errors)
+        if (i < retries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Exponential backoff
+          continue;
+        }
+        throw new Error(`Failed to post ${path}: ${res.status} ${res.statusText}`);
+      }
+      
+      return res.json() as Promise<T>;
+    } catch (error) {
+      if (i < retries && (error instanceof TypeError || error.name === 'NetworkError')) {
+        // Retry on network errors
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+        continue;
+      }
+      throw error;
+    }
+  }
+  
+  throw new Error(`Failed to post ${path} after ${retries + 1} attempts`);
+}
+
 export const api = {
   getGeri: () => fetchJson<GeriResponse>('/analytics/geri'),
+  getGeriHistory: (limit?: number, offset?: number) => fetchJson<{
+    series: Array<{timestamp: string; score: number}>;
+    pagination: {
+      limit: number;
+      offset: number; 
+      total: number;
+      has_more: boolean;
+    };
+  }>(`/analytics/geri/history${limit ? `?limit=${limit}&offset=${offset || 0}` : ''}`),
+  getGeriComponents: () => fetchJson<{
+    components: Array<{
+      id: string;
+      value: number;
+      z_score: number;
+      timestamp: string;
+    }>;
+  }>('/analytics/components'),
   getRegime: () => fetchJson<{
     regime: string;
     probabilities: Record<string, number>;
@@ -238,6 +298,7 @@ export const api = {
   getMediaKit: () => fetchJson<MediaKitResponse>('/community/media-kit'),
   getScenarioPrompts: () => fetchJson<ScenarioPromptsResponse>('/community/scenario-prompts'),
   getSubmissionsSummary: () => fetchJson<any>('/community/submissions/summary'),
+  submitScenarioResponse: (promptId: string, submissionData: any) => postJson(`/community/scenario-prompts/${promptId}/submit`, submissionData),
   
   // Communication APIs  
   getNewsletterStatus: () => fetchJson<NewsletterStatusResponse>('/communication/newsletter-status'),
