@@ -15,6 +15,8 @@ interface Props {
   currentRegime?: string;
   recentScenarios?: Scenario[];
   onSubmitScenario?: (scenario: { title: string; description: string }) => void;
+  isContributorAuthenticated?: boolean;
+  onAuthenticate?: (key: string) => Promise<void> | void;
   summary?: {
     active_prompts: number;
     total_submissions: number;
@@ -45,10 +47,15 @@ export default function ScenarioStudioPrompt({
   currentRegime = 'Calm',
   recentScenarios = defaultScenarios,
   onSubmitScenario,
+  isContributorAuthenticated = false,
+  onAuthenticate,
   summary
 }: Props) {
   const [isCreating, setIsCreating] = useState(false);
   const [newScenario, setNewScenario] = useState({ title: '', description: '' });
+  const [reviewerKey, setReviewerKey] = useState('');
+  const [authFeedback, setAuthFeedback] = useState<string | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const shouldPromptContribution = anomalyScore > 0.5 || currentRegime !== 'Calm';
 
@@ -63,10 +70,30 @@ export default function ScenarioStudioPrompt({
   };
 
   const handleSubmit = () => {
+    if (!isContributorAuthenticated) {
+      setAuthFeedback('Contributor access required before submitting.');
+      return;
+    }
+
     if (newScenario.title && newScenario.description) {
       onSubmitScenario?.(newScenario);
       setNewScenario({ title: '', description: '' });
       setIsCreating(false);
+    }
+  };
+
+  const handleAuthenticate = async () => {
+    if (!onAuthenticate || !reviewerKey.trim()) return;
+    try {
+      setIsAuthenticating(true);
+      await Promise.resolve(onAuthenticate(reviewerKey.trim()));
+      setReviewerKey('');
+      setAuthFeedback('Contributor key stored. Submission unlocked.');
+      setIsAuthenticating(false);
+    } catch (error) {
+      console.error('Failed to store contributor key', error);
+      setAuthFeedback('Unable to store contributor key. Check and try again.');
+      setIsAuthenticating(false);
     }
   };
 
@@ -90,12 +117,44 @@ export default function ScenarioStudioPrompt({
           )}
           <button
             onClick={() => setIsCreating(!isCreating)}
-            className="text-xs px-2 py-1 rounded bg-[#1e3a8a] text-white hover:bg-[#1e40af]"
+            className="text-xs px-2 py-1 rounded bg-[#1e3a8a] text-white hover:bg-[#1e40af] disabled:opacity-40"
+            disabled={!isContributorAuthenticated}
+            title={!isContributorAuthenticated ? 'Contributor key required to submit' : undefined}
           >
             {isCreating ? 'Cancel' : '+ New'}
           </button>
         </div>
       </div>
+
+      {!isContributorAuthenticated && (
+        <div className="mb-4 border border-dashed border-[#cbd5f5] rounded p-3 bg-[#f8fafc]">
+          <p className="text-sm font-semibold text-[#1e3a8a] mb-2">
+            Contributor access required
+          </p>
+          <p className="text-xs text-[#475569] mb-2">
+            Enter your reviewer or contributor key (X-RRIO-API-KEY) to unlock Scenario Studio submissions.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="password"
+              className="flex-1 border border-[#cbd5f5] rounded px-3 py-2 text-sm font-mono"
+              placeholder="rrio_live_xxxxxxxxx"
+              value={reviewerKey}
+              onChange={(e) => setReviewerKey(e.target.value)}
+            />
+            <button
+              className="px-3 py-2 text-xs rounded bg-[#1e3a8a] text-white hover:bg-[#1d3b8c] disabled:opacity-40"
+              onClick={handleAuthenticate}
+              disabled={!reviewerKey.trim() || isAuthenticating}
+            >
+              {isAuthenticating ? 'Verifying…' : 'Unlock'}
+            </button>
+          </div>
+          {authFeedback && (
+            <p className="mt-2 text-xs text-[#475569]">{authFeedback}</p>
+          )}
+        </div>
+      )}
 
       {shouldPromptContribution && !isCreating && (
         <div 

@@ -64,11 +64,39 @@ export type PartnerLabsResponse = {
 };
 
 export type MediaKitResponse = {
-  speaker_bios?: Array<{ name: string; title: string; bio: string; topics?: string[] }>;
-  testimonials?: Array<{ author: string; title: string; quote: string; sector?: string }>;
-  highlight_reels?: Array<{ title: string; description: string; url: string }>;
-  press_releases?: Array<{ title: string; date: string; summary: string; url: string }>;
-  awards_recognition?: Array<{ award: string; organization: string; year: number; description: string }>;
+  speaker_bios?: Array<{ 
+    name: string; 
+    title: string; 
+    bio: string; 
+    photo_url?: string;
+    topics?: string[] 
+  }>;
+  testimonials?: Array<{ 
+    author: string; 
+    title: string; 
+    quote: string; 
+    date?: string;
+    sector?: string 
+  }>;
+  highlight_reels?: Array<{ 
+    title: string; 
+    description: string; 
+    duration?: string;
+    url: string;
+    thumbnail?: string;
+  }>;
+  press_releases?: Array<{ 
+    title: string; 
+    date: string; 
+    summary: string; 
+    url: string 
+  }>;
+  awards_recognition?: Array<{ 
+    award: string; 
+    organization: string; 
+    year: number; 
+    description: string 
+  }>;
   generated_at?: string;
 };
 
@@ -294,6 +322,15 @@ export const api = {
     };
   }>('/anomalies/latest'),
   getRas: () => fetchJson('/impact/ras'),
+  getRasHistory: (days: number = 90) => fetchJson<{
+    history: Array<{
+      composite: number;
+      components: Record<string, number>;
+      calculated_at: string;
+    }>;
+    limit: number;
+    generated_at: string;
+  }>(`/impact/ras/history?limit=${days}`),
   getDataFreshness: () => fetchJson<Array<{
     component: string;
     status: string;

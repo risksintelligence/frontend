@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { Users, Award, FileText, TrendingUp } from 'lucide-react';
 import useSWR, { mutate } from 'swr';
 import CommunityMetrics from '../../components/community/metrics';
 
@@ -41,56 +42,167 @@ export default function CommunityPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] p-6 font-mono text-[#0f172a]">
-      <header className="hero-panel" aria-label="RRIO Community Hub">
-        <div>
-          <p className="hero-eyebrow">RRIO Community Missions</p>
-          <h1 className="hero-title">Sector Missions & Insight Fellows</h1>
-          <p className="hero-subtitle">Award-grade submissions curated with semantic color cues and provenance metadata.</p>
-          <ul className="hero-bullets">
-            <li>Submit AI transparency analyses and mission outputs</li>
-            <li>Track reviewer queue, approvals, and provenance logs</li>
-            <li>Public templates aligned to `SEMANTIC_COLOR_SYSTEM.md`</li>
-          </ul>
+    <main className="space-y-6 p-6 bg-white min-h-screen">
+      {/* Bloomberg-style header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-pink-600 rounded flex items-center justify-center">
+            <Users className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-mono font-bold text-slate-900">
+              COMMUNITY HUB
+            </h1>
+            <p className="text-slate-500 font-mono text-sm">
+              Collaborative research, analysis submissions, and peer review
+            </p>
+          </div>
         </div>
-        <CommunityMetrics total={metrics.total} approved={metrics.approved} />
-      </header>
+        <div className="text-slate-500 font-mono text-sm">
+          Community: <span className="text-emerald-600">ACTIVE</span>
+        </div>
+      </div>
 
-      <section className="mt-8 grid gap-4 xl:grid-cols-2">
-        <form onSubmit={submitForm} className="panel space-y-3" aria-label="Submission Form">
-          <h2 className="section-label">Submit Analysis</h2>
-          <p className="text-sm text-terminal-muted">All submissions inherit semantic risk references and provenance footers.</p>
-          <input className="w-full rounded border border-[#e2e8f0] p-2" placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
-          <input className="w-full rounded border border-[#e2e8f0] p-2" placeholder="Author" value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} required />
-          <input className="w-full rounded border border-[#e2e8f0] p-2" placeholder="Mission" value={form.mission} onChange={(e) => setForm({ ...form, mission: e.target.value })} required />
-          <input className="w-full rounded border border-[#e2e8f0] p-2" placeholder="Link" type="url" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} required />
-          <button type="submit" className="btn-primary">Submit Mission Artifact</button>
-          {status && <p className="text-xs text-[#94a3b8]">{status}</p>}
-        </form>
+      {/* Quick metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+          <div className="text-slate-500 font-mono text-xs mb-1 uppercase tracking-wide">
+            Total Submissions
+          </div>
+          <div className="text-2xl font-mono font-bold text-slate-900 mb-1">
+            {metrics.total}
+          </div>
+          <div className="text-slate-500 font-mono text-xs">
+            All time
+          </div>
+        </div>
+        <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+          <div className="text-slate-500 font-mono text-xs mb-1 uppercase tracking-wide">
+            Approved
+          </div>
+          <div className="text-2xl font-mono font-bold text-emerald-600 mb-1">
+            {metrics.approved}
+          </div>
+          <div className="text-slate-500 font-mono text-xs">
+            Published
+          </div>
+        </div>
+        <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+          <div className="text-slate-500 font-mono text-xs mb-1 uppercase tracking-wide">
+            Review Queue
+          </div>
+          <div className="text-2xl font-mono font-bold text-amber-600 mb-1">
+            {metrics.total - metrics.approved}
+          </div>
+          <div className="text-slate-500 font-mono text-xs">
+            Pending
+          </div>
+        </div>
+        <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+          <div className="text-slate-500 font-mono text-xs mb-1 uppercase tracking-wide">
+            Approval Rate
+          </div>
+          <div className="text-2xl font-mono font-bold text-slate-900 mb-1">
+            {metrics.total > 0 ? Math.round((metrics.approved / metrics.total) * 100) : 0}%
+          </div>
+          <div className="text-slate-500 font-mono text-xs">
+            Quality
+          </div>
+        </div>
+      </div>
 
-        <div className="space-y-4">
-          {(data?.entries || []).map((entry: any) => (
-            <article key={entry.id} className="panel">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold">{entry.title}</h2>
-                <span className="text-xs uppercase px-2 py-1 rounded border text-terminal-muted">
-                  {entry.status}
-                </span>
+      {/* Community content */}
+      <div className="grid gap-6 xl:grid-cols-2">
+        <div className="bg-white border border-slate-200 rounded-lg shadow-sm">
+          <div className="p-4 border-b border-slate-200">
+            <h3 className="font-mono font-semibold text-slate-900 mb-1">
+              SUBMIT ANALYSIS
+            </h3>
+            <p className="text-sm font-mono text-slate-500">
+              Contribute research and analysis to the community
+            </p>
+          </div>
+          <form onSubmit={submitForm} className="p-4 space-y-4" aria-label="Submission Form">
+            <input 
+              className="w-full rounded border border-slate-200 p-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent" 
+              placeholder="Title" 
+              value={form.title} 
+              onChange={(e) => setForm({ ...form, title: e.target.value })} 
+              required 
+            />
+            <input 
+              className="w-full rounded border border-slate-200 p-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent" 
+              placeholder="Author" 
+              value={form.author} 
+              onChange={(e) => setForm({ ...form, author: e.target.value })} 
+              required 
+            />
+            <input 
+              className="w-full rounded border border-slate-200 p-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent" 
+              placeholder="Mission" 
+              value={form.mission} 
+              onChange={(e) => setForm({ ...form, mission: e.target.value })} 
+              required 
+            />
+            <input 
+              className="w-full rounded border border-slate-200 p-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent" 
+              placeholder="Link" 
+              type="url" 
+              value={form.link} 
+              onChange={(e) => setForm({ ...form, link: e.target.value })} 
+              required 
+            />
+            <button 
+              type="submit" 
+              className="w-full bg-pink-600 text-white px-4 py-2 rounded font-mono text-sm hover:bg-pink-700 transition-colors"
+            >
+              Submit Mission Artifact
+            </button>
+            {status && <p className="text-xs font-mono text-slate-500">{status}</p>}
+          </form>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-lg shadow-sm">
+          <div className="p-4 border-b border-slate-200">
+            <h3 className="font-mono font-semibold text-slate-900 mb-1">
+              RECENT SUBMISSIONS
+            </h3>
+            <p className="text-sm font-mono text-slate-500">
+              Community research and analysis contributions
+            </p>
+          </div>
+          <div className="divide-y divide-slate-200">
+            {(data?.entries || []).slice(0, 5).map((entry: any) => (
+              <article key={entry.id} className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-mono font-semibold text-slate-900">{entry.title}</h4>
+                  <span className={`text-xs font-mono px-2 py-1 rounded-full border uppercase ${
+                    entry.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                    entry.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-200' :
+                    'bg-red-50 text-red-600 border-red-200'
+                  }`}>
+                    {entry.status}
+                  </span>
+                </div>
+                <p className="text-sm font-mono text-slate-600">By {entry.author}</p>
+                {entry.mission && (
+                  <p className="text-xs font-mono text-slate-500 mt-1">Mission: {entry.mission}</p>
+                )}
+                {entry.link && (
+                  <a href={entry.link} target="_blank" rel="noreferrer" className="text-xs font-mono text-blue-600 hover:text-blue-800 underline hover:no-underline mt-2 inline-block transition-colors">
+                    View submission
+                  </a>
+                )}
+              </article>
+            ))}
+            {(!data?.entries || data.entries.length === 0) && (
+              <div className="p-4 text-center text-slate-500 font-mono text-sm">
+                No submissions yet. Be the first to contribute!
               </div>
-              <p className="text-sm text-[#475569] mt-1">
-                By {entry.author} · {entry.mission}
-              </p>
-              <a href={entry.link} target="_blank" rel="noreferrer" className="text-xs text-[#1e3a8a] underline mt-2 inline-block">View submission</a>
-              <p className="mt-2 text-xs text-[#94a3b8]">Submitted at {entry.submitted_at}</p>
-            </article>
-          ))}
-          {(data?.entries?.length ?? 0) === 0 && (
-            <div className="panel text-sm text-terminal-muted">
-              No submissions yet. Submitters should reference semantic color tokens and provenance footers per docs/style.
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </section>
+      </div>
     </main>
   );
 }

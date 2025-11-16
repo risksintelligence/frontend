@@ -93,8 +93,27 @@ export default function HistoryPage() {
 
       <section className="mt-8 panel">
         <h2 className="section-label mb-3">Component Evolution</h2>
-        <p className="text-sm text-terminal-muted">
-          Component history will render once `/api/v1/analytics/geri/history` provides per-component arrays. Current drivers remain accessible from `/api/v1/analytics/geri`.
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {history?.components && Object.entries(history.components).slice(0, 6).map(([componentId, componentData]) => (
+            <div key={componentId} className="bg-white border border-slate-200 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-terminal-text mb-2">{componentId}</h3>
+              <LazyChart
+                type="zscore"
+                data={(componentData as any)?.map((entry: any) => ({
+                  timestamp: entry.date.split('T')[0],
+                  z_score: entry.z_score,
+                  component: componentId
+                })) ?? []}
+                component={componentId}
+              />
+              <div className="mt-2 text-xs text-terminal-muted">
+                Latest: {(componentData as any)?.[0]?.z_score?.toFixed(2) ?? '--'}σ
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 text-sm text-terminal-muted">
+          Component data sourced from `/api/v1/analytics/history`. Individual component details available via `/api/v1/analytics/components/[id]/history`.
         </p>
       </section>
 

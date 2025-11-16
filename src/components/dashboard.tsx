@@ -19,29 +19,63 @@ import Sparkline from './charts/sparkline';
 import NewsletterStatus from './newsletter-status';
 import ScenarioStudioPrompt from './scenario-studio-prompt';
 import AlertBanner from './dashboard/alert-banner';
+import { useAuth } from '../lib/auth';
 
 function generateBloombergNarrative(geri: GeriResponse): string {
-  const bandText = geri.band?.charAt(0).toUpperCase() + geri.band?.slice(1);
-  const changeDirection = (geri.change_24h || 0) >= 0 ? 'climbed' : 'declined';
-  const changeAmount = Math.abs(geri.change_24h || 0).toFixed(1);
-  const topDrivers = geri.drivers?.slice(0, 2);
+  if (!geri) return 'Loading resilience intelligence...';
   
-  const driverText = topDrivers?.length 
-    ? topDrivers.map(d => {
-        const verb = d.impact > 0 ? 'pressured' : 'supported';
-        return `${d.component.toLowerCase()} ${verb} by ${Math.abs(d.impact).toFixed(1)}bp`;
-      }).join(' while ')
-    : 'mixed component signals';
+  const score = geri.score?.toFixed(1) || '--';
+  const band = geri.band?.toUpperCase() || 'MODERATE';
+  const change = geri.change_24h || 0;
+  const changeDirection = change >= 0 ? 'advanced' : 'declined';
+  const changeAmount = Math.abs(change).toFixed(1);
+  const confidence = Math.round(geri.confidence || 85);
+  
+  // Bloomberg-style driver analysis
+  const topDrivers = geri.drivers?.slice(0, 3) || [];
+  const driverNarrative = topDrivers.length 
+    ? topDrivers.map((driver, index) => {
+        const component = driver.component.replace(/_/g, ' ').toUpperCase();
+        const impact = Math.abs(driver.impact || 0);
+        const direction = (driver.impact || 0) > 0 ? 'elevated' : 'eased';
+        const magnitude = impact > 0.5 ? 'sharply' : impact > 0.2 ? 'moderately' : 'slightly';
+        
+        if (index === 0) {
+          return `${component} ${direction} ${magnitude}, contributing ${impact.toFixed(1)}bp`;
+        } else if (index === topDrivers.length - 1) {
+          return ` and ${component} ${direction} ${impact.toFixed(1)}bp`;
+        } else {
+          return `, ${component} ${direction} ${impact.toFixed(1)}bp`;
+        }
+      }).join('')
+    : 'mixed cross-asset signals across pillars';
 
-  return `GRII ${changeDirection} ${changeAmount} points to ${geri.score} (${bandText} Risk, ${geri.band_color}) as ${driverText}. Confidence: ${geri.confidence || 85}%.`;
+  // Generate professional lead
+  const riskAssessment = getRiskAssessment(parseFloat(score));
+  const timeStamp = new Date().toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric',
+    timeZone: 'EST'
+  });
+
+  return `GRII ${changeDirection} ${changeAmount}pts to ${score} (${band} risk) as ${driverNarrative}. ${riskAssessment} Confidence ${confidence}%. Updated ${timeStamp} EST.`;
+}
+
+function getRiskAssessment(score: number): string {
+  if (score >= 80) return 'Immediate action warranted across portfolios.';
+  if (score >= 60) return 'Heightened vigilance recommended for risk managers.';
+  if (score >= 40) return 'Monitor key indicators for emerging stress.';
+  if (score >= 20) return 'Conditions remain within acceptable parameters.';
+  return 'Minimal systemic stress observed across indicators.';
 }
 
 const Dashboard = memo(function Dashboard() {
-  const { data: geri } = useMemoizedApi<GeriResponse>('geri', () => api.getGeri());
-  const { data: regime } = useMemoizedApi('regime', () => api.getRegime());
+  const { data: geri, error: geriError, isLoading: geriLoading } = useMemoizedApi<GeriResponse>('geri', () => api.getGeri());
+  const { data: regime, error: regimeError } = useMemoizedApi('regime', () => api.getRegime());
   const { data: forecast } = useMemoizedApi('forecast', () => api.getForecast());
   const { data: anomaly } = useMemoizedApi('anomaly', () => api.getAnomalies());
-  const { data: ras } = useMemoizedApi('ras', () => api.getRas());
+  const { data: ras, error: rasError } = useMemoizedApi('ras', () => api.getRas());
   const { data: freshness } = useMemoizedApi('freshness', () => api.getDataFreshness());
   const { data: updateLog } = useMemoizedApi('update-log', () => api.getUpdateLog());
   const { data: partnerLabs } = useMemoizedApi('partner-labs', () => api.getPartnerLabs());
@@ -50,7 +84,9 @@ const Dashboard = memo(function Dashboard() {
   const { data: scenarioPrompts } = useMemoizedApi('scenario-prompts', () => api.getScenarioPrompts());
   const { data: geriHistory } = useMemoizedApi('geri-history', () => api.getGeriHistory(30));
   const { data: components } = useMemoizedApi('components', () => api.getGeriComponents());
+  const { isAuthenticated: isContributorAuthenticated, setReviewerKey } = useAuth();
 
+  // All hooks must be called before any early returns
   const narrative = useMemoizedCompute(
     geri,
     generateBloombergNarrative
@@ -73,8 +109,47 @@ const Dashboard = memo(function Dashboard() {
     }));
   }, [scenarioPrompts]);
 
+  // Show loading state for critical data
+  if (geriLoading) {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-sm font-mono text-slate-600">Loading GERII intelligence...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if critical systems are down
+  if (geriError && !geri) {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-red-600 text-xl">⚠</span>
+          </div>
+          <h1 className="text-lg font-mono font-semibold text-slate-900 mb-2">GERII System Unavailable</h1>
+          <p className="text-sm text-slate-600 mb-4">
+            The core intelligence system is temporarily unavailable. Please check back in a few minutes.
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-mono rounded hover:bg-blue-700"
+          >
+            Retry Connection
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const handleSubmitScenario = async (scenario: { title: string; description: string }) => {
     try {
+      if (!isContributorAuthenticated) {
+        alert('Contributor access required. Enter your reviewer key to submit scenarios.');
+        return;
+      }
       // Get the first active scenario prompt to submit to
       const activePrompt = scenarioPrompts?.current_prompts?.[0];
       if (!activePrompt) {
@@ -85,9 +160,8 @@ const Dashboard = memo(function Dashboard() {
       const submissionData = {
         title: scenario.title,
         description: scenario.description,
-        analysis: scenario.description,
-        author: 'Anonymous', // In a real app, this would come from auth
-        submitted_at: new Date().toISOString()
+        author: 'Anonymous Contributor', // In a real app, this would come from auth
+        author_email: 'contributor@rrio.dev' // In a real app, this would come from auth
       };
 
       await api.submitScenarioResponse(activePrompt.id, submissionData);
@@ -98,6 +172,14 @@ const Dashboard = memo(function Dashboard() {
     }
   };
 
+  // Check for degraded functionality warnings
+  const degradedServices = [
+    rasError && 'RAS System',
+    regimeError && 'Regime Classification',
+    !partnerLabs && 'Partner Labs',
+    !scenarioPrompts && 'Scenario Studio'
+  ].filter(Boolean);
+
   return (
     <>
       <a href="#main-content" className="skip-link">
@@ -106,6 +188,23 @@ const Dashboard = memo(function Dashboard() {
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only" id="status-announcements">
         {geri ? `GRII score updated: ${geri.score}` : ''}
       </div>
+      
+      {/* Degraded functionality warning */}
+      {degradedServices.length > 0 && (
+        <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mx-6 mt-4 rounded">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <span className="text-amber-400 text-lg">⚠</span>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-mono text-amber-800">
+                Some services are experiencing issues: {degradedServices.join(', ')}. 
+                Core GERII functionality remains operational.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <main id="main-content" className="min-h-screen bg-[#f8fafc] p-6 font-mono text-[#0f172a]" role="main">
         <HeroSection geri={geri} regime={regime} />
         <AlertBanner 
@@ -265,6 +364,8 @@ const Dashboard = memo(function Dashboard() {
             recentScenarios={scenarioCards}
             summary={scenarioPrompts?.summary}
             onSubmitScenario={handleSubmitScenario}
+            isContributorAuthenticated={isContributorAuthenticated}
+            onAuthenticate={setReviewerKey}
           />
         </section>
 

@@ -1,113 +1,185 @@
 'use client';
 
 import Link from 'next/link';
+import { TrendingUp, BarChart3, Target, Activity } from 'lucide-react';
 
 const analyticsModules = [
   {
-    title: 'GERII History',
+    title: 'GERI HISTORY',
     href: '/analytics/history',
-    description: 'Historical GERII scores, trends, and notable events',
-    icon: '📈',
+    description: 'Historical GERI scores, trends, and notable crisis events',
+    icon: TrendingUp,
     features: ['Time series analysis', 'Crisis event markers', 'Regime transitions']
   },
   {
-    title: 'Component Analysis',
+    title: 'COMPONENT ANALYSIS',
     href: '/analytics/components',
-    description: 'Individual component breakdowns and contributions',
-    icon: '🔍',
+    description: 'Individual component breakdowns and risk contributions',
+    icon: BarChart3,
     features: ['Z-score analysis', 'Component correlations', 'Provider attribution']
   },
   {
-    title: 'Regime Detection',
+    title: 'REGIME DETECTION',
     href: '/analytics/regimes',
     description: 'Economic regime classification and transition analysis',
-    icon: '🎯',
+    icon: Target,
     features: ['Regime probabilities', 'Transition matrices', 'Historical patterns']
   },
   {
-    title: 'Forecasting',
+    title: 'FORECASTING',
     href: '/analytics/forecasts',
     description: 'Prediction models, accuracy metrics, and scenario analysis',
-    icon: '🔮',
+    icon: Activity,
     features: ['24-hour forecasts', 'Model performance', 'SHAP explanations']
   }
 ];
 
 export default function AnalyticsPage() {
   return (
-    <main className="min-h-screen bg-[#f8fafc] p-6 font-mono text-[#0f172a]">
-      <header className="hero-panel" aria-label="Analytics Suite Overview">
-        <div>
-          <p className="hero-eyebrow">RRIO Analytics</p>
-          <h1 className="hero-title">GERII Intelligence Modules</h1>
-          <p className="hero-subtitle">
-            Deep dive into historical trajectories, regime classifications, and predictive engines with semantic provenance.
+    <div className="space-y-6 p-6 bg-white min-h-screen">
+      {/* Bloomberg-style header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-emerald-600 rounded flex items-center justify-center">
+            <TrendingUp className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-mono font-bold text-slate-900">
+              ANALYTICS & INTELLIGENCE
+            </h1>
+            <p className="text-slate-500 font-mono text-sm">
+              Real-time analytics, forecasting, and economic intelligence
+            </p>
+          </div>
+        </div>
+        <div className="text-slate-500 font-mono text-sm">
+          System Status: <span className="text-emerald-600">OPERATIONAL</span>
+        </div>
+      </div>
+
+      {/* Quick metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+          <div className="text-slate-500 font-mono text-xs mb-1 uppercase tracking-wide">
+            Analysis Modules
+          </div>
+          <div className="text-2xl font-mono font-bold text-slate-900 mb-1">
+            {analyticsModules.length}
+          </div>
+          <div className="text-slate-500 font-mono text-xs">
+            Available
+          </div>
+        </div>
+        <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+          <div className="text-slate-500 font-mono text-xs mb-1 uppercase tracking-wide">
+            Data Sources
+          </div>
+          <div className="text-2xl font-mono font-bold text-slate-900 mb-1">
+            8
+          </div>
+          <div className="text-slate-500 font-mono text-xs">
+            Active
+          </div>
+        </div>
+        <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+          <div className="text-slate-500 font-mono text-xs mb-1 uppercase tracking-wide">
+            Update Frequency
+          </div>
+          <div className="text-2xl font-mono font-bold text-slate-900 mb-1">
+            1H
+          </div>
+          <div className="text-slate-500 font-mono text-xs">
+            Real-time
+          </div>
+        </div>
+        <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+          <div className="text-slate-500 font-mono text-xs mb-1 uppercase tracking-wide">
+            API Endpoints
+          </div>
+          <div className="text-2xl font-mono font-bold text-slate-900 mb-1">
+            12
+          </div>
+          <div className="text-slate-500 font-mono text-xs">
+            Available
+          </div>
+        </div>
+      </div>
+
+      {/* Main analytics modules */}
+      <section className="grid gap-6 md:grid-cols-2">
+        {analyticsModules.map((module) => {
+          const Icon = module.icon;
+          return (
+            <Link key={module.href} href={module.href} className="bg-slate-50 border border-slate-200 rounded-lg p-6 hover:bg-slate-100 transition-colors group">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                  <Icon className="h-5 w-5 text-emerald-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-mono font-semibold text-slate-900 mb-2 group-hover:text-emerald-600 transition-colors">
+                    {module.title}
+                  </h3>
+                  <p className="text-sm font-mono text-slate-600 mb-3">{module.description}</p>
+                  <ul className="space-y-1">
+                    {module.features.map((feature, index) => (
+                      <li key={index} className="text-xs font-mono text-slate-500 flex items-center">
+                        <span className="w-1 h-1 bg-slate-400 rounded-full mr-2"></span>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="text-slate-400 group-hover:text-emerald-600 transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </section>
+
+      {/* API Documentation */}
+      <section className="bg-white border border-slate-200 rounded-lg shadow-sm">
+        <div className="p-4 border-b border-slate-200">
+          <h3 className="font-mono font-semibold text-slate-900 mb-1">
+            API ENDPOINTS
+          </h3>
+          <p className="text-sm font-mono text-slate-500">
+            Direct access to analytics data and model outputs
           </p>
-          <ul className="hero-bullets">
-            <li>Semantic color codes for risk bands, anomalies, and mission artifacts</li>
-            <li>Integrated with Transparency Portal for provenance logs</li>
-            <li>Supports award-grade briefs referencing API payloads</li>
-          </ul>
         </div>
-        <div className="hero-metric-card">
-          <p className="hero-metric-label">Modules Available</p>
-          <p className="hero-metric-value">{analyticsModules.length}</p>
-          <p className="hero-metric-footnote">History, Components, Regimes, Forecasts</p>
-        </div>
-      </header>
-
-      <section className="mt-8 grid gap-6 md:grid-cols-2">
-        {analyticsModules.map((module) => (
-          <Link key={module.href} href={module.href} className="panel group transition-all duration-200 hover:shadow-lg">
-            <div className="flex items-start gap-4">
-              <div className="text-2xl">{module.icon}</div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-2 group-hover:text-[#1e3a8a] transition-colors">
-                  {module.title}
-                </h3>
-                <p className="text-sm text-terminal-muted mb-3">{module.description}</p>
-                <ul className="space-y-1">
-                  {module.features.map((feature, index) => (
-                    <li key={index} className="text-xs text-terminal-muted flex items-center">
-                      <span className="w-1 h-1 bg-[#94a3b8] rounded-full mr-2"></span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="text-[#94a3b8] group-hover:text-[#1e3a8a] transition-colors">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
+        <div className="p-4">
+          <div className="space-y-3 text-sm font-mono">
+            <div className="flex items-center gap-3">
+              <span className="text-emerald-600 font-semibold">GET</span>
+              <code className="px-3 py-1 rounded bg-slate-100 border border-slate-200 font-mono text-sm">/api/v1/analytics/geri</code>
+              <span className="text-slate-500">Current GERI score and components</span>
             </div>
-          </Link>
-        ))}
-      </section>
-
-      <section className="mt-12 panel">
-        <h2 className="section-label">API Access</h2>
-        <div className="space-y-3 text-sm font-mono mt-3">
-          <div className="flex items-center gap-2">
-            <span className="text-risk-minimal">GET</span>
-            <code className="px-2 py-1 rounded bg-[#f1f5f9]">/api/v1/analytics/geri</code>
-            <span className="text-terminal-muted">Current GRII score</span>
+            <div className="flex items-center gap-3">
+              <span className="text-emerald-600 font-semibold">GET</span>
+              <code className="px-3 py-1 rounded bg-slate-100 border border-slate-200 font-mono text-sm">/api/v1/analytics/geri/history</code>
+              <span className="text-slate-500">Historical GERI data series</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-emerald-600 font-semibold">GET</span>
+              <code className="px-3 py-1 rounded bg-slate-100 border border-slate-200 font-mono text-sm">/api/v1/analytics/components</code>
+              <span className="text-slate-500">Component breakdown and analysis</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-emerald-600 font-semibold">GET</span>
+              <code className="px-3 py-1 rounded bg-slate-100 border border-slate-200 font-mono text-sm">/api/v1/ai/regime/current</code>
+              <span className="text-slate-500">Market regime classification</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-risk-moderate">GET</span>
-            <code className="px-2 py-1 rounded bg-[#f1f5f9]">/api/v1/analytics/geri/history</code>
-            <span className="text-terminal-muted">Historical data</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-risk-minimal">GET</span>
-            <code className="px-2 py-1 rounded bg-[#f1f5f9]">/api/v1/analytics/components</code>
-            <span className="text-terminal-muted">Component breakdown</span>
+          <div className="mt-4 pt-4 border-t border-slate-200">
+            <p className="text-xs font-mono text-slate-500">
+              Complete API documentation: <Link href="/transparency" className="text-blue-600 hover:text-blue-800 underline">Transparency Portal</Link>
+            </p>
           </div>
         </div>
-        <p className="text-xs text-terminal-muted mt-4">
-          Full API documentation: <Link href="/transparency" className="text-[#1e3a8a] underline">Transparency Portal</Link>
-        </p>
       </section>
-    </main>
+    </div>
   );
 }
