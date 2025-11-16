@@ -96,7 +96,51 @@ const defaultAssets: MediaAsset[] = [
   { type: 'testimonial', title: 'Partner Testimonials', url: '/media/testimonials.pdf' }
 ];
 
-export default function PartnerLabsMedia({ labs = defaultLabs, mediaAssets = defaultAssets }: Props) {
+export default function PartnerLabsMedia() {
+  // Fetch partner labs data from backend
+  const { data: partnerLabsData, error: labsError } = useSWR<PartnerLabsResponse>(
+    'partner-labs',
+    () => api.getPartnerLabs(),
+    { refreshInterval: 300000 } // Refresh every 5 minutes
+  );
+
+  // Fetch media kit data from backend
+  const { data: mediaKitData, error: mediaError } = useSWR<BackendMediaKit>(
+    'media-kit',
+    () => api.getMediaKit(),
+    { refreshInterval: 600000 } // Refresh every 10 minutes
+  );
+
+  // Transform backend data to component format
+  const labs: Lab[] = partnerLabsData?.partner_labs.map(lab => ({
+    name: lab.name,
+    sector: lab.sector,
+    showcase_date: partnerLabsData.upcoming_showcases[0]?.date || new Date().toISOString(),
+    status: lab.status === 'active' ? 'active' : 'upcoming'
+  })) || defaultLabs;
+
+  // Transform media kit data
+  const mediaAssets: MediaAsset[] = [
+    ...(mediaKitData?.speaker_bios.slice(0, 1).map(bio => ({
+      type: 'bio' as const,
+      title: 'Speaker Bios',
+      url: bio.photo_url || '/media/speaker-bios.pdf'
+    })) || []),
+    ...(mediaKitData?.highlight_reels.slice(0, 1).map(reel => ({
+      type: 'reel' as const,
+      title: reel.title,
+      url: reel.url
+    })) || []),
+    ...(mediaKitData?.testimonials.slice(0, 1).map(testimonial => ({
+      type: 'testimonial' as const,
+      title: 'Testimonials',
+      url: '/media/testimonials.pdf'
+    })) || [])
+  ];
+
+  // Fallback to defaults if no data
+  const finalMediaAssets = mediaAssets.length > 0 ? mediaAssets : defaultAssets;
+
   const getStatusColor = (status: Lab['status']) => {
     switch (status) {
       case 'active': return semanticColors.minimalRisk;
@@ -115,6 +159,25 @@ export default function PartnerLabsMedia({ labs = defaultLabs, mediaAssets = def
     }
   };
 
+  // Show loading state
+  if (labsError || mediaError) {
+    return (
+      <div className="rounded-xl border border-[#e2e8f0] bg-white p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm uppercase font-semibold" style={{ color: 'var(--terminal-muted)' }}>
+            Partner Labs & Media
+          </h3>
+          <span className="text-xs px-2 py-1 rounded bg-[#ef4444] text-white">
+            Error
+          </span>
+        </div>
+        <p className="text-sm text-[#64748b]">
+          Unable to load partner labs data. Using cached information.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-xl border border-[#e2e8f0] bg-white p-4">
       <div className="flex items-center justify-between mb-3">
@@ -122,7 +185,7 @@ export default function PartnerLabsMedia({ labs = defaultLabs, mediaAssets = def
           Partner Labs & Media
         </h3>
         <span className="text-xs px-2 py-1 rounded bg-[#1e3a8a] text-white">
-          {labs.filter(lab => lab.status === 'active').length} Active
+          {partnerLabsData?.summary.active_labs || labs.filter(lab => lab.status === 'active').length} Active
         </span>
       </div>
 
@@ -151,7 +214,7 @@ export default function PartnerLabsMedia({ labs = defaultLabs, mediaAssets = def
         <div className="border-t border-[#e2e8f0] pt-3">
           <h4 className="text-xs font-semibold text-[#475569] mb-2">Resilience Media Kit</h4>
           <div className="grid grid-cols-3 gap-2">
-            {mediaAssets.map((asset, index) => (
+            {finalMediaAssets.map((asset, index) => (
               <button
                 key={index}
                 onClick={() => window.open(asset.url, '_blank')}

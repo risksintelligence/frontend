@@ -46,12 +46,12 @@ export const api = {
   getUpdateLog: () => fetchJson('/transparency/update-log'),
   
   // Community APIs
-  getPartnerLabs: () => fetchJson('/community/partner-labs'),
-  getMediaKit: () => fetchJson('/community/media-kit'),
-  getScenarioPrompts: () => fetchJson('/community/scenario-prompts'),
-  getSubmissionsSummary: () => fetchJson('/community/submissions/summary'),
+  getPartnerLabs: () => fetchJson<any>('/community/partner-labs'),
+  getMediaKit: () => fetchJson<any>('/community/media-kit'),
+  getScenarioPrompts: () => fetchJson<any>('/community/scenario-prompts'),
+  getSubmissionsSummary: () => fetchJson<any>('/community/submissions/summary'),
   
   // Communication APIs  
-  getNewsletterStatus: () => fetchJson('/communication/newsletter/status'),
-  getPublishingCalendar: () => fetchJson('/communication/publishing-calendar'),
+  getNewsletterStatus: () => fetchJson<any>('/communication/newsletter-status'),
+  getPublishingCalendar: () => fetchJson<any>('/communication/publishing-calendar'),
 };

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { semanticColors } from '../lib/theme';
+import useSWR from 'swr';
+import { api } from '../lib/api';
 
 interface NewsletterSubscription {
   email?: string;
@@ -11,6 +13,39 @@ interface NewsletterSubscription {
     regime_shifts: boolean;
   };
   last_sent?: string;
+}
+
+// Backend API interfaces
+interface BackendNewsletterStatus {
+  daily_flash: {
+    status: string;
+    last_published: string;
+    next_scheduled: string;
+    draft_preview: {
+      headline: string;
+      geri_score: number;
+      risk_band: string;
+      key_drivers: string[];
+      confidence: number;
+    };
+  };
+  weekly_brief: {
+    status: string;
+    last_published: string;
+    next_scheduled: string;
+    draft_topics: string[];
+  };
+  subscription_stats: {
+    total_subscribers: number;
+    weekly_growth: string;
+    engagement_rate: number;
+  };
+  automation_status: {
+    daily_automation: boolean;
+    weekly_automation: boolean;
+    last_automation_run: string;
+  };
+  generated_at: string;
 }
 
 interface Props {
@@ -37,6 +72,13 @@ export default function NewsletterStatus({
   const [email, setEmail] = useState('');
   const [preferences, setPreferences] = useState(subscription.preferences);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Fetch newsletter status from backend
+  const { data: newsletterData, error } = useSWR<BackendNewsletterStatus>(
+    'newsletter-status',
+    () => api.getNewsletterStatus(),
+    { refreshInterval: 300000 } // Refresh every 5 minutes
+  );
 
   const getStatusColor = () => {
     switch (subscription.status) {
@@ -78,9 +120,28 @@ export default function NewsletterStatus({
             color: getStatusColor()
           }}
         >
-          {getStatusText()}
+          {newsletterData ? `${newsletterData.subscription_stats.total_subscribers} Subscribers` : getStatusText()}
         </span>
       </div>
+
+      {/* Newsletter Preview Section */}
+      {newsletterData && (
+        <div className="mb-4 p-3 bg-[#f8fafc] rounded border">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-xs font-semibold text-[#475569]">Latest Daily Flash</h4>
+            <span className="text-xs text-[#64748b]">
+              Next: {new Date(newsletterData.daily_flash.next_scheduled).toLocaleDateString()}
+            </span>
+          </div>
+          <p className="text-sm font-medium text-[#0f172a] mb-1">
+            {newsletterData.daily_flash.draft_preview.headline}
+          </p>
+          <p className="text-xs text-[#64748b]">
+            GERI: {newsletterData.daily_flash.draft_preview.geri_score} ({newsletterData.daily_flash.draft_preview.risk_band})
+            • Confidence: {Math.round(newsletterData.daily_flash.draft_preview.confidence * 100)}%
+          </p>
+        </div>
+      )}
 
       {subscription.status === 'subscribed' ? (
         <div className="space-y-3">
