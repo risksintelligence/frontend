@@ -140,7 +140,7 @@ export type ScenarioPromptsResponse = {
   generated_at: string;
 };
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:10000/api/v1';
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://backend-9t5o.onrender.com/api/v1';
 
 import { authManager } from './auth';
 
