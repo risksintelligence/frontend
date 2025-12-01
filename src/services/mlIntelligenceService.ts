@@ -163,7 +163,7 @@ interface AnomalyDetectionRequest {
   sensitivity?: number;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://backend-1-s84g.onrender.com';
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://riskx-backend-production.up.railway.app';
 
 export class MLIntelligenceService {
   private static instance: MLIntelligenceService;

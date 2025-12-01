@@ -35,7 +35,7 @@ import { rrio } from "@/lib/monitoring";
 import { normalizeAnomalyHistory, normalizeForecastHistory } from "@/lib/transforms";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://backend-1-s84g.onrender.com";
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://riskx-backend-production.up.railway.app";
 
 // Helper function to map backend classification to frontend severity
 function mapClassificationToSeverity(classification: string, score: number): string {

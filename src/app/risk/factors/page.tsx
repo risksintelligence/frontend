@@ -26,7 +26,7 @@ function FactorsContent() {
   const { data: riskScenarios, isLoading: scenariosLoading } = useQuery({
     queryKey: ["risk-scenarios"],
     queryFn: async () => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://backend-1-s84g.onrender.com'}/api/v1/predictive/risk-scenarios`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://riskx-backend-production.up.railway.app'}/api/v1/predictive/risk-scenarios`);
       return response.json();
     },
     staleTime: 600_000, // 10 minutes

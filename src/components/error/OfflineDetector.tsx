@@ -10,7 +10,7 @@ interface OfflineDetectorProps {
   showBanner?: boolean;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://backend-1-s84g.onrender.com';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://riskx-backend-production.up.railway.app';
 
 const getInitialStatus = () =>
   typeof navigator !== "undefined" ? navigator.onLine : true;
