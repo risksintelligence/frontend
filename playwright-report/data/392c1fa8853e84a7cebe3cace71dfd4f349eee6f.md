@@ -1,0 +1,34 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e13]:
+      - button "Open issues overlay" [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e16]: "11"
+          - generic [ref=e17]: "12"
+        - generic [ref=e18]:
+          - text: Issue
+          - generic [ref=e19]: s
+      - button "Collapse issues badge" [ref=e20]:
+        - img [ref=e21]
+  - alert [ref=e23]
+  - generic [ref=e24]:
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - paragraph [ref=e27]: System Error
+        - heading "Component Failure" [level=3] [ref=e28]
+      - generic [ref=e29]: ERROR
+    - generic [ref=e30]:
+      - paragraph [ref=e31]: "Context: RootApplication"
+      - paragraph [ref=e32]: "data?.map is not a function. (In 'data?.map((alert)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__[\"jsxDEV\"])(\"article\", { className: \"rounded border border-terminal-border bg-terminal-bg p-3\", children: [ /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__[\"jsxDEV\"])(\"div\", { className: \"flex flex-col gap-2 md:flex-row md:items-center md:justify-between\", children: [ /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__[\"jsxDEV\"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$StatusBadge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__[\"default\"], { variant: alert.severity === \"critical\" ? \"critical\" : alert.severity === \"high\" ? \"warning\" : \"info\", children: alert.severity.toUpperCase() }, void 0, false, { fileName: \"[project]/src/components/risk/RiskAlerts.tsx\", lineNumber: 25, columnNumber: 15 }, this), /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__[\"jsxDEV\"])(\"p\", { className: \"text-[11px] text-terminal-muted\", children: [ new Date(alert.timestamp).toLocaleString(), \" · \", alert.driver ] }, void 0, true, { fileName: \"[project]/src/components/risk/RiskAlerts.tsx\", lineNumber: 36, columnNumber: 15 }, this) ] }, void 0, true, { fileName: \"[project]/src/components/risk/RiskAlerts.tsx\", lineNumber: 24, columnNumber: 13 }, this), /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__[\"jsxDEV\"])(\"p\", { className: \"text-sm font-semibold text-terminal-text\", children: alert.message }, void 0, false, { fileName: \"[project]/src/components/risk/RiskAlerts.tsx\", lineNumber: 40, columnNumber: 13 }, this) ] }, alert.id, true, { fileName: \"[project]/src/components/risk/RiskAlerts.tsx\", lineNumber: 23, columnNumber: 11 }, this))', 'data?.map' is undefined)"
+      - paragraph [ref=e33]: "Error ID: rrio_error_1763685128522"
+    - generic [ref=e34]:
+      - button "Retry Component" [ref=e35]
+      - button "Report Bug" [ref=e36]
+      - button "Reload Page" [ref=e37]
+    - paragraph [ref=e39]: "Error: 7:32:08 PM UTC · Contact support if issue persists"
+```

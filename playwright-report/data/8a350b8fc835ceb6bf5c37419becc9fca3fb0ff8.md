@@ -1,0 +1,51 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e11]:
+      - button "Open issues overlay" [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: "0"
+          - generic [ref=e15]: "1"
+        - generic [ref=e16]: Issue
+      - button "Collapse issues badge" [ref=e17]:
+        - img [ref=e18]
+  - generic [ref=e22]:
+    - banner [ref=e23]:
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - paragraph [ref=e26]: Live Intelligence
+          - heading "GRII + RRIO Situational Awareness" [level=2] [ref=e27]
+        - generic [ref=e28]: Updated 7:32:02 PM UTC
+      - generic [ref=e29]:
+        - generic [ref=e30]: "Data Source: GRII Cache L1"
+        - generic [ref=e31]: "Polling: 30s"
+        - generic [ref=e32]: "Mode: Bloomberg Terminal UX"
+    - main [ref=e35]:
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - img [ref=e40]
+          - generic [ref=e43]:
+            - heading "SYSTEM CONFIGURATION" [level=1] [ref=e44]
+            - paragraph [ref=e45]: Infrastructure settings, API parameters, and system configuration management
+        - generic [ref=e46]:
+          - generic [ref=e47]: CAUTION REQUIRED
+          - generic [ref=e48]: "Last Updated: 7:32:02 PM"
+      - generic [ref=e50]:
+        - img [ref=e51]
+        - heading "SYSTEM CONFIGURATION PANEL" [level=2] [ref=e54]
+        - paragraph [ref=e55]: Configure system parameters, API settings, cache layer behavior, and infrastructure components. Modify polling intervals, timeout values, and integration settings.
+        - generic [ref=e56]:
+          - paragraph [ref=e57]: • 127 configurable parameters
+          - paragraph [ref=e58]: • Real-time configuration validation
+          - paragraph [ref=e59]: • Configuration backup and rollback
+          - paragraph [ref=e60]: • Change impact assessment
+        - generic [ref=e61]:
+          - generic [ref=e62]: HIGH IMPACT CHANGES
+          - paragraph [ref=e63]: System configuration changes affect all users and may require service restart
+          - paragraph [ref=e65]: "⚠️ Warning: Modifying core system settings may impact platform availability. Always create configuration backups before making changes."
+  - alert [ref=e66]
+```
