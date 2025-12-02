@@ -1,22 +1,18 @@
 @import "tailwindcss";
 
-:root {
-  --terminal-bg: #ffffff;
-  --terminal-surface: #f8fafc;
-  --terminal-border: #e2e8f0;
-  --terminal-text: #1e3a8a;
-  --terminal-muted: #6b7280;
-  --terminal-green: #10b981;
-  --terminal-orange: #f59e0b;
-  --terminal-red: #dc2626;
-  --terminal-accent: #0ea5e9;
-}
-
-@theme inline {
-  --color-background: var(--terminal-bg);
-  --color-foreground: var(--terminal-text);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-jetbrains);
+@theme {
+  --color-terminal-bg: #ffffff;
+  --color-terminal-surface: #f8fafc;
+  --color-terminal-border: #e2e8f0;
+  --color-terminal-text: #1e3a8a;
+  --color-terminal-muted: #6b7280;
+  --color-terminal-green: #10b981;
+  --color-terminal-orange: #f59e0b;
+  --color-terminal-red: #dc2626;
+  --color-terminal-accent: #0ea5e9;
+  
+  --font-family-jetbrains: "JetBrains Mono", monospace;
+  --font-family-inter: "Inter", sans-serif;
 }
 
 * {
@@ -26,59 +22,61 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: var(--terminal-bg);
-  color: var(--terminal-text);
-  font-family: var(--font-jetbrains, "JetBrains Mono", monospace);
+  background-color: var(--color-terminal-bg);
+  color: var(--color-terminal-text);
+  font-family: var(--font-family-jetbrains);
   letter-spacing: -0.01em;
 }
 
+/* Terminal Utility Classes */
 .bg-terminal-bg {
-  background-color: var(--terminal-bg);
+  background-color: var(--color-terminal-bg);
 }
 
 .bg-terminal-surface {
-  background-color: var(--terminal-surface);
+  background-color: var(--color-terminal-surface);
 }
 
 .border-terminal-border {
-  border-color: var(--terminal-border);
+  border-color: var(--color-terminal-border);
 }
 
 .text-terminal-text {
-  color: var(--terminal-text);
+  color: var(--color-terminal-text);
 }
 
 .text-terminal-muted {
-  color: var(--terminal-muted);
+  color: var(--color-terminal-muted);
 }
 
 .text-terminal-green {
-  color: var(--terminal-green);
+  color: var(--color-terminal-green);
 }
 
 .text-terminal-orange {
-  color: var(--terminal-orange);
+  color: var(--color-terminal-orange);
 }
 
 .text-terminal-red {
-  color: var(--terminal-red);
+  color: var(--color-terminal-red);
 }
 
 .bg-terminal-green {
-  background-color: var(--terminal-green);
+  background-color: var(--color-terminal-green);
 }
 
 .bg-terminal-orange {
-  background-color: var(--terminal-orange);
+  background-color: var(--color-terminal-orange);
 }
 
 .bg-terminal-red {
-  background-color: var(--terminal-red);
+  background-color: var(--color-terminal-red);
 }
 
+/* Custom Terminal Components */
 .terminal-card {
-  background-color: var(--terminal-surface);
-  border: 1px solid var(--terminal-border);
+  background-color: var(--color-terminal-surface);
+  border: 1px solid var(--color-terminal-border);
   border-radius: 0.75rem;
   padding: 1.5rem;
 }

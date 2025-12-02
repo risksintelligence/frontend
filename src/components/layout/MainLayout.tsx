@@ -15,13 +15,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const { showTour, tourSteps, closeTour, startTour } = useGuidedTour();
 
   return (
-    <div className="flex min-h-screen bg-terminal-bg text-terminal-text">
-      <Navigation />
-      <div className="flex-1">
-        <Header onShowTour={startTour} />
-        <div className="flex">
-          <div className="flex-1 px-6 py-6">{children}</div>
-          <RightRail />
+    <div className="min-h-screen bg-terminal-bg text-terminal-text">
+      <div className="lg:flex lg:min-h-screen">
+        <Navigation />
+        <div className="flex-1 lg:flex lg:flex-col">
+          <Header onShowTour={startTour} />
+          <div className="flex-1 lg:flex">
+            <main className="flex-1 px-4 py-4 lg:px-6 lg:py-6">{children}</main>
+            <RightRail />
+          </div>
         </div>
       </div>
       {showTour && (

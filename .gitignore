@@ -48,3 +48,6 @@ secret_keys/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# documentation files
+*.md
