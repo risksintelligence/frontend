@@ -6,6 +6,7 @@ import { useComponentsData } from "@/hooks/useComponentsData";
 import { ComponentMetric } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { mlIntelligenceService } from "@/services/mlIntelligenceService";
+import { buildApiUrl } from "@/lib/api-config";
 import PagePrimer from "@/components/ui/PagePrimer";
 import { useState } from "react";
 import SkeletonLoader from "@/components/ui/SkeletonLoader";
@@ -26,7 +27,7 @@ function FactorsContent() {
   const { data: riskScenarios, isLoading: scenariosLoading } = useQuery({
     queryKey: ["risk-scenarios"],
     queryFn: async () => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://riskx-backend-production.up.railway.app'}/api/v1/predictive/risk-scenarios`);
+      const response = await fetch(buildApiUrl('/api/v1/predictive/risk-scenarios'));
       return response.json();
     },
     staleTime: 600_000, // 10 minutes

@@ -163,7 +163,7 @@ interface AnomalyDetectionRequest {
   sensitivity?: number;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://riskx-backend-production.up.railway.app';
+import { buildApiUrl } from '@/lib/api-config';
 
 export class MLIntelligenceService {
   private static instance: MLIntelligenceService;
@@ -207,7 +207,7 @@ export class MLIntelligenceService {
   async getMLInsightsSummary(): Promise<MLInsightsData> {
     try {
       const response = await this.fetchWithRetry(
-        `${BASE_URL}/api/v1/ml/insights/summary`,
+        buildApiUrl('/api/v1/ml/insights/summary'),
         { method: 'GET' }
       );
 
@@ -282,7 +282,7 @@ export class MLIntelligenceService {
   async predictSupplyChainRisk(request: SupplyChainPredictionRequest): Promise<any> {
     try {
       const response = await this.fetchWithRetry(
-        `${BASE_URL}/api/v1/ml/supply-chain/predict`,
+        buildApiUrl('/api/v1/ml/supply-chain/predict'),
         {
           method: 'POST',
           body: JSON.stringify(request),
@@ -300,7 +300,7 @@ export class MLIntelligenceService {
   async predictMarketTrends(request: MarketTrendPredictionRequest): Promise<any> {
     try {
       const response = await this.fetchWithRetry(
-        `${BASE_URL}/api/v1/ml/market/predict`,
+        buildApiUrl('/api/v1/ml/market/predict'),
         {
           method: 'POST',
           body: JSON.stringify(request),
@@ -318,7 +318,7 @@ export class MLIntelligenceService {
   async detectAnomalies(request: AnomalyDetectionRequest): Promise<any> {
     try {
       const response = await this.fetchWithRetry(
-        `${BASE_URL}/api/v1/ml/anomalies/detect`,
+        buildApiUrl('/api/v1/ml/anomalies/detect'),
         {
           method: 'POST',
           body: JSON.stringify(request),
@@ -336,7 +336,7 @@ export class MLIntelligenceService {
   async getModelStatus(): Promise<any> {
     try {
       const response = await this.fetchWithRetry(
-        `${BASE_URL}/api/v1/ml/models/status`,
+        buildApiUrl('/api/v1/ml/models/status'),
         { method: 'GET' }
       );
 
@@ -355,7 +355,7 @@ export class MLIntelligenceService {
   async triggerModelTraining(): Promise<boolean> {
     try {
       const response = await this.fetchWithRetry(
-        `${BASE_URL}/api/v1/ml/models/train`,
+        buildApiUrl('/api/v1/ml/models/train'),
         { method: 'POST' }
       );
 
@@ -369,7 +369,7 @@ export class MLIntelligenceService {
   async getNetworkMLInsights(): Promise<NetworkMLInsightsData> {
     try {
       const response = await this.fetchWithRetry(
-        `${BASE_URL}/api/v1/ml/network/insights/summary`,
+        buildApiUrl('/api/v1/ml/network/insights/summary'),
         { method: 'GET' }
       );
 

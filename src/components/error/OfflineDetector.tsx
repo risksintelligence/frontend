@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import { WifiOff, Clock } from "lucide-react";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { rrio, RRIOErrorType } from "@/lib/monitoring";
+import { buildApiUrl } from "@/lib/api-config";
 
 interface OfflineDetectorProps {
   children: React.ReactNode;
   showBanner?: boolean;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://riskx-backend-production.up.railway.app';
 
 const getInitialStatus = () =>
   typeof navigator !== "undefined" ? navigator.onLine : true;
@@ -20,7 +20,7 @@ const testAPIConnectivity = async (): Promise<boolean> => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
     
-    const response = await fetch(`${API_BASE}/health`, {
+    const response = await fetch(buildApiUrl('/health'), {
       method: 'GET',
       signal: controller.signal,
       cache: 'no-store'
@@ -41,7 +41,7 @@ const testAPIConnectivity = async (): Promise<boolean> => {
     rrio.logError(new Error(`API connectivity check failed: ${(error as Error).message}`), RRIOErrorType.NETWORK_ERROR, {
       component: 'OfflineDetector',
       action: 'connectivity_check_failed',
-      endpoint: `${API_BASE}/health`
+      endpoint: buildApiUrl('/health')
     });
     
     return false;

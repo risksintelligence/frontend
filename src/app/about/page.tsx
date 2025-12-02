@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRiskOverview } from "@/hooks/useRiskOverview";
 import { useRegimeData } from "@/hooks/useRegimeData";
 import { Brain, TrendingUp, Shield, Users, Award, Target, Zap, Globe, Activity, Database } from "lucide-react";
+import { buildApiUrl } from "@/lib/api-config";
 
 interface PlatformMetrics {
   total_estimated_users: number;
@@ -51,18 +52,17 @@ interface AnalyticsOverview {
   time_based_usage: Record<string, number>;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
 // Fetch platform metrics
 const fetchAwardsMetrics = async (): Promise<AwardsMetrics> => {
-  const response = await fetch(`${API_BASE}/api/v1/analytics/export/awards-metrics`);
+  const response = await fetch(buildApiUrl('/api/v1/analytics/export/awards-metrics'));
   if (!response.ok) throw new Error('Failed to fetch awards metrics');
   return response.json();
 };
 
 // Fetch analytics overview  
 const fetchAnalyticsOverview = async (): Promise<AnalyticsOverview> => {
-  const response = await fetch(`${API_BASE}/api/v1/analytics/overview?days=30`);
+  const response = await fetch(buildApiUrl('/api/v1/analytics/overview?days=30'));
   if (!response.ok) throw new Error('Failed to fetch analytics overview');
   return response.json();
 };

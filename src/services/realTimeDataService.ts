@@ -33,9 +33,7 @@ import {
 import { dataErrorHandler } from "@/lib/dataErrorHandler";
 import { rrio } from "@/lib/monitoring";
 import { normalizeAnomalyHistory, normalizeForecastHistory } from "@/lib/transforms";
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://riskx-backend-production.up.railway.app";
+import { buildApiUrl, defaultFetchOptions } from "@/lib/api-config";
 
 // Helper function to map backend classification to frontend severity
 function mapClassificationToSeverity(classification: string, score: number): string {
@@ -80,13 +78,10 @@ interface NewsletterStatus {
 
 // Enhanced fetch functions with error handling and monitoring
 export const getRiskOverview = async () => {
-  const endpoint = `${API_BASE}/api/v1/analytics/geri`;
+  const endpoint = buildApiUrl('/api/v1/analytics/geri');
 
   const data = await dataErrorHandler.fetchWithRetry(() => 
-    fetch(endpoint, {
-      cache: "no-store",
-      headers: { "Content-Type": "application/json" },
-    }), {
+    fetch(endpoint, defaultFetchOptions), {
       endpoint,
       component: 'RiskOverview',
       maxRetries: 2,
@@ -136,7 +131,7 @@ export const getRiskOverview = async () => {
 };
 
 export const getComponentsData = async (): Promise<ComponentsResponse> => {
-  const endpoint = `${API_BASE}/api/v1/analytics/components`;
+  const endpoint = buildApiUrl(`/api/v1/analytics/components`);
   
   const data = await dataErrorHandler.fetchWithRetry(() => 
     fetch(endpoint, {
@@ -160,7 +155,7 @@ export const getComponentsData = async (): Promise<ComponentsResponse> => {
 };
 
 export const getRegimeData = async () => {
-  const endpoint = `${API_BASE}/api/v1/ai/regime/current`;
+  const endpoint = buildApiUrl(`/api/v1/ai/regime/current`);
   
   const data = await dataErrorHandler.fetchWithRetry(() => 
     fetch(endpoint, {
@@ -198,7 +193,7 @@ export const getRegimeData = async () => {
 };
 
 export const getForecastData = async () => {
-  const endpoint = `${API_BASE}/api/v1/ai/forecast/next-24h`;
+  const endpoint = buildApiUrl(`/api/v1/ai/forecast/next-24h`);
   const data = await dataErrorHandler.fetchWithRetry(
     () =>
       fetch(endpoint, {
@@ -271,7 +266,7 @@ export const getForecastData = async () => {
 };
 
 export const getGeriHistory = async (days = 14) => {
-  const endpoint = `${API_BASE}/api/v1/analytics/history?days=${days}`;
+  const endpoint = buildApiUrl(`/api/v1/analytics/history?days=${days}`);
   const data = await dataErrorHandler.fetchWithRetry(
     () =>
       fetch(endpoint, {
@@ -327,7 +322,7 @@ export const getGeriHistory = async (days = 14) => {
 };
 
 export const getForecastHistory = async (days = 14) => {
-  const endpoint = `${API_BASE}/api/v1/ai/forecast/history?days=${days}`;
+  const endpoint = buildApiUrl(`/api/v1/ai/forecast/history?days=${days}`);
   const data = await dataErrorHandler.fetchWithRetry(
     () =>
       fetch(endpoint, {
@@ -354,7 +349,7 @@ export const getForecastHistory = async (days = 14) => {
 };
 
 export const getAlerts = async () => {
-  const endpoint = `${API_BASE}/api/v1/anomalies/latest`;
+  const endpoint = buildApiUrl(`/api/v1/anomalies/latest`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -397,7 +392,7 @@ export const getAlerts = async () => {
 };
 
 export const getAnomalyHistory = async (days = 14) => {
-  const endpoint = `${API_BASE}/api/v1/anomalies/history?days=${days}`;
+  const endpoint = buildApiUrl(`/api/v1/anomalies/history?days=${days}`);
   const data = await dataErrorHandler.fetchWithRetry(
     () =>
       fetch(endpoint, {
@@ -425,7 +420,7 @@ export const getAnomalyHistory = async (days = 14) => {
 
 export const getEconomicData = async () => {
   // Note: Backend doesn't have /api/v1/analytics/economic, using components as proxy
-  const endpoint = `${API_BASE}/api/v1/analytics/components`;
+  const endpoint = buildApiUrl(`/api/v1/analytics/components`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store", 
@@ -473,7 +468,7 @@ export const getEconomicData = async () => {
 };
 
 export const getNetworkSnapshot = async () => {
-  const endpoint = `${API_BASE}/api/v1/monitoring/provider-health`;
+  const endpoint = buildApiUrl(`/api/v1/monitoring/provider-health`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -500,7 +495,7 @@ export const getNetworkSnapshot = async () => {
 };
 
 export const getMissionHighlights = async (): Promise<MissionHighlight[]> => {
-  const endpoint = `${API_BASE}/api/v1/impact/partners`;
+  const endpoint = buildApiUrl(`/api/v1/impact/partners`);
   
   const data = await dataErrorHandler.fetchWithRetry<BackendPartnersResponse>(() => 
     fetch(endpoint, {
@@ -537,7 +532,7 @@ export const getMissionHighlights = async (): Promise<MissionHighlight[]> => {
 };
 
 export const getNewsroomBriefs = async () => {
-  const endpoint = `${API_BASE}/api/v1/communication/newsletter-status`;
+  const endpoint = buildApiUrl(`/api/v1/communication/newsletter-status`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -615,7 +610,7 @@ export const getNewsroomBriefs = async () => {
 };
 
 export const getSupplyCascadeSnapshot = async (): Promise<CascadeSnapshotResponse> => {
-  const endpoint = `${API_BASE}/api/v1/network/supply-cascade`;
+  const endpoint = buildApiUrl(`/api/v1/network/supply-cascade`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -633,7 +628,7 @@ export const getSupplyCascadeSnapshot = async (): Promise<CascadeSnapshotRespons
 };
 
 export const getCascadeHistory = async (): Promise<CascadeHistoryResponse> => {
-  const endpoint = `${API_BASE}/api/v1/network/cascade/history`;
+  const endpoint = buildApiUrl(`/api/v1/network/cascade/history`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -651,7 +646,7 @@ export const getCascadeHistory = async (): Promise<CascadeHistoryResponse> => {
 };
 
 export const getCascadeImpacts = async (): Promise<CascadeImpactsResponse> => {
-  const endpoint = `${API_BASE}/api/v1/network/cascade/impacts`;
+  const endpoint = buildApiUrl(`/api/v1/network/cascade/impacts`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -669,7 +664,7 @@ export const getCascadeImpacts = async (): Promise<CascadeImpactsResponse> => {
 };
 
 export const getSPGlobalVulnerabilities = async () => {
-  const endpoint = `${API_BASE}/api/v1/intel/sp-global/vulnerabilities`;
+  const endpoint = buildApiUrl(`/api/v1/intel/sp-global/vulnerabilities`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -687,7 +682,7 @@ export const getSPGlobalVulnerabilities = async () => {
 };
 
 export const getWtoTradeVolume = async (): Promise<WtoTradeVolume> => {
-  const endpoint = `${API_BASE}/api/v1/wto/trade-volume/global`;
+  const endpoint = buildApiUrl(`/api/v1/wto/trade-volume/global`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -705,7 +700,7 @@ export const getWtoTradeVolume = async (): Promise<WtoTradeVolume> => {
 };
 
 export const getRasSummary = async () => {
-  const endpoint = `${API_BASE}/api/v1/impact/ras`;
+  const endpoint = buildApiUrl(`/api/v1/impact/ras`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -767,7 +762,7 @@ export const getRasSummary = async () => {
 };
 
 export const getRasHistory = async (limit = 30) => {
-  const endpoint = `${API_BASE}/api/v1/impact/ras/history?limit=${limit}`;
+  const endpoint = buildApiUrl(`/api/v1/impact/ras/history?limit=${limit}`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -809,7 +804,7 @@ interface PartnerDetail {
 }
 
 export const getPartnersData = async (): Promise<PartnerDetail[]> => {
-  const endpoint = `${API_BASE}/api/v1/impact/partners`;
+  const endpoint = buildApiUrl(`/api/v1/impact/partners`);
   
   const data = await dataErrorHandler.fetchWithRetry<BackendPartnersResponse>(() => 
     fetch(endpoint, {
@@ -874,7 +869,7 @@ export const getPartnersData = async (): Promise<PartnerDetail[]> => {
 };
 
 export const getProviderHealthHistory = async (points = 8) => {
-  const endpoint = `${API_BASE}/api/v1/monitoring/provider-health/history?points=${points}`;
+  const endpoint = buildApiUrl(`/api/v1/monitoring/provider-health/history?points=${points}`);
   const data = await dataErrorHandler.fetchWithRetry(
     () =>
       fetch(endpoint, {
@@ -901,7 +896,7 @@ export const getProviderHealthHistory = async (points = 8) => {
 };
 
 export const getTransparencyStatus = async () => {
-  const endpoint = `${API_BASE}/api/v1/transparency/data-freshness`;
+  const endpoint = buildApiUrl(`/api/v1/transparency/data-freshness`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -929,7 +924,7 @@ export const getTransparencyStatus = async () => {
 };
 
 export const getSeriesFreshnessHistory = async (days = 14) => {
-  const endpoint = `${API_BASE}/api/v1/monitoring/series-freshness/history?days=${days}`;
+  const endpoint = buildApiUrl(`/api/v1/monitoring/series-freshness/history?days=${days}`);
   const data = await dataErrorHandler.fetchWithRetry(
     () =>
       fetch(endpoint, {
@@ -957,7 +952,7 @@ export const getSeriesFreshnessHistory = async (days = 14) => {
 };
 
 export const getGovernanceModels = async () => {
-  const endpoint = `${API_BASE}/api/v1/ai/governance/models`;
+  const endpoint = buildApiUrl(`/api/v1/ai/governance/models`);
   const data = await dataErrorHandler.fetchWithRetry(
     () =>
       fetch(endpoint, {
@@ -981,7 +976,7 @@ export const getGovernanceModels = async () => {
 };
 
 export const getGovernanceCompliance = async (model: string) => {
-  const endpoint = `${API_BASE}/api/v1/ai/governance/compliance-report/${model}`;
+  const endpoint = buildApiUrl(`/api/v1/ai/governance/compliance-report/${model}`);
   const data = await dataErrorHandler.fetchWithRetry(
     () =>
       fetch(endpoint, {
@@ -1007,7 +1002,7 @@ export const getGovernanceCompliance = async (model: string) => {
 export const getExplainabilityAudit = async (start: string, end: string, accessedBy = "") => {
   const params = new URLSearchParams({ start_date: start, end_date: end });
   if (accessedBy) params.append("accessed_by", accessedBy);
-  const endpoint = `${API_BASE}/api/v1/ai/explainability/audit-log?${params.toString()}`;
+  const endpoint = buildApiUrl(`/api/v1/ai/explainability/audit-log?${params.toString()}`);
   const data = await dataErrorHandler.fetchWithRetry(
     () =>
       fetch(endpoint, {
@@ -1031,7 +1026,7 @@ export const getExplainabilityAudit = async (start: string, end: string, accesse
 };
 
 export const getExplainability = async () => {
-  const endpoint = `${API_BASE}/api/v1/ai/explainability`;
+  const endpoint = buildApiUrl(`/api/v1/ai/explainability`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -1069,7 +1064,7 @@ export const getExplainability = async () => {
 };
 
 export const getDataLineage = async (seriesId: string) => {
-  const endpoint = `${API_BASE}/api/v1/monitoring/data-lineage/${seriesId}`;
+  const endpoint = buildApiUrl(`/api/v1/monitoring/data-lineage/${seriesId}`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -1103,7 +1098,7 @@ export const getDataLineage = async (seriesId: string) => {
 };
 
 export const getUpdateLog = async () => {
-  const endpoint = `${API_BASE}/api/v1/transparency/update-log`;
+  const endpoint = buildApiUrl(`/api/v1/transparency/update-log`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -1259,7 +1254,7 @@ function adjustCorrelationByFactorType(factor1: string, factor2: string, baseCor
 // Community insights function using real backend endpoint
 // Supply Chain Cascade and ML Model APIs
 export const getSectorVulnerabilities = async (sector?: string) => {
-  const endpoint = `${API_BASE}/api/v1/network/vulnerability-assessment${sector ? `/${sector}` : ''}`;
+  const endpoint = buildApiUrl(`/api/v1/network/vulnerability-assessment${sector ? `/${sector}` : ''}`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -1279,7 +1274,7 @@ export const getSectorVulnerabilities = async (sector?: string) => {
 };
 
 export const getTimelineCascadeVisualization = async (visualizationType = "timeline") => {
-  const endpoint = `${API_BASE}/api/v1/cascade/timeline/visualization?start_date=2024-01-01&end_date=2024-12-31&visualization_type=${visualizationType}`;
+  const endpoint = buildApiUrl(`/api/v1/cascade/timeline/visualization?start_date=2024-01-01&end_date=2024-12-31&visualization_type=${visualizationType}`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -1297,7 +1292,7 @@ export const getTimelineCascadeVisualization = async (visualizationType = "timel
 };
 
 export const getResilienceMetrics = async () => {
-  const endpoint = `${API_BASE}/api/v1/resilience/metrics`;
+  const endpoint = buildApiUrl(`/api/v1/resilience/metrics`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -1315,7 +1310,7 @@ export const getResilienceMetrics = async () => {
 };
 
 export const getMLModelStatus = async () => {
-  const endpoint = `${API_BASE}/api/v1/ml/models/status`;
+  const endpoint = buildApiUrl(`/api/v1/ml/models/status`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -1333,7 +1328,7 @@ export const getMLModelStatus = async () => {
 };
 
 export const predictCascadeLikelihood = async (features: Record<string, any>) => {
-  const endpoint = `${API_BASE}/api/v1/ml/predict/cascade`;
+  const endpoint = buildApiUrl(`/api/v1/ml/predict/cascade`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       method: 'POST',
@@ -1357,7 +1352,7 @@ export const predictRiskScore = async (entityId: string, entityType: string, fea
     entity_type: entityType,
     ...(features && Object.keys(features).length > 0 ? {} : {}),
   });
-  const endpoint = `${API_BASE}/api/v1/ml/predict/risk-score?${params.toString()}`;
+  const endpoint = buildApiUrl(`/api/v1/ml/predict/risk-score?${params.toString()}`);
   
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
@@ -1378,7 +1373,7 @@ export const predictRiskScore = async (entityId: string, entityType: string, fea
 };
 
 export const getCacheAnalytics = async () => {
-  const endpoint = `${API_BASE}/api/v1/cache/analytics`;
+  const endpoint = buildApiUrl(`/api/v1/cache/analytics`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -1396,7 +1391,7 @@ export const getCacheAnalytics = async () => {
 };
 
 export const getCommunityInsights = async () => {
-  const endpoint = `${API_BASE}/api/v1/community/insights`;
+  const endpoint = buildApiUrl(`/api/v1/community/insights`);
   
   try {
     const data = await dataErrorHandler.fetchWithRetry(() => 
@@ -1490,7 +1485,7 @@ export const getCommunityInsights = async () => {
 
 // New Market Intelligence API functions
 export const getMarketIntelligenceOverview = async () => {
-  const endpoint = `${API_BASE}/api/v1/intel/overview`;
+  const endpoint = buildApiUrl(`/api/v1/intel/overview`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -1508,7 +1503,7 @@ export const getMarketIntelligenceOverview = async () => {
 };
 
 export const getMarketIntelligenceSources = async () => {
-  const endpoint = `${API_BASE}/api/v1/intel/sources`;
+  const endpoint = buildApiUrl(`/api/v1/intel/sources`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store", 
@@ -1526,7 +1521,7 @@ export const getMarketIntelligenceSources = async () => {
 };
 
 export const getMarketIntelligenceHealth = async () => {
-  const endpoint = `${API_BASE}/api/v1/intel/health`;
+  const endpoint = buildApiUrl(`/api/v1/intel/health`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",

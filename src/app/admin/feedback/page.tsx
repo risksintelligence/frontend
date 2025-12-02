@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Star, MessageSquare, TrendingUp, Users } from "lucide-react";
+import { buildApiUrl } from "@/lib/api-config";
 
 interface FeedbackSummary {
   total_feedback: number;
@@ -18,7 +19,7 @@ interface FeedbackSummary {
 }
 
 async function getFeedbackSummary(): Promise<FeedbackSummary> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/analytics/feedback`);
+  const response = await fetch(buildApiUrl('/api/v1/analytics/feedback'));
   if (!response.ok) {
     throw new Error("Failed to fetch feedback summary");
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useIsClient } from "@/hooks/useIsClient";
+import { buildApiUrl } from "@/lib/api-config";
 import SkeletonLoader from "@/components/ui/SkeletonLoader";
 import StatusBadge from "@/components/ui/StatusBadge";
 import MetricCard from "@/components/ui/MetricCard";
@@ -106,7 +107,7 @@ export default function MarketIntelligenceDashboard({ className }: MarketIntelli
   } = useQuery({
     queryKey: ["supply-chain-routes"],
     queryFn: async () => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000"}/api/v1/intel/supply-chain-mapping`);
+      const response = await fetch(buildApiUrl('/api/v1/intel/supply-chain-mapping'));
       return response.json();
     },
     staleTime: 600_000, // 10 minutes

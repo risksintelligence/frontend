@@ -18,20 +18,31 @@ export default function Analytics() {
   const pathname = usePathname();
 
   const trackPageView = async (path: string) => {
+    // Only run on client side to avoid hydration issues
+    if (typeof window === "undefined") return;
+    
     try {
-      await fetch("/api/v1/analytics/page-view", {
+      const response = await fetch("/api/v1/analytics/page-view", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           path,
           timestamp: new Date().toISOString(),
-          userAgent: navigator.userAgent,
-          referrer: document.referrer,
+          userAgent: navigator?.userAgent || "",
+          referrer: document?.referrer || "",
           viewport: `${window.innerWidth}x${window.innerHeight}`,
         }),
       });
-    } catch {
-      // Silent fail for analytics
+      
+      // Log errors for debugging in development
+      if (!response.ok && process.env.NODE_ENV === 'development') {
+        console.warn(`Analytics page-view tracking failed: ${response.status}`);
+      }
+    } catch (error) {
+      // Silent fail for analytics in production, log in development
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Analytics page-view tracking error:', error);
+      }
     }
   };
 
@@ -61,18 +72,29 @@ export const useAnalytics = () => {
       });
     }
 
-    fetch("/api/v1/analytics/event", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        event: eventName,
-        parameters,
-        timestamp: new Date().toISOString(),
-        path: typeof window !== "undefined" ? window.location.pathname : "",
-      }),
-    }).catch(() => {
-      // Silent fail
-    });
+    // Only track on client side to avoid hydration issues
+    if (typeof window !== "undefined") {
+      fetch("/api/v1/analytics/event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: eventName,
+          parameters,
+          timestamp: new Date().toISOString(),
+          path: window.location.pathname,
+        }),
+      }).then(response => {
+        // Log errors for debugging in development
+        if (!response.ok && process.env.NODE_ENV === 'development') {
+          console.warn(`Analytics event tracking failed: ${response.status}`);
+        }
+      }).catch((error) => {
+        // Silent fail for analytics in production, log in development
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Analytics event tracking error:', error);
+        }
+      });
+    }
   };
 
   const trackGRIIInteraction = (action: string, value?: number) => {
