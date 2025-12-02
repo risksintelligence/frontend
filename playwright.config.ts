@@ -69,20 +69,12 @@ export default defineConfig({
   globalSetup: require.resolve('./tests/global-setup.ts'),
   
   /* Run your local dev server before starting the tests */
-  webServer: [
-    {
-      command: 'npm run dev',
-      port: 3000,
-      reuseExistingServer: !process.env.CI,
-      timeout: 120 * 1000, // 2 minutes
-    },
-    {
-      command: 'cd ../backend && source .venv/bin/activate && uvicorn app.main:app --port 8000 --reload',
-      port: 8000,
-      reuseExistingServer: !process.env.CI,
-      timeout: 60 * 1000, // 1 minute
-    }
-  ],
+  webServer: {
+    command: 'npm run dev',
+    port: 3000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000, // 2 minutes
+  },
 
   /* Test timeout */
   timeout: 30 * 1000, // 30 seconds per test
