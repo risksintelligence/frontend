@@ -93,10 +93,10 @@ export default function DashboardPreview() {
         <MetricCard
           title="Alert Volume"
           value={
-            alertsLoading ? "--" : `${alertsData?.anomalies?.length?.toString() ?? "0"}`
+            alertsLoading ? "--" : `${Array.isArray(alertsData?.anomalies) ? alertsData.anomalies.length : 0}`
           }
           description="Active risk alerts and anomalies requiring attention."
-          riskScore={(alertsData?.anomalies?.length ?? 0) * 10}
+          riskScore={(Array.isArray(alertsData?.anomalies) ? alertsData.anomalies.length : 0) * 10}
           timestamp={new Date().toISOString()}
           loading={alertsLoading}
           tooltip="Count of active anomaly alerts detected by the monitoring system. High alert volumes may indicate emerging systemic stress requiring investigation."

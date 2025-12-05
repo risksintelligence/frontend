@@ -26,7 +26,7 @@ export default function RightRail() {
 
   // Auto-show when new alerts arrive
   useEffect(() => {
-    if (alerts?.anomalies) {
+    if (Array.isArray(alerts?.anomalies)) {
       const currentAlertCount = alerts.anomalies.length;
       if (currentAlertCount > lastAlertCountRef.current && lastAlertCountRef.current > 0 && isCollapsed) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -74,7 +74,7 @@ export default function RightRail() {
         <div className="space-y-3">
           {alertsLoading ? (
             <SkeletonLoader variant="card" className="h-16" />
-          ) : alerts?.anomalies?.slice(0, 3).map((alert: Alert, idx: number) => (
+          ) : Array.isArray(alerts?.anomalies) ? alerts.anomalies.slice(0, 3).map((alert: Alert, idx: number) => (
             <article key={alert.id || alert.timestamp || idx} className="rounded border border-terminal-border bg-terminal-bg p-3">
               <p className="text-[11px] uppercase tracking-wide text-terminal-muted">
                 {alert.timestamp ? new Date(alert.timestamp).toLocaleTimeString() : "N/A"} · {alert.classification?.toUpperCase() || 'ANOMALY'}
@@ -83,8 +83,8 @@ export default function RightRail() {
                 Score: {alert.score?.toFixed(1)} - {alert.drivers?.join(', ') || 'Risk anomaly detected'}
               </p>
             </article>
-          ))}
-          {!alertsLoading && (!alerts?.anomalies || alerts.anomalies.length === 0) && (
+          )) : null}
+          {!alertsLoading && (!Array.isArray(alerts?.anomalies) || alerts.anomalies.length === 0) && (
             <p className="text-xs text-terminal-muted">
               No current anomalies detected. Real-time anomaly feed will appear here.
             </p>
