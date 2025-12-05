@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Save, Eye, Upload, X } from "lucide-react";
+import { Save, Eye, X } from "lucide-react";
 
 interface BlogPost {
   id?: number;
@@ -316,5 +316,3 @@ export default function BlogEditor({
     </div>
   );
 }
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";

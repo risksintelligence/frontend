@@ -1,22 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import StatusBadge from "@/components/ui/StatusBadge";
-import { useRiskOverview } from "@/hooks/useRiskOverview";
-import { HelpCircle } from "lucide-react";
 import NotificationBell from "@/components/ui/NotificationBell";
-import AboutRRIOButtons from "@/components/ui/AboutRRIOButtons";
 
-interface HeaderProps {
-  onShowTour?: () => void;
-}
-
-export default function Header({ onShowTour }: HeaderProps) {
-  const { data } = useRiskOverview();
+export default function Header() {
   return (
-    <header className="sticky top-0 z-10 flex flex-col gap-3 border-b border-terminal-border bg-terminal-bg/90 px-6 py-4 backdrop-blur">
-      {/* Top branding bar */}
+    <header className="sticky top-0 z-10 border-b border-terminal-border bg-terminal-bg/90 px-6 py-4 backdrop-blur">
       <div className="flex items-center justify-between">
+        {/* Brand */}
         <Link href="/risk" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="w-8 h-8 flex items-center justify-center">
             <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" className="w-6 h-6 text-terminal-accent">
@@ -39,9 +30,66 @@ export default function Header({ onShowTour }: HeaderProps) {
             </p>
           </div>
         </Link>
-        <div className="absolute left-1/2 transform -translate-x-1/2">
-          <AboutRRIOButtons />
-        </div>
+
+        {/* Navigation */}
+        <nav className="hidden lg:flex items-center gap-4">
+          <Link
+            href="/about"
+            className="flex items-center gap-1 rounded border border-terminal-border px-2 py-1 text-xs font-mono text-terminal-text hover:bg-terminal-surface hover:border-terminal-accent/50 transition-colors"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="hidden xl:inline">About</span>
+          </Link>
+          <Link
+            href="/methodology"
+            className="flex items-center gap-1 rounded border border-terminal-border px-2 py-1 text-xs font-mono text-terminal-text hover:bg-terminal-surface hover:border-terminal-accent/50 transition-colors"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <span className="hidden xl:inline">Methodology</span>
+          </Link>
+          <Link
+            href="/use-cases"
+            className="flex items-center gap-1 rounded border border-terminal-border px-2 py-1 text-xs font-mono text-terminal-text hover:bg-terminal-surface hover:border-terminal-accent/50 transition-colors"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <span className="hidden xl:inline">Use Cases</span>
+          </Link>
+          <Link
+            href="/getting-started"
+            className="flex items-center gap-1 rounded border border-terminal-border px-2 py-1 text-xs font-mono text-terminal-text hover:bg-terminal-surface hover:border-terminal-accent/50 transition-colors"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <span className="hidden xl:inline">Getting Started</span>
+          </Link>
+          <Link
+            href="/docs"
+            className="flex items-center gap-1 rounded border border-terminal-border px-2 py-1 text-xs font-mono text-terminal-text hover:bg-terminal-surface hover:border-terminal-accent/50 transition-colors"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span className="hidden xl:inline">Docs</span>
+          </Link>
+          <Link
+            href="/intelligence"
+            className="flex items-center gap-1 rounded border border-terminal-border px-2 py-1 text-xs font-mono text-terminal-text hover:bg-terminal-surface hover:border-terminal-accent/50 transition-colors"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span className="hidden xl:inline">Intelligence</span>
+          </Link>
+        </nav>
+
+        {/* User Actions */}
         <div className="flex items-center gap-3">
           <Link
             href="/my-desk"
@@ -57,41 +105,6 @@ export default function Header({ onShowTour }: HeaderProps) {
           </Link>
           <NotificationBell />
         </div>
-      </div>
-
-      {/* Live Intelligence Frame */}
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-terminal-muted">
-            Live Intelligence
-          </p>
-          <h2 className="text-xl font-bold text-terminal-text">
-            GRII + RRIO Situational Awareness
-          </h2>
-        </div>
-        <div className="flex items-center gap-4">
-          {onShowTour && (
-            <button
-              onClick={onShowTour}
-              className="flex items-center gap-2 rounded px-3 py-1 text-xs text-terminal-muted hover:bg-terminal-surface hover:text-terminal-text transition-colors"
-              title="Take guided tour"
-            >
-              <HelpCircle className="w-4 h-4" />
-              Take Tour
-            </button>
-          )}
-          <StatusBadge variant="info">
-            {data?.overview?.updated_at
-              ? `Updated ${new Date(data.overview.updated_at).toLocaleTimeString()} UTC`
-              : "Awaiting data"}
-          </StatusBadge>
-        </div>
-      </div>
-      
-      <div className="flex flex-wrap gap-3 text-xs text-terminal-muted">
-        <span>Live Data Feed</span>
-        <span>Updates Every 30 Seconds</span>
-        <span>Global Economic Resilience Monitor</span>
       </div>
     </header>
   );

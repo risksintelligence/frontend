@@ -12,6 +12,8 @@ import NetworkOverview from "@/components/network/NetworkOverview";
 import RasWidget from "@/components/product/RasWidget";
 import TransparencyCard from "@/components/product/TransparencyCard";
 import AnomalyLedger from "@/components/risk/AnomalyLedger";
+import GeopoliticalPanel from "@/components/intelligence/GeopoliticalPanel";
+import MaritimePanel from "@/components/intelligence/MaritimePanel";
 
 export default function DashboardPreview() {
   const { data: riskData, isLoading: riskLoading } = useRiskOverview();
@@ -132,6 +134,11 @@ export default function DashboardPreview() {
       <div className="terminal-grid lg:grid-cols-2">
         <RasWidget />
         <TransparencyCard />
+      </div>
+
+      <div className="terminal-grid lg:grid-cols-2">
+        <GeopoliticalPanel />
+        <MaritimePanel />
       </div>
 
       <ExplainabilityPreview />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { notFound } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
 import FeedbackWidget from "@/components/ui/FeedbackWidget";
@@ -44,12 +44,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchPost();
-    trackPageView();
-  }, [params.slug]);
-
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/v1/blog/posts/${params.slug}`);
@@ -81,9 +76,9 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.slug]);
 
-  const trackPageView = async () => {
+  const trackPageView = useCallback(async () => {
     try {
       await fetch("/api/v1/blog/track-engagement", {
         method: "POST",
@@ -94,10 +89,15 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
           metadata: { source: "blog_post_page" }
         }),
       });
-    } catch (error) {
+    } catch {
       // Silent fail
     }
-  };
+  }, [params.slug]);
+
+  useEffect(() => {
+    fetchPost();
+    trackPageView();
+  }, [fetchPost, trackPageView]);
 
   const handleShare = async (platform: string) => {
     const url = window.location.href;
@@ -129,7 +129,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             metadata: { platform }
           }),
         });
-      } catch (error) {
+      } catch {
         // Silent fail
       }
       

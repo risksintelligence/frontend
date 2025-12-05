@@ -105,6 +105,65 @@ export interface RiskOverviewResponse {
   alerts: Alert[];
 }
 
+export interface GeopoliticalEvent {
+  event_id: string;
+  event_type: string;
+  sub_event_type?: string;
+  event_date: string;
+  country: string;
+  region?: string;
+  location: [number, number];
+  impact_score: number;
+  confidence: number;
+  source: string;
+  description: string;
+  affected_trade_routes?: string[];
+  estimated_disruption_days?: number;
+  source_url?: string;
+  severity?: "critical" | "high" | "medium" | "low";
+}
+
+export interface SupplyChainDisruption {
+  disruption_id: string;
+  severity: "critical" | "high" | "medium" | "low";
+  description: string;
+  start_date: string;
+  end_date?: string;
+  source: string;
+  affected_regions?: string[];
+  affected_nodes?: string[];
+  impacted_routes?: string[];
+}
+
+export interface GeopoliticalDisruptionsResponse {
+  disruptions: SupplyChainDisruption[];
+  events?: GeopoliticalEvent[];
+  refreshed_at?: string;
+}
+
+export interface MaritimeProviderHealth {
+  provider_id: string;
+  name: string;
+  type: string;
+  health_score: number;
+  status: "healthy" | "degraded" | "critical";
+  metrics?: Record<string, number>;
+  last_checked?: string;
+}
+
+export interface MaritimeHealthResponse {
+  overview: {
+    total_providers: number;
+    healthy_providers: number;
+    degraded_providers: number;
+    critical_providers: number;
+    average_health_score: number;
+  };
+  providers: MaritimeProviderHealth[];
+  status_distribution?: Array<{ status: string; count: number }>;
+  timestamp?: string;
+}
+
 export interface EconomicIndicator {
   id: string;
   label: string;

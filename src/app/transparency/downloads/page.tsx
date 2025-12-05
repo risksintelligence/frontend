@@ -97,6 +97,7 @@ export default function DataDownloadsPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const { data: componentsData } = useComponentsData();
+  void componentsData;
   
   const filteredDatasets = AVAILABLE_DATASETS.filter(dataset => 
     categoryFilter === "all" || dataset.category === categoryFilter

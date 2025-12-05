@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ComponentsResponse,
   ScenarioAnalysisResult,
@@ -9,8 +8,6 @@ import {
   BackendProjectDetail,
   MissionHighlight,
   Alert,
-  EconomicData,
-  EconomicIndicator,
   NetworkSnapshot,
   TransparencyStatus,
   TransparencyLineage,
@@ -29,6 +26,8 @@ import {
   CascadeHistoryResponse,
   CascadeImpactsResponse,
   WtoTradeVolume,
+  GeopoliticalDisruptionsResponse,
+  MaritimeHealthResponse,
 } from "@/lib/types";
 import { dataErrorHandler } from "@/lib/dataErrorHandler";
 import { rrio } from "@/lib/monitoring";
@@ -785,6 +784,44 @@ export const getRasHistory = async (limit = 30) => {
     },
     endpoint,
     'RasHistory'
+  );
+};
+
+export const getGeopoliticalDisruptions = async (days = 30): Promise<GeopoliticalDisruptionsResponse> => {
+  const endpoint = buildApiUrl(`/api/v1/geopolitical/disruptions?days=${days}`);
+  const data = await dataErrorHandler.fetchWithRetry(
+    () => fetch(endpoint, {
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+    }),
+    { endpoint, component: "GeopoliticalDisruptions", maxRetries: 2, timeout: 8000 }
+  );
+
+  return dataErrorHandler.validateAndTransform(
+    data as any,
+    (raw: GeopoliticalDisruptionsResponse) => raw,
+    endpoint,
+    "GeopoliticalDisruptions",
+    false
+  );
+};
+
+export const getMaritimeHealth = async (): Promise<MaritimeHealthResponse> => {
+  const endpoint = buildApiUrl(`/api/v1/maritime/health`);
+  const data = await dataErrorHandler.fetchWithRetry(
+    () => fetch(endpoint, {
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+    }),
+    { endpoint, component: "MaritimeHealth", maxRetries: 2, timeout: 8000 }
+  );
+
+  return dataErrorHandler.validateAndTransform(
+    data as any,
+    (raw: MaritimeHealthResponse) => raw,
+    endpoint,
+    "MaritimeHealth",
+    false
   );
 };
 

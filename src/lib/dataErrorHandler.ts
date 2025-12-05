@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { rrio, RRIOErrorType, RRIOErrorContext } from './monitoring';
 import { getValidatorForEndpoint } from './dataValidators';
 import * as Sentry from '@sentry/nextjs';
@@ -174,15 +173,15 @@ export class DataErrorHandler {
         });
         
         // Log the error with rich context
-        const errorId = rrio.logError(lastError, errorType, {
-          component,
-          action: 'data_fetch_error',
-          apiEndpoint: endpoint,
-          timestamp: new Date().toISOString(),
-          retryAttempt: attempt,
-          maxRetries,
-          duration
-        });
+        // const errorId = rrio.logError(lastError, errorType, {
+        //   component,
+        //   action: 'data_fetch_error',
+        //   apiEndpoint: endpoint,
+        //   timestamp: new Date().toISOString(),
+        //   retryAttempt: attempt,
+        //   maxRetries,
+        //   duration
+        // });
         
         // Track API call failure
         rrio.trackAPICall(endpoint, 'GET', statusCode || 0, duration, {
@@ -251,13 +250,13 @@ export class DataErrorHandler {
         const errorMessage = `Data validation failed for ${endpoint}: ${validationResult.errors.join(', ')}`;
         
         // Log validation failure
-        const errorId = rrio.logError(new Error(errorMessage), RRIOErrorType.DATA_QUALITY, {
-          component,
-          action: 'data_validation_failed',
-          apiEndpoint: endpoint,
-          timestamp: new Date().toISOString(),
-          duration
-        });
+        // const errorId = rrio.logError(new Error(errorMessage), RRIOErrorType.DATA_QUALITY, {
+        //   component,
+        //   action: 'data_validation_failed',
+        //   apiEndpoint: endpoint,
+        //   timestamp: new Date().toISOString(),
+        //   duration
+        // });
         
         // Track data quality issue
         rrio.trackDataQuality(
@@ -283,16 +282,14 @@ export class DataErrorHandler {
       return validationResult.data as T;
       
     } catch (error) {
-      const duration = performance.now() - startTime;
-      
       // Log validation error
-      const errorId = rrio.logError(error as Error, RRIOErrorType.DATA_QUALITY, {
-        component,
-        action: 'data_validation_error',
-        apiEndpoint: endpoint,
-        timestamp: new Date().toISOString(),
-        duration
-      });
+      // const errorId = rrio.logError(error as Error, RRIOErrorType.DATA_QUALITY, {
+      //   component,
+      //   action: 'data_validation_error',
+      //   apiEndpoint: endpoint,
+      //   timestamp: new Date().toISOString(),
+      //   duration
+      // });
       
       throw error;
     }
@@ -354,24 +351,15 @@ export class DataErrorHandler {
     } catch (error) {
       const duration = performance.now() - startTime;
       
-      // Log transformation error
-      const errorId = rrio.logError(error as Error, RRIOErrorType.DATA_QUALITY, {
-        component,
-        action: 'data_transform_error',
-        apiEndpoint: endpoint,
-        timestamp: new Date().toISOString(),
-        inputDataType: typeof data,
-        duration
-      });
-      
-      // Track data quality issue
+      // Log transformation error (without unused errorId)
       rrio.trackDataQuality(
         `Data transformation failed for ${endpoint}`,
         endpoint,
         'high',
         {
           component,
-          errorId,
+          inputDataType: typeof data,
+          duration,
           inputData: JSON.stringify(data).slice(0, 200) // Truncate for logging
         }
       );

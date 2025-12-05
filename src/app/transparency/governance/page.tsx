@@ -6,7 +6,7 @@ import StatusBadge from "@/components/ui/StatusBadge";
 import { useGovernanceModels } from "@/hooks/useGovernanceModels";
 import { useGovernanceCompliance } from "@/hooks/useGovernanceCompliance";
 import { useExplainabilityAudit } from "@/hooks/useExplainabilityAudit";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 function GovernanceModelsTable() {
   const { data, isLoading } = useGovernanceModels();

@@ -11,21 +11,16 @@ import {
   Graticule
 } from "react-simple-maps";
 import { 
-  MapPin, 
-  AlertTriangle, 
-  TrendingUp, 
-  Ship, 
-  Zap,
-  Filter,
+  MapPin,
+  AlertTriangle,
+  TrendingUp,
   RotateCcw,
   Maximize2,
   Play,
   Pause,
   Search,
   X,
-  SlidersHorizontal,
-  Download,
-  Monitor
+  SlidersHorizontal
 } from 'lucide-react';
 
 // Real world geography data URL
@@ -123,10 +118,8 @@ export default function SupplyChainWorldMap({ data, className = "" }: SupplyChai
   const [zoomLevel, setZoomLevel] = useState(2);
   const [targetZoom, setTargetZoom] = useState(2);
   const [targetCenter, setTargetCenter] = useState<[number, number]>([30, 0]);
-  const [flowParticles, setFlowParticles] = useState<FlowParticle[]>([]);
+  const [, setFlowParticles] = useState<FlowParticle[]>([]);
   const [isAnimating, setIsAnimating] = useState(true);
-  const [isPanning, setIsPanning] = useState(false);
-  const [lastPanPoint, setLastPanPoint] = useState<[number, number] | null>(null);
   const [hoveredNode, setHoveredNode] = useState<SupplyChainNode | null>(null);
   const animationFrameRef = useRef<number>(0);
   const smoothAnimationRef = useRef<number>(0);
@@ -137,7 +130,7 @@ export default function SupplyChainWorldMap({ data, className = "" }: SupplyChai
     showCriticalPaths: true,
     showAnimation: true,
     severityFilter: ['low', 'medium', 'high', 'critical'],
-    sourceFilter: ['ACLED', 'MarineTraffic', 'UN_Comtrade'],
+    sourceFilter: ['Free Geopolitical Intelligence', 'Free Maritime Intelligence', 'UN_Comtrade'],
     minTradeValue: 0,
     nodeTypeFilter: ['port', 'manufacturer', 'supplier', 'distributor', 'retailer'],
     searchQuery: '',
@@ -154,7 +147,6 @@ export default function SupplyChainWorldMap({ data, className = "" }: SupplyChai
   });
 
   const [performanceMode, setPerformanceMode] = useState<'svg' | 'canvas'>('svg');
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false);
 
@@ -170,6 +162,7 @@ export default function SupplyChainWorldMap({ data, className = "" }: SupplyChai
   };
 
   // Enhanced filtering with search functionality
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const filteredData = useMemo(() => {
     // Filter nodes
     const filteredNodes = data.nodes.filter(node => {
@@ -298,49 +291,9 @@ export default function SupplyChainWorldMap({ data, className = "" }: SupplyChai
     setHoveredNode(null);
     handleSmoothZoom(5, node.lat, node.lng);
   };
-
-  // Handle mouse wheel zoom
-  const handleWheel = useCallback((event: React.WheelEvent) => {
-    event.preventDefault();
-    const delta = event.deltaY > 0 ? -0.5 : 0.5;
-    handleSmoothZoom(targetZoom + delta);
-  }, [targetZoom, handleSmoothZoom]);
-
-  // Handle mouse pan
-  const handleMouseDown = useCallback((event: React.MouseEvent) => {
-    setIsPanning(true);
-    setLastPanPoint([event.clientX, event.clientY]);
-  }, []);
-
-  const handleMouseMove = useCallback((event: React.MouseEvent) => {
-    if (isPanning && lastPanPoint) {
-      const dx = event.clientX - lastPanPoint[0];
-      const dy = event.clientY - lastPanPoint[1];
-      
-      // Convert screen movement to map coordinates
-      const sensitivity = 0.5 / zoomLevel;
-      const newCenterLat = targetCenter[0] - dy * sensitivity;
-      const newCenterLng = targetCenter[1] + dx * sensitivity;
-      
-      // Constrain to world bounds
-      const constrainedLat = Math.max(-85, Math.min(85, newCenterLat));
-      const constrainedLng = Math.max(-180, Math.min(180, newCenterLng));
-      
-      setTargetCenter([constrainedLat, constrainedLng]);
-      setLastPanPoint([event.clientX, event.clientY]);
-    }
-  }, [isPanning, lastPanPoint, zoomLevel, targetCenter]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsPanning(false);
-    setLastPanPoint(null);
-  }, []);
-
-  // Handle node hover
   const handleNodeHover = useCallback((node: SupplyChainNode | null) => {
     setHoveredNode(node);
   }, []);
-
 
   // Initialize flow particles
   const initializeFlowParticles = useCallback(() => {
@@ -402,7 +355,6 @@ export default function SupplyChainWorldMap({ data, className = "" }: SupplyChai
   // Start/stop animation
   useEffect(() => {
     if (isAnimating && filters.showAnimation) {
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       animationFrameRef.current = requestAnimationFrame(animateFlowParticles);
     } else {
       if (animationFrameRef.current) {
@@ -447,95 +399,12 @@ export default function SupplyChainWorldMap({ data, className = "" }: SupplyChai
     return `$${value.toLocaleString()}`;
   };
 
-  // Export functionality
-  const exportMapAsImage = useCallback(async (format: 'png' | 'svg') => {
-    const svgElement = document.querySelector('#supply-chain-map svg') as SVGElement;
-    if (!svgElement) return;
-
-    if (format === 'svg') {
-      const svgData = new XMLSerializer().serializeToString(svgElement);
-      const blob = new Blob([svgData], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `supply-chain-map-${new Date().toISOString().split('T')[0]}.svg`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } else {
-      // Convert SVG to PNG using canvas
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-      
-      canvas.width = 1920;
-      canvas.height = 960;
-      
-      const svgData = new XMLSerializer().serializeToString(svgElement);
-      const blob = new Blob([svgData], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      
-      img.onload = () => {
-        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const downloadUrl = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = `supply-chain-map-${new Date().toISOString().split('T')[0]}.png`;
-            link.click();
-            URL.revokeObjectURL(downloadUrl);
-          }
-        });
-        URL.revokeObjectURL(url);
-      };
-      
-      img.src = url;
-    }
-  }, []);
-
-  // Export data as JSON/CSV
-  const exportData = useCallback((format: 'json' | 'csv') => {
-    const exportData = {
-      timestamp: new Date().toISOString(),
-      nodes: filteredData.nodes,
-      edges: filteredData.edges,
-      disruptions: filteredData.disruptions,
-      filters: filters
-    };
-
-    if (format === 'json') {
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `supply-chain-data-${new Date().toISOString().split('T')[0]}.json`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } else {
-      // Convert to CSV
-      const csvRows = [];
-      csvRows.push('Type,ID,Name,Latitude,Longitude,Risk_Operational,Risk_Financial,Risk_Policy');
-      
-      filteredData.nodes.forEach(node => {
-        csvRows.push(`Node,${node.id},${node.name},${node.lat},${node.lng},${node.risk_operational},${node.risk_financial},${node.risk_policy}`);
-      });
-      
-      const csvContent = csvRows.join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `supply-chain-data-${new Date().toISOString().split('T')[0]}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-  }, [filteredData, filters]);
-
   // Performance optimization: automatically switch to canvas for large datasets
   useEffect(() => {
     const totalElements = filteredData.nodes.length + filteredData.edges.length + filteredData.disruptions.length;
     if (totalElements > 500 && performanceMode === 'svg') {
-      setPerformanceMode('canvas');
+      // Defer mode swap to avoid synchronous setState in render cycle
+      setTimeout(() => setPerformanceMode('canvas'), 0);
     }
   }, [filteredData, performanceMode]);
 
@@ -605,7 +474,10 @@ export default function SupplyChainWorldMap({ data, className = "" }: SupplyChai
             >
               {isAnimating ? '⏸' : '▶'} {isAnimating ? 'Live' : 'Paused'}
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-slate-700/80 text-slate-200 hover:bg-slate-600/80 transition-all duration-200 border border-slate-600/50 hover:border-slate-500/50">
+            <button
+              onClick={toggleFullscreen}
+              className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-slate-700/80 text-slate-200 hover:bg-slate-600/80 transition-all duration-200 border border-slate-600/50 hover:border-slate-500/50"
+            >
               <Maximize2 className="w-4 h-4" />
               Fullscreen
             </button>
@@ -847,6 +719,8 @@ export default function SupplyChainWorldMap({ data, className = "" }: SupplyChai
                   key={node.id} 
                   coordinates={[node.lng, node.lat]}
                   onClick={() => handleNodeClick(node)}
+                  onMouseEnter={() => handleNodeHover(node)}
+                  onMouseLeave={() => handleNodeHover(null)}
                 >
                   <circle
                     r={size}
@@ -1393,7 +1267,7 @@ export default function SupplyChainWorldMap({ data, className = "" }: SupplyChai
                 <div className="flex flex-wrap gap-1">
                   {filters.searchQuery && (
                     <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs">
-                      Search: "{filters.searchQuery}"
+                      Search: {filters.searchQuery}
                     </span>
                   )}
                   {filters.geographicFilter !== 'all' && (

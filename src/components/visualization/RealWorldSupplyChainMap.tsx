@@ -112,7 +112,7 @@ export default function RealWorldSupplyChainMap({ data, className = "" }: RealWo
     showCriticalPaths: true,
     showAnimation: true,
     severityFilter: ['low', 'medium', 'high', 'critical'],
-    sourceFilter: ['ACLED', 'MarineTraffic', 'UN_Comtrade'],
+    sourceFilter: ['Free Geopolitical Intelligence', 'Free Maritime Intelligence', 'UN_Comtrade'],
     minTradeValue: 0,
     nodeTypeFilter: ['port', 'manufacturer', 'supplier', 'distributor', 'retailer'],
     searchQuery: '',

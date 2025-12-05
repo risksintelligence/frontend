@@ -342,4 +342,3 @@ export default function DataLineagePage() {
     </MainLayout>
   );
 }
-/* eslint-disable @typescript-eslint/no-explicit-any */

@@ -1,3 +1,4 @@
+
 interface MLInsightsData {
   supply_chain_insights: {
     predictions: Array<{
@@ -345,9 +346,9 @@ export class MLIntelligenceService {
     } catch (error) {
       console.error('Failed to get model status:', error);
       return {
-        supply_chain_model: { status: "offline", last_update: "unknown" },
-        market_trends_model: { status: "offline", last_update: "unknown" },
-        anomaly_detection_model: { status: "offline", last_update: "unknown" }
+        supply_chain_model: { status: "offline", last_update: "Record<string, unknown>" },
+        market_trends_model: { status: "offline", last_update: "Record<string, unknown>" },
+        anomaly_detection_model: { status: "offline", last_update: "Record<string, unknown>" }
       };
     }
   }

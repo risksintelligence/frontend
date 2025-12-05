@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Database, BarChart3, TrendingUp, Network, Target, AlertTriangle, CheckCircle, Clock, Zap } from "lucide-react";
+import { Database, BarChart3, TrendingUp, Network, Target, AlertTriangle, CheckCircle, Clock, Zap } from "lucide-react";
 
 export interface DataNode {
   id: string;

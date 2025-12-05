@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
@@ -18,7 +17,8 @@ Sentry.init({
   replaysOnErrorSampleRate: 1.0, // 100% of sessions with errors will be recorded
   
   // Filter out RRIO-specific non-error events
-  beforeSend(event, hint) {
+  beforeSend(event: Sentry.Event, hint?: Sentry.EventHint) {
+    void hint;
     // Don't send debug-level events in production
     if (event.level === "debug" && process.env.NODE_ENV === "production") {
       return null;
@@ -32,8 +32,9 @@ Sentry.init({
     };
     
     // Add request ID if available from headers
-    if (typeof window !== "undefined" && (window as any).lastRequestId) {
-      event.tags.request_id = (window as any).lastRequestId;
+    const lastRequestId = typeof window !== "undefined" ? (window as { lastRequestId?: string }).lastRequestId : undefined;
+    if (lastRequestId) {
+      event.tags.request_id = lastRequestId;
     }
     
     return event;

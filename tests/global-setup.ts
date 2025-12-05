@@ -6,6 +6,7 @@ import { chromium, FullConfig } from '@playwright/test';
  */
 async function globalSetup(config: FullConfig) {
   console.log('🚀 Setting up RRIO test environment...');
+  void config;
   
   // Wait for services to be ready
   const baseURL = 'http://localhost:3000';

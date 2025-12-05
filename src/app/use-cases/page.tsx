@@ -4,7 +4,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import PagePrimer from "@/components/ui/PagePrimer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Truck, DollarSign, Shield, CheckCircle, AlertCircle, Calendar, Users } from "lucide-react";
+import { TrendingUp, Truck, DollarSign, CheckCircle, Calendar } from "lucide-react";
 
 export default function UseCasesPage() {
   return (

@@ -19,11 +19,8 @@ import StatusBadge from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { 
   Brain, 
-  Zap, 
   Target, 
-  Cpu, 
   AlertTriangle, 
-  TrendingUp,
   Activity,
   Shield
 } from "lucide-react";

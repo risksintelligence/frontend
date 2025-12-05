@@ -3,11 +3,7 @@
 import MainLayout from "@/components/layout/MainLayout";
 import PagePrimer from "@/components/ui/PagePrimer";
 import MarketIntelligenceDashboard from "@/components/intelligence/MarketIntelligenceDashboard";
-import { useMLModels } from "@/hooks/useMLModels";
-
 export default function MarketIntelligencePage() {
-  const { modelsAvailable } = useMLModels();
-
   return (
     <MainLayout>
       <main className="space-y-6 px-6 py-6">

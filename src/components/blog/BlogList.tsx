@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,11 +39,7 @@ export default function BlogList({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchPosts();
-  }, [category, featured, limit]);
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -66,7 +62,11 @@ export default function BlogList({
     } finally {
       setLoading(false);
     }
-  };
+  }, [category, featured, limit]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   const trackBlogClick = async (slug: string) => {
     // Track blog post click
@@ -80,7 +80,7 @@ export default function BlogList({
           metadata: { source: "blog_list" }
         }),
       });
-    } catch (error) {
+    } catch {
       // Silent fail
     }
   };

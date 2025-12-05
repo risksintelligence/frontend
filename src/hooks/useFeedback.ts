@@ -1,6 +1,5 @@
 "use client";
 "use client";
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from "react";
 
@@ -11,7 +10,6 @@ interface FeedbackData {
   category?: string;
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export const useFeedback = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);

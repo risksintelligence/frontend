@@ -306,10 +306,11 @@ export function useRealTimeUpdates(options: UseRealTimeUpdatesOptions = {}): Use
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+      const connectionId = connectionIdRef.current;
       
       // Unsubscribe on cleanup
       if (dataSources.length > 0) {
-        fetch(`/api/v1/realtime/unsubscribe/${connectionIdRef.current}`, {
+        fetch(`/api/v1/realtime/unsubscribe/${connectionId}`, {
           method: 'POST'
         }).catch(() => {
           // Silent failure on cleanup

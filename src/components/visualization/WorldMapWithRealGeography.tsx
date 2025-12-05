@@ -26,7 +26,7 @@ import {
 // For now, here's the structure you'll use once packages are installed:
 
 interface WorldMapProps {
-  data: any; // Your supply chain data
+  data: unknown; // Your supply chain data
   width?: number;
   height?: number;
 }

@@ -255,4 +255,3 @@ export default function NetworkDependenciesPage() {
     </MainLayout>
   );
 }
-/* eslint-disable @typescript-eslint/no-explicit-any */

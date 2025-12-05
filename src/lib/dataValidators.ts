@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * RRIO Data Shape Validators
  * Bloomberg-grade data validation for frontend type safety
  */
 
-import { rrio, RRIOErrorType } from './monitoring';
+import { rrio } from './monitoring';
 
 // Generic validation result interface
 interface ValidationResult<T> {
@@ -376,4 +375,3 @@ export function getValidatorForEndpoint(endpoint: string): Validator<any> {
   // Fall back to generic validator
   return validateGenericData;
 }
-/* eslint-disable @typescript-eslint/no-explicit-any */

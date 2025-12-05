@@ -14,7 +14,7 @@ import { getSupplyCascadeSnapshot, getCascadeHistory } from "@/services/realTime
 import { AlertTriangle, Route, Globe, Clock, TrendingUp, ArrowRight, Network } from "lucide-react";
 import { CascadeSnapshotResponse, CascadeHistoryResponse } from "@/lib/types";
 import CascadeHistoryChart from "@/components/network/CascadeHistoryChart";
-import { getRiskLevel, getRiskTextColor, getAccessibilityPattern } from "@/lib/risk-colors";
+import { getRiskTextColor, getAccessibilityPattern } from "@/lib/risk-colors";
 import {
   ComposableMap,
   Geographies,
@@ -873,20 +873,20 @@ function GlobeCriticalMap({
         backgroundColor="#0b1220"
         globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
         arcsData={arcsData}
-        arcColor={(d: any) => d.color}
+        arcColor={(d: unknown) => d.color}
         arcDashLength={showAnimations ? 0.3 : 1}
         arcDashGap={showAnimations ? 0.9 : 0}
         arcDashAnimateTime={showAnimations ? 4000 : 0}
         pointsData={pointsData}
-        pointLat={(d: any) => d.lat}
-        pointLng={(d: any) => d.lng}
-        pointAltitude={(d: any) => 0.02 + d.risk * 0.05}
-        pointColor={(d: any) => (d.risk > 0.6 ? "#f87171" : d.risk > 0.4 ? "#fbbf24" : "#34d399")}
+        pointLat={(d: unknown) => d.lat}
+        pointLng={(d: unknown) => d.lng}
+        pointAltitude={(d: unknown) => 0.02 + d.risk * 0.05}
+        pointColor={(d: unknown) => (d.risk > 0.6 ? "#f87171" : d.risk > 0.4 ? "#fbbf24" : "#34d399")}
         pointRadius={0.8}
         enablePointerInteraction
         hexBinPointsData={showDisruptions ? disruptionPoints : []}
-        hexBinPointLat={(d: any) => d.lat}
-        hexBinPointLng={(d: any) => d.lng}
+        hexBinPointLat={(d: unknown) => d.lat}
+        hexBinPointLng={(d: unknown) => d.lng}
         hexAltitude={showDisruptions ? 0.08 : 0}
         hexTopColor={() => "#f97316"}
         hexSideColor={() => "#f97316"}
@@ -1072,7 +1072,7 @@ function FilteredSummary({
       <div className="terminal-card p-3 space-y-1">
         <p className="text-xs font-mono text-terminal-muted">Updated</p>
         <p className="text-xs font-mono text-terminal-text">
-          {new Date(total.as_of || Date.now()).toLocaleString()}
+          {new Date(total.as_of || Date.parse(total.as_of || new Date().toISOString())).toLocaleString()}
         </p>
       </div>
     </div>

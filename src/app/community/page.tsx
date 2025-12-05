@@ -7,33 +7,17 @@ import { Button } from "@/components/ui/button";
 import FeedbackWidget from "@/components/ui/FeedbackWidget";
 import SkeletonLoader from "@/components/ui/SkeletonLoader";
 import { useCommunityInsights } from "@/hooks/useCommunityInsights";
-import { 
-  Users, 
-  MessageSquare, 
-  TrendingUp, 
-  Brain, 
-  AlertTriangle,
+import {
+  Users,
+  MessageSquare,
+  TrendingUp,
+  Brain,
   ThumbsUp,
   Share2,
   Filter,
   Clock,
   Shield
 } from "lucide-react";
-
-interface CommunityInsight {
-  id: string;
-  title: string;
-  content: string;
-  author: string;
-  category: "market-analysis" | "supply-chain" | "geopolitical" | "methodology" | "forecast";
-  timestamp: string;
-  likes: number;
-  comments: number;
-  risk_score: number;
-  impact_level: "low" | "medium" | "high" | "critical";
-  tags: string[];
-  verified: boolean;
-}
 
 // Remove demo data - now using real hook data
 
@@ -122,7 +106,7 @@ export default function CommunityPage() {
           </Card>
           <Card className="p-4 bg-terminal-bg border-terminal-border">
             <div className="flex items-center gap-3">
-              <AlertTriangle className="h-6 w-6 text-orange-400" />
+              <Shield className="h-6 w-6 text-orange-400" />
               <div>
                 <p className="text-terminal-muted text-sm">Critical Alerts</p>
                 <p className="text-xl font-bold text-terminal-text">23</p>

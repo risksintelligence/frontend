@@ -102,7 +102,7 @@ export default function NotificationBell() {
       // microtask to avoid sync setState warning
       Promise.resolve().then(() => setNotifications(nextNotifs));
     }
-  }, [riskData, alertsData, deltaThreshold, driftThreshold]);
+  }, [riskData, alertsData, deltaThreshold, driftThreshold, notifications]);
 
   const unread = useMemo(() => {
     return notifications.filter((n) => new Date(n.timestamp).getTime() > readAllAt).length;

@@ -1,16 +1,16 @@
- "use client";
+"use client";
 
 import MainLayout from "@/components/layout/MainLayout";
 import { useNetworkSnapshot } from "@/hooks/useNetworkSnapshot";
 import { getRiskLevel, getRiskTextColor, getAccessibilityPattern } from "@/lib/risk-colors";
 import StatusBadge from "@/components/ui/StatusBadge";
-import { BarChart3, ShieldAlert, Activity } from "lucide-react";
+import { ShieldAlert, Activity } from "lucide-react";
 import SkeletonLoader from "@/components/ui/SkeletonLoader";
 import MethodologyModal, { useMethodologyModal } from "@/components/ui/MethodologyModal";
 
 function NetworkTopologyContent() {
   const { data: networkData, isLoading } = useNetworkSnapshot();
-  const { isOpen, openModal, closeModal, modalProps } = useMethodologyModal();
+  const { isOpen, closeModal, modalProps } = useMethodologyModal();
 
   if (isLoading) {
     return <SkeletonLoader variant="table" rows={4} />;
@@ -45,7 +45,7 @@ function NetworkTopologyContent() {
         />
         <SummaryCard
           title="Updated"
-          value={new Date(networkData.updatedAt || Date.now()).toLocaleTimeString()}
+          value={networkData.updatedAt ? new Date(networkData.updatedAt).toLocaleTimeString() : ""}
           subtitle="Live provider health snapshot"
         />
       </div>

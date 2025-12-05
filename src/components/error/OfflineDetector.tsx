@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { WifiOff, Clock } from "lucide-react";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { rrio, RRIOErrorType } from "@/lib/monitoring";
@@ -11,9 +11,6 @@ interface OfflineDetectorProps {
   showBanner?: boolean;
 }
 
-
-const getInitialStatus = () =>
-  typeof navigator !== "undefined" ? navigator.onLine : true;
 
 const testAPIConnectivity = async (): Promise<boolean> => {
   try {
@@ -54,7 +51,7 @@ export default function OfflineDetector({ children, showBanner = true }: Offline
   const [isChecking, setIsChecking] = useState<boolean>(false);
   const [hasInitialCheck, setHasInitialCheck] = useState<boolean>(false);
 
-  const checkConnectivity = async () => {
+  const checkConnectivity = useCallback(async () => {
     setIsChecking(true);
     
     // Only check browser status if we've already done initial check
@@ -84,7 +81,7 @@ export default function OfflineDetector({ children, showBanner = true }: Offline
     
     setHasInitialCheck(true);
     setIsChecking(false);
-  };
+  }, [hasInitialCheck, isOnline]);
 
   useEffect(() => {
 
@@ -122,7 +119,7 @@ export default function OfflineDetector({ children, showBanner = true }: Offline
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [checkConnectivity]);
 
   if (!isOnline && showBanner) {
     return (

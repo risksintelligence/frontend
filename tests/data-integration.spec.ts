@@ -47,6 +47,7 @@ test.describe('Data Integration Validation', () => {
     // Get raw backend data
     const partnersResponse = await page.request.get('http://localhost:8000/api/v1/impact/partners');
     const rawData = await partnersResponse.json();
+    void rawData;
     
     // Now check if frontend correctly displays transformed data
     await page.goto('/missions');

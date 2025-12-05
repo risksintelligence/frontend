@@ -13,13 +13,16 @@ export default function RightRail() {
   const { data: missions, isLoading: missionsLoading } = useMissionHighlights();
   const { data: briefs, isLoading: briefsLoading } = useNewsroomBriefs();
 
-  // State for collapsible behavior
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const saved = localStorage.getItem("rightRailCollapsed");
-    return saved ? JSON.parse(saved) : false;
-  });
+  // State for collapsible behavior; hydrate from localStorage after mount to avoid SSR mismatch
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const lastAlertCountRef = useRef(0);
+
+  useEffect(() => {
+    const saved = typeof window !== "undefined" ? localStorage.getItem("rightRailCollapsed") : null;
+    if (saved) {
+      setIsCollapsed(JSON.parse(saved));
+    }
+  }, []);
 
   // Auto-show when new alerts arrive
   useEffect(() => {

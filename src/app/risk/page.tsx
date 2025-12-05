@@ -34,6 +34,8 @@ function RiskOverviewContent() {
     staleTime: 300_000, // 5 minutes
     refetchInterval: 600_000, // 10 minutes
   });
+  void mlInsights;
+  void mlLoading;
   const tourSteps = [
     { title: "GRII Score", description: "Core composite risk score with band/semantic colors." },
     { title: "Forecast Delta", description: "24h ΔGRII with confidence bands and driver context." },

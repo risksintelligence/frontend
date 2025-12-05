@@ -13,7 +13,7 @@ import {
   FileText, 
   TrendingUp, 
   TrendingDown, 
-  AlertTriangle, 
+   
   Calendar,
   Download,
   Mail,

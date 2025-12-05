@@ -4,7 +4,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import PagePrimer from "@/components/ui/PagePrimer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Play, TrendingUp, Truck, Calculator, Clock, CheckCircle, ArrowRight, BookOpen } from "lucide-react";
+import { Play, TrendingUp, Truck, Calculator, Clock, CheckCircle } from "lucide-react";
 
 export default function GettingStartedPage() {
   return (

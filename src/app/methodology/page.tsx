@@ -4,7 +4,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import PagePrimer from "@/components/ui/PagePrimer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Brain, Calculator, LineChart, Network, Shield, AlertTriangle, TrendingUp, Database } from "lucide-react";
+import { Brain, Calculator,  Shield, AlertTriangle, TrendingUp, Database } from "lucide-react";
 
 export default function MethodologyPage() {
   return (
@@ -59,7 +59,7 @@ export default function MethodologyPage() {
             </h2>
             <div className="terminal-grid lg:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <h3 className="font-semibold text-terminal-text text-sm">Neural Network Processing</h3>
+                <h3 className="font-semibold text-terminal-text text-sm">Neural  Processing</h3>
                 <ul className="space-y-2 text-sm text-terminal-muted">
                   <li>• <strong>Deep Learning Models:</strong> Multi-layer neural networks trained on 15+ years of economic data</li>
                   <li>• <strong>Pattern Recognition:</strong> Identifies complex relationships between market indicators and regime changes</li>

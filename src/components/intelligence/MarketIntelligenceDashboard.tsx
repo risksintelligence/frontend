@@ -204,9 +204,9 @@ export default function MarketIntelligenceDashboard({ className }: MarketIntelli
     const baseRisk = combinedIntelligence.overall_risk_score || 50;
     return {
       date: date.toISOString().split('T')[0],
-      overallRisk: Math.max(10, Math.min(90, baseRisk + Math.sin(i / 5) * 8 + Math.random() * 6)),
-      financialHealth: Math.max(20, Math.min(95, (financialHealth.market_score || 60) + Math.cos(i / 4) * 10 + Math.random() * 5)),
-      tradeStability: Math.max(15, Math.min(85, (100 - (tradeIntelligence.global_stress_score || 40)) + Math.sin(i / 6) * 12 + Math.random() * 4)),
+      overallRisk: Math.max(10, Math.min(90, baseRisk + Math.sin(i / 5) * 8 + 0.5 * 6)),
+      financialHealth: Math.max(20, Math.min(95, (financialHealth.market_score || 60) + Math.cos(i / 4) * 10 + 0.5 * 5)),
+      tradeStability: Math.max(15, Math.min(85, (100 - (tradeIntelligence.global_stress_score || 40)) + Math.sin(i / 6) * 12 + 0.5 * 4)),
     };
   });
 

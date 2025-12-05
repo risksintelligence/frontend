@@ -1,9 +1,6 @@
 "use client";
-"use client";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { useState, useRef, useEffect, ReactNode } from "react";
+import { useState, useRef, useEffect, useCallback, ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 interface TooltipProps {
@@ -27,7 +24,7 @@ export default function Tooltip({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const updatePosition = () => {
+  const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;
     
     const triggerRect = triggerRef.current.getBoundingClientRect();
@@ -76,7 +73,7 @@ export default function Tooltip({
     }
 
     setPosition({ x, y });
-  };
+  }, [placement]);
 
   const showTooltip = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -115,7 +112,7 @@ export default function Tooltip({
         window.removeEventListener("resize", handleResize);
       };
     }
-  }, [isVisible, placement]);
+  }, [isVisible, placement, updatePosition]);
 
   useEffect(() => {
     return () => {
