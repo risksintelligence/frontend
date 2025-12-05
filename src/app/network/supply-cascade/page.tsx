@@ -124,3 +124,337 @@ function GlobeMap({
     </div>
   );
 }
+
+export default function SupplyCascadePage() {
+  const [mapVisibility, setMapVisibility] = useState<MapVisibility>({
+    showRoutes: true,
+    showCritical: true,
+    showDisruptions: true,
+  });
+
+  const [mapType, setMapType] = useState<"flat" | "globe">("flat");
+
+  const {
+    data: snapshotData,
+    error: snapshotError,
+    isLoading: snapshotLoading,
+    refetch: refetchSnapshot,
+  } = useQuery({
+    queryKey: ["cascade-snapshot"],
+    queryFn: getSupplyCascadeSnapshot,
+    refetchInterval: 120000,
+    staleTime: 60000,
+    retry: 2,
+  });
+
+  const {
+    data: historyData,
+    error: historyError,
+    isLoading: historyLoading,
+  } = useQuery({
+    queryKey: ["cascade-history"],
+    queryFn: getCascadeHistory,
+    refetchInterval: 300000,
+    staleTime: 240000,
+  });
+
+  const {
+    data: impactsData,
+    error: impactsError,
+    isLoading: impactsLoading,
+  } = useQuery({
+    queryKey: ["cascade-impacts"],
+    queryFn: getCascadeImpacts,
+    refetchInterval: 180000,
+    staleTime: 120000,
+  });
+
+  const { isOnline, lastUpdate } = useRealTimeUpdates();
+
+  if (snapshotLoading) {
+    return (
+      <MainLayout>
+        <div className="p-6 space-y-6">
+          <SkeletonLoader height="200px" />
+          <SkeletonLoader height="400px" />
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (snapshotError) {
+    return (
+      <MainLayout>
+        <div className="p-6 space-y-6">
+          <div className="text-center text-red-400 p-8 border border-red-800 rounded bg-red-900/20">
+            <AlertTriangle className="w-8 h-8 mx-auto mb-4" />
+            <h2 className="text-lg font-medium mb-2">Failed to Load Supply Chain Data</h2>
+            <p className="text-sm text-red-300">Unable to fetch supply cascade snapshot</p>
+            <Button 
+              onClick={() => refetchSnapshot()} 
+              className="mt-4 bg-red-600 hover:bg-red-700"
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Retry
+            </Button>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  const snapshot = snapshotData as CascadeSnapshotResponse;
+  const history = historyData as CascadeHistoryResponse;
+  const impacts = impactsData as CascadeImpactsResponse;
+
+  const criticalNodes = snapshot?.nodes?.filter(n => 
+    (n.risk_operational + n.risk_financial + n.risk_policy) / 3 > 0.7
+  ) || [];
+
+  const totalDisruptions = snapshot?.disruptions?.length || 0;
+  const criticalDisruptions = snapshot?.disruptions?.filter(d => 
+    d.severity === "critical" || d.severity === "high"
+  )?.length || 0;
+
+  return (
+    <MainLayout>
+      <div className="p-6 space-y-6">
+        <PagePrimer
+          title="Supply Chain Cascade Analysis"
+          description="Real-time visualization of global supply chain dependencies, disruptions, and cascading effects"
+          badge={
+            <div className="flex items-center gap-2">
+              {isOnline ? (
+                <>
+                  <Wifi className="w-4 h-4 text-green-400" />
+                  <span className="text-green-400 text-xs">Live</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff className="w-4 h-4 text-red-400" />
+                  <span className="text-red-400 text-xs">Offline</span>
+                </>
+              )}
+            </div>
+          }
+        />
+
+        {/* Status Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <MetricCard
+            title="Active Nodes"
+            value={snapshot?.nodes?.length?.toLocaleString() || "0"}
+            icon={<Globe className="w-5 h-5 text-blue-400" />}
+            change={{ value: 0, type: "neutral" }}
+            description="Supply chain nodes"
+          />
+          
+          <MetricCard
+            title="Critical Nodes"
+            value={criticalNodes.length.toLocaleString()}
+            icon={<AlertTriangle className="w-5 h-5 text-red-400" />}
+            change={{ value: 0, type: "neutral" }}
+            description="High-risk dependencies"
+          />
+          
+          <MetricCard
+            title="Active Disruptions"
+            value={totalDisruptions.toLocaleString()}
+            icon={<Shield className="w-5 h-5 text-yellow-400" />}
+            change={{ value: 0, type: "neutral" }}
+            description="Current supply issues"
+          />
+          
+          <MetricCard
+            title="Critical Disruptions"
+            value={criticalDisruptions.toLocaleString()}
+            icon={<TrendingUp className="w-5 h-5 text-red-400" />}
+            change={{ value: 0, type: "neutral" }}
+            description="Severe disruptions"
+          />
+        </div>
+
+        {/* Map Controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-terminal-card p-2 rounded">
+              <Button
+                size="sm"
+                variant={mapType === "flat" ? "default" : "outline"}
+                onClick={() => setMapType("flat")}
+                className="text-xs"
+              >
+                Flat Map
+              </Button>
+              <Button
+                size="sm"
+                variant={mapType === "globe" ? "default" : "outline"}
+                onClick={() => setMapType("globe")}
+                className="text-xs"
+              >
+                3D Globe
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 text-xs">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={mapVisibility.showRoutes}
+                onChange={(e) =>
+                  setMapVisibility((prev) => ({ ...prev, showRoutes: e.target.checked }))
+                }
+                className="rounded border-terminal-border"
+              />
+              Trade Routes
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={mapVisibility.showCritical}
+                onChange={(e) =>
+                  setMapVisibility((prev) => ({ ...prev, showCritical: e.target.checked }))
+                }
+                className="rounded border-terminal-border"
+              />
+              Critical Paths
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={mapVisibility.showDisruptions}
+                onChange={(e) =>
+                  setMapVisibility((prev) => ({ ...prev, showDisruptions: e.target.checked }))
+                }
+                className="rounded border-terminal-border"
+              />
+              Disruptions
+            </label>
+          </div>
+        </div>
+
+        {/* Visualization */}
+        <div className="bg-terminal-card border border-terminal-border rounded-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-medium text-terminal-text">
+              Global Supply Chain Network
+            </h3>
+            {lastUpdate && (
+              <div className="flex items-center gap-2 text-xs text-terminal-muted">
+                <Clock className="w-3 h-3" />
+                Last updated: {new Date(lastUpdate).toLocaleTimeString()}
+              </div>
+            )}
+          </div>
+
+          {snapshot && (
+            <div className="space-y-4">
+              {mapType === "globe" ? (
+                <GlobeMap data={snapshot} visibility={mapVisibility} />
+              ) : (
+                <div className="h-[420px] bg-terminal-bg rounded border border-terminal-border">
+                  <ComposableMap
+                    projection="geoMercator"
+                    projectionConfig={{
+                      scale: 120,
+                    }}
+                    width={900}
+                    height={420}
+                    style={{ background: "#0b1220" }}
+                  >
+                    <ZoomableGroup>
+                      <Sphere stroke="#1e293b" strokeWidth={0.5} fill="#0f172a" />
+                      <Graticule stroke="#334155" strokeWidth={0.3} />
+                      <Geographies geography={geoUrl}>
+                        {({ geographies }) =>
+                          geographies.map((geo) => (
+                            <Geography
+                              key={geo.rsmKey}
+                              geography={geo}
+                              fill="#1e293b"
+                              stroke="#334155"
+                              strokeWidth={0.5}
+                            />
+                          ))
+                        }
+                      </Geographies>
+                      
+                      {/* Trade Routes */}
+                      {mapVisibility.showRoutes &&
+                        snapshot.edges?.slice(0, 50).map((edge, idx) => {
+                          const from = snapshot.nodes?.find((n) => n.id === edge.from);
+                          const to = snapshot.nodes?.find((n) => n.id === edge.to);
+                          if (!from || !to) return null;
+                          
+                          return (
+                            <Line
+                              key={`route-${idx}`}
+                              from={[from.lng, from.lat]}
+                              to={[to.lng, to.lat]}
+                              stroke={edge.criticality > 0.7 ? "#f97316" : "#38bdf8"}
+                              strokeWidth={edge.criticality * 2 + 0.5}
+                              strokeOpacity={0.6}
+                            />
+                          );
+                        })}
+
+                      {/* Supply Chain Nodes */}
+                      {snapshot.nodes?.map((node) => {
+                        const totalRisk = (node.risk_operational + node.risk_financial + node.risk_policy) / 3;
+                        const riskLevel = getRiskLevel(totalRisk);
+                        const shouldShow = !mapVisibility.showCritical || totalRisk > 0.6;
+                        
+                        if (!shouldShow) return null;
+
+                        return (
+                          <Marker key={node.id} coordinates={[node.lng, node.lat]}>
+                            <circle
+                              r={Math.max(2, totalRisk * 8)}
+                              fill={
+                                riskLevel === "critical" ? "#ef4444" :
+                                riskLevel === "high" ? "#f97316" :
+                                riskLevel === "medium" ? "#eab308" : "#22c55e"
+                              }
+                              fillOpacity={0.8}
+                              stroke="#ffffff"
+                              strokeWidth={0.5}
+                            />
+                          </Marker>
+                        );
+                      })}
+
+                      {/* Disruptions */}
+                      {mapVisibility.showDisruptions &&
+                        snapshot.disruptions?.map((disruption, idx) => (
+                          <Marker key={`disruption-${idx}`} coordinates={disruption.location}>
+                            <circle
+                              r={4}
+                              fill="#dc2626"
+                              stroke="#fca5a5"
+                              strokeWidth={1}
+                              opacity={0.9}
+                            />
+                          </Marker>
+                        ))}
+                    </ZoomableGroup>
+                  </ComposableMap>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* History Chart */}
+        {history && (
+          <div className="bg-terminal-card border border-terminal-border rounded-lg p-6">
+            <h3 className="text-lg font-medium text-terminal-text mb-6">
+              Cascade History & Trends
+            </h3>
+            <CascadeHistoryChart data={history} />
+          </div>
+        )}
+      </div>
+    </MainLayout>
+  );
+}
