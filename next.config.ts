@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
     // In development, use local backend
     const isProduction = process.env.NODE_ENV === 'production';
     const backendUrl = isProduction 
-      ? 'https://backend-production-5af5.up.railway.app'
+      ? 'https://backend-production-83c7.up.railway.app'
       : (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000');
     
     return [
