@@ -13,7 +13,12 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
+    // In production on Railway, use the backend URL
+    // In development, use local backend
+    const isProduction = process.env.NODE_ENV === 'production';
+    const backendUrl = isProduction 
+      ? 'https://backend-production-5af5.up.railway.app'
+      : (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000');
     
     return [
       {

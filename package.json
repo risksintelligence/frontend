@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_OPTIONS=\"--no-deprecation\" next start",
     "lint": "eslint",
     "generate:api-types": "openapi-typescript http://127.0.0.1:8000/openapi.json --output src/lib/api-types.ts",
     "test": "playwright test",
