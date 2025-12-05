@@ -13,8 +13,8 @@ import { HelpCircle, Info } from "lucide-react";
 export default function ExplainabilityPreview() {
   const { data, isLoading } = useExplainability();
   const { data: alertsData, isLoading: alertsLoading } = useAlerts();
-  const regimeDrivers: RegimeDriver[] = data?.regime || [];
-  const forecastDrivers: ForecastDriver[] = data?.forecast || [];
+  const regimeDrivers: RegimeDriver[] = Array.isArray(data?.regime) ? data.regime : [];
+  const forecastDrivers: ForecastDriver[] = Array.isArray(data?.forecast) ? data.forecast : [];
   const { isOpen, openModal, closeModal, modalProps } = useMethodologyModal();
 
   const handleExplainabilityMethodology = () => {
@@ -126,7 +126,7 @@ export default function ExplainabilityPreview() {
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {regimeDrivers.slice(0, 6).map((driver) => (
+            {Array.isArray(regimeDrivers) ? regimeDrivers.slice(0, 6).map((driver) => (
               <MetricCard
                 key={driver.feature}
                 title={driver.feature.replace(/_/g, " ").toUpperCase()}
@@ -136,7 +136,7 @@ export default function ExplainabilityPreview() {
                 trend={(driver.value ?? 0) >= 0 ? "rising" : "falling"}
                 tooltip={`Feature importance in regime classification. Higher values indicate stronger influence on determining current macroeconomic regime. Current value: ${driver.value ?? 0}.`}
               />
-            ))}
+            )) : null}
           </div>
         </div>
 
@@ -181,7 +181,7 @@ export default function ExplainabilityPreview() {
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {forecastDrivers.slice(0, 6).map((driver) => (
+            {Array.isArray(forecastDrivers) ? forecastDrivers.slice(0, 6).map((driver) => (
               <MetricCard
                 key={driver.feature}
                 title={driver.feature.replace(/_/g, " ").toUpperCase()}
@@ -191,7 +191,7 @@ export default function ExplainabilityPreview() {
                 trend={(driver.contribution ?? 0) >= 0 ? "rising" : "falling"}
                 tooltip={`SHAP contribution to 24-hour GRII forecast. Positive values increase predicted risk, negative values decrease it. Model coefficient: ${driver.coef ?? 0}.`}
               />
-            ))}
+            )) : null}
           </div>
         </div>
       </div>

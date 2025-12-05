@@ -8,8 +8,8 @@ import { getRiskLevel } from "@/lib/risk-colors";
 export default function GeopoliticalPanel() {
   const { data, isLoading } = useGeopoliticalDisruptions(30);
 
-  const disruptions = data?.disruptions ?? [];
-  const events = data?.events ?? [];
+  const disruptions = Array.isArray(data?.disruptions) ? data.disruptions : [];
+  const events = Array.isArray(data?.events) ? data.events : [];
   const severityScore = Math.min(100, disruptions.length * 5 + events.length * 2);
   const riskLevel = getRiskLevel(severityScore);
 
@@ -38,26 +38,26 @@ export default function GeopoliticalPanel() {
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-wide text-terminal-muted">Top Events</p>
           <ul className="space-y-2 text-sm text-terminal-text">
-            {(events.slice(0,5)).map((ev) => (
+            {Array.isArray(events) ? events.slice(0,5).map((ev) => (
               <li key={ev.event_id} className="flex flex-col rounded border border-terminal-border p-2">
                 <span className="font-semibold {riskColor}">{ev.event_type} · {ev.country}</span>
                 <span className="text-terminal-muted text-xs">{new Date(ev.event_date).toLocaleString()} • {ev.source}</span>
                 <span className="text-terminal-muted text-sm">{ev.description}</span>
               </li>
-            ))}
-            {(!events.length && !isLoading) && <li className="text-terminal-muted text-xs">No events available</li>}
+            )) : null}
+            {((!Array.isArray(events) || events.length === 0) && !isLoading) && <li className="text-terminal-muted text-xs">No events available</li>}
           </ul>
         </div>
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-wide text-terminal-muted">Routes Impacted</p>
           <ul className="space-y-2 text-sm text-terminal-text">
-            {(disruptions.slice(0,5)).map((d) => (
+            {Array.isArray(disruptions) ? disruptions.slice(0,5).map((d) => (
               <li key={d.disruption_id} className="flex flex-col rounded border border-terminal-border p-2">
                 <span className="font-semibold">{d.severity.toUpperCase()} · {d.source}</span>
                 <span className="text-terminal-muted text-sm">{d.description}</span>
               </li>
-            ))}
-            {(!disruptions.length && !isLoading) && <li className="text-terminal-muted text-xs">No disruptions available</li>}
+            )) : null}
+            {((!Array.isArray(disruptions) || disruptions.length === 0) && !isLoading) && <li className="text-terminal-muted text-xs">No disruptions available</li>}
           </ul>
         </div>
       </div>

@@ -31,10 +31,10 @@ export default function AnomalyTimeline() {
           timestamp: h.timestamp,
           severity: h.severity,
         }))
-      : (latestAlerts?.anomalies || []).slice(0, 20).map((a) => ({
+      : Array.isArray(latestAlerts?.anomalies) ? latestAlerts.anomalies.slice(0, 20).map((a) => ({
           timestamp: a.timestamp,
           severity: (a as Alert).severity,
-        }));
+        })) : [];
   if (!anomalies.length) {
     return (
       <div className="terminal-card">

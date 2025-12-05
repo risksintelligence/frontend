@@ -8,7 +8,7 @@ export default function MaritimePanel() {
   const { data, isLoading } = useMaritimeHealth();
   const overview = data?.overview;
   const healthScore = overview?.average_health_score ?? 0;
-  const providers = data?.providers ?? [];
+  const providers = Array.isArray(data?.providers) ? data.providers : [];
 
   const badgeVariant = healthScore > 0.7 ? "good" : healthScore > 0.4 ? "warning" : "critical";
 
@@ -34,7 +34,7 @@ export default function MaritimePanel() {
       />
 
       <div className="grid gap-2 md:grid-cols-2">
-        {providers.slice(0,6).map((p) => (
+        {Array.isArray(providers) ? providers.slice(0,6).map((p) => (
           <div key={p.provider_id} className="rounded border border-terminal-border p-3">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-terminal-text">{p.name}</span>
@@ -44,8 +44,8 @@ export default function MaritimePanel() {
             </div>
             <p className="text-terminal-muted text-xs mt-1">Health: {Math.round(p.health_score * 100)}%</p>
           </div>
-        ))}
-        {(!providers.length && !isLoading) && <p className="text-terminal-muted text-xs">No provider health data</p>}
+        )) : null}
+        {((!Array.isArray(providers) || providers.length === 0) && !isLoading) && <p className="text-terminal-muted text-xs">No provider health data</p>}
       </div>
     </div>
   );
