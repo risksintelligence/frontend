@@ -19,20 +19,22 @@ async function globalSetup(config: FullConfig) {
   const page = await context.newPage();
   
   let retries = 0;
-  const maxRetries = 30; // 30 seconds
+  const maxRetries = process.env.CI ? 60 : 30; // More time in CI
   
   console.log('⏳ Waiting for frontend to be ready...');
   while (retries < maxRetries) {
     try {
-      await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 2000 });
+      await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 3000 });
       console.log('✅ Frontend is ready');
       break;
     } catch (error) {
       retries++;
       if (retries === maxRetries) {
         console.error('❌ Frontend failed to start within timeout');
+        console.error('Error details:', error);
         throw error;
       }
+      console.log(`⏳ Retrying frontend connection... attempt ${retries}/${maxRetries}`);
       await page.waitForTimeout(1000);
     }
   }
