@@ -3,6 +3,8 @@
  * Handles both development and production API routing
  */
 
+import { createMockFetch, shouldUseMockApi } from './mock-api';
+
 /**
  * Get the correct API base URL for the current environment
  * In production: Use relative paths to leverage Next.js rewrites and avoid CORS
@@ -32,6 +34,17 @@ export function buildApiUrl(path: string): string {
   // Ensure path starts with /
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   return baseUrl + normalizedPath;
+}
+
+/**
+ * Get the appropriate fetch function for the current environment
+ * In CI/test environments, use mock fetch to avoid production API calls
+ */
+export function getApiFetch(): typeof fetch {
+  if (shouldUseMockApi()) {
+    return createMockFetch();
+  }
+  return fetch;
 }
 
 /**

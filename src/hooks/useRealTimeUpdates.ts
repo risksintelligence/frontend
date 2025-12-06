@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { buildApiUrl, getApiFetch } from '@/lib/api-config';
 
 export interface DataUpdate {
   update_id: string;
@@ -75,7 +76,8 @@ export function useRealTimeUpdates(options: UseRealTimeUpdatesOptions = {}): Use
   // Fetch refresh service status
   const fetchStatus = useCallback(async () => {
     try {
-      const response = await fetch('/api/v1/realtime/status');
+      const fetchFn = getApiFetch();
+      const response = await fetchFn(buildApiUrl('/api/v1/realtime/status'));
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
@@ -102,7 +104,8 @@ export function useRealTimeUpdates(options: UseRealTimeUpdatesOptions = {}): Use
   const startRefreshService = useCallback(async () => {
     try {
       setConnectionStatus('connecting');
-      const response = await fetch('/api/v1/realtime/start', {
+      const fetchFn = getApiFetch();
+      const response = await fetchFn(buildApiUrl('/api/v1/realtime/start'), {
         method: 'POST'
       });
       
@@ -127,7 +130,8 @@ export function useRealTimeUpdates(options: UseRealTimeUpdatesOptions = {}): Use
   // Stop refresh service
   const stopRefreshService = useCallback(async () => {
     try {
-      const response = await fetch('/api/v1/realtime/stop', {
+      const fetchFn = getApiFetch();
+      const response = await fetchFn(buildApiUrl('/api/v1/realtime/stop'), {
         method: 'POST'
       });
       
@@ -152,7 +156,8 @@ export function useRealTimeUpdates(options: UseRealTimeUpdatesOptions = {}): Use
   // Force refresh a specific data source
   const forceRefresh = useCallback(async (dataSource: string) => {
     try {
-      const response = await fetch(`/api/v1/realtime/force-refresh/${dataSource}`, {
+      const fetchFn = getApiFetch();
+      const response = await fetchFn(buildApiUrl(`/api/v1/realtime/force-refresh/${dataSource}`), {
         method: 'POST'
       });
       
@@ -178,7 +183,8 @@ export function useRealTimeUpdates(options: UseRealTimeUpdatesOptions = {}): Use
   // Update priority for a data source
   const updatePriority = useCallback(async (dataSource: string, priority: string) => {
     try {
-      const response = await fetch(`/api/v1/realtime/priority/${dataSource}?priority=${priority}`, {
+      const fetchFn = getApiFetch();
+      const response = await fetchFn(buildApiUrl(`/api/v1/realtime/priority/${dataSource}?priority=${priority}`), {
         method: 'PUT'
       });
       
@@ -204,7 +210,8 @@ export function useRealTimeUpdates(options: UseRealTimeUpdatesOptions = {}): Use
   // Get health summary
   const getHealthSummary = useCallback(async () => {
     try {
-      const response = await fetch('/api/v1/realtime/health-summary');
+      const fetchFn = getApiFetch();
+      const response = await fetchFn(buildApiUrl('/api/v1/realtime/health-summary'));
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
@@ -228,7 +235,8 @@ export function useRealTimeUpdates(options: UseRealTimeUpdatesOptions = {}): Use
     if (dataSources.length === 0) return;
 
     try {
-      const response = await fetch('/api/v1/realtime/subscribe', {
+      const fetchFn = getApiFetch();
+      const response = await fetchFn(buildApiUrl('/api/v1/realtime/subscribe'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -255,7 +263,8 @@ export function useRealTimeUpdates(options: UseRealTimeUpdatesOptions = {}): Use
   // Simulate receiving updates by polling update history
   const checkForUpdates = useCallback(async () => {
     try {
-      const response = await fetch('/api/v1/realtime/update-history?limit=1');
+      const fetchFn = getApiFetch();
+      const response = await fetchFn(buildApiUrl('/api/v1/realtime/update-history?limit=1'));
       if (!response.ok) return;
       
       const data = await response.json();
@@ -310,7 +319,8 @@ export function useRealTimeUpdates(options: UseRealTimeUpdatesOptions = {}): Use
       
       // Unsubscribe on cleanup
       if (dataSources.length > 0) {
-        fetch(`/api/v1/realtime/unsubscribe/${connectionId}`, {
+        const fetchFn = getApiFetch();
+        fetchFn(buildApiUrl(`/api/v1/realtime/unsubscribe/${connectionId}`), {
           method: 'POST'
         }).catch(() => {
           // Silent failure on cleanup

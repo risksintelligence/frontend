@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { WifiOff, Clock } from "lucide-react";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { rrio, RRIOErrorType } from "@/lib/monitoring";
-import { buildApiUrl } from "@/lib/api-config";
+import { buildApiUrl, getApiFetch } from "@/lib/api-config";
 
 interface OfflineDetectorProps {
   children: React.ReactNode;
@@ -17,7 +17,8 @@ const testAPIConnectivity = async (): Promise<boolean> => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
     
-    const response = await fetch(buildApiUrl('/health'), {
+    const fetchFn = getApiFetch();
+    const response = await fetchFn(buildApiUrl('/health'), {
       method: 'GET',
       signal: controller.signal,
       cache: 'no-store'

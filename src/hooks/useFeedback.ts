@@ -1,7 +1,7 @@
 "use client";
-"use client";
 
 import { useState } from "react";
+import { buildApiUrl, getApiFetch } from "@/lib/api-config";
 
 interface FeedbackData {
   page: string;
@@ -21,7 +21,8 @@ export const useFeedback = () => {
     setError(null);
 
     try {
-      const response = await fetch("/api/v1/analytics/feedback", {
+      const fetchFn = getApiFetch();
+      const response = await fetchFn(buildApiUrl("/api/v1/analytics/feedback"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(feedbackData),
@@ -49,7 +50,8 @@ export const useFeedback = () => {
       }
 
       // Custom analytics tracking
-      fetch("/api/v1/analytics/event", {
+      const analyticsFetchFn = getApiFetch();
+      analyticsFetchFn(buildApiUrl("/api/v1/analytics/event"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

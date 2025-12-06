@@ -164,7 +164,7 @@ interface AnomalyDetectionRequest {
   sensitivity?: number;
 }
 
-import { buildApiUrl } from '@/lib/api-config';
+import { buildApiUrl, getApiFetch } from '@/lib/api-config';
 
 export class MLIntelligenceService {
   private static instance: MLIntelligenceService;
@@ -179,7 +179,8 @@ export class MLIntelligenceService {
   private async fetchWithRetry(url: string, options: RequestInit, retries = 3): Promise<Response> {
     for (let i = 0; i < retries; i++) {
       try {
-        const response = await fetch(url, {
+        const fetchFn = getApiFetch();
+        const response = await fetchFn(url, {
           ...options,
           headers: {
             'Content-Type': 'application/json',

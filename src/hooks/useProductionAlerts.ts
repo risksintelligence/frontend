@@ -10,14 +10,14 @@ import {
   validateActiveAlertsResponse, 
   validateApiResponse
 } from "@/lib/contractValidator";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+import { buildApiUrl, getApiFetch } from "@/lib/api-config";
 
 async function fetchWithValidation<T>(
   endpoint: string,
   validator: (data: unknown) => T
 ): Promise<T> {
-  const response = await fetch(`${API_BASE}${endpoint}`);
+  const fetchFn = getApiFetch();
+  const response = await fetchFn(buildApiUrl(endpoint));
   
   if (!response.ok) {
     throw new Error(`Failed to fetch ${endpoint}: ${response.statusText}`);
@@ -61,7 +61,8 @@ export function useAlertHistory(limit = 50) {
   return useQuery<AlertHistoryResponse>({
     queryKey: ["alert-history", limit],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/api/v1/alerts/history?limit=${limit}`);
+      const fetchFn = getApiFetch();
+      const response = await fetchFn(buildApiUrl(`/api/v1/alerts/history?limit=${limit}`));
       
       if (!response.ok) {
         throw new Error(`Failed to fetch alert history: ${response.statusText}`);
@@ -103,7 +104,8 @@ export function useHealthOverview() {
   return useQuery<HealthOverviewResponse>({
     queryKey: ["health-overview"],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/api/v1/alerts/health-overview`);
+      const fetchFn = getApiFetch();
+      const response = await fetchFn(buildApiUrl('/api/v1/alerts/health-overview'));
       
       if (!response.ok) {
         throw new Error(`Failed to fetch health overview: ${response.statusText}`);
@@ -128,7 +130,8 @@ export function useHealthOverview() {
  */
 export function useTriggerHealthCheck() {
   return async () => {
-    const response = await fetch(`${API_BASE}/api/v1/alerts/check`, {
+    const fetchFn = getApiFetch();
+    const response = await fetchFn(buildApiUrl('/api/v1/alerts/check'), {
       method: 'POST',
     });
     
@@ -147,7 +150,8 @@ export function useServiceAlerts(serviceName: string) {
   return useQuery({
     queryKey: ["service-alerts", serviceName],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/api/v1/alerts/services/${serviceName}`);
+      const fetchFn = getApiFetch();
+      const response = await fetchFn(buildApiUrl(`/api/v1/alerts/services/${serviceName}`));
       
       if (!response.ok) {
         throw new Error(`Failed to fetch alerts for ${serviceName}: ${response.statusText}`);

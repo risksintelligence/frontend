@@ -38,6 +38,8 @@ export default defineConfig({
     acceptDownloads: true,
     /* Ignore HTTPS errors */
     ignoreHTTPSErrors: true,
+    /* Set viewport for chart rendering */
+    viewport: { width: 1280, height: 720 },
   },
 
   /* Configure projects for major browsers - CI optimized */
@@ -55,7 +57,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run build && npm run start',
     port: 3000,
-    reuseExistingServer: false,
+    reuseExistingServer: true,
     timeout: 120 * 1000, // 2 minutes
   },
 

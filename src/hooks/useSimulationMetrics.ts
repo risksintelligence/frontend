@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { buildApiUrl, getApiFetch } from "@/lib/api-config";
 
 interface SimulationMetrics {
   active_models: number;
@@ -13,7 +14,8 @@ interface SimulationMetrics {
 async function fetchSimulationMetrics(): Promise<SimulationMetrics> {
   try {
     // Try to get real metrics from backend
-    const response = await fetch("/api/v1/simulation/scenarios", {
+    const fetchFn = getApiFetch();
+    const response = await fetchFn(buildApiUrl("/api/v1/simulation/scenarios"), {
       cache: "no-store",
       headers: { "Content-Type": "application/json" },
     });
