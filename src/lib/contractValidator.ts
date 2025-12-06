@@ -168,32 +168,40 @@ export function validateGeopoliticalDisruptionsResponse(data: unknown): Validati
 
   const response = data as Record<string, unknown>;
 
-  if (!Array.isArray(response.geopolitical_events)) {
-    errors.push('geopolitical_events must be an array');
-  } else {
-    // Validate each event
-    response.geopolitical_events.forEach((event, index) => {
+  // Support both API formats: {events, disruptions} or {geopolitical_events, supply_chain_disruptions}
+  const eventsArray = response.events || response.geopolitical_events;
+  const disruptionsArray = response.disruptions || response.supply_chain_disruptions;
+  const sourcesArray = response.data_sources;
+
+  // Validate events array (flexible naming)
+  if (eventsArray !== undefined && !Array.isArray(eventsArray)) {
+    errors.push('events/geopolitical_events must be an array when present');
+  } else if (Array.isArray(eventsArray)) {
+    // Validate each event if present
+    eventsArray.forEach((event, index) => {
       const eventValidation = validateGeopoliticalEvent(event);
       if (!eventValidation.isValid) {
-        errors.push(`geopolitical_events[${index}]: ${eventValidation.errors.join(', ')}`);
+        errors.push(`events[${index}]: ${eventValidation.errors.join(', ')}`);
       }
     });
   }
 
-  if (!Array.isArray(response.supply_chain_disruptions)) {
-    errors.push('supply_chain_disruptions must be an array');
-  } else {
-    // Validate each disruption
-    response.supply_chain_disruptions.forEach((disruption, index) => {
+  // Validate disruptions array (flexible naming)
+  if (disruptionsArray !== undefined && !Array.isArray(disruptionsArray)) {
+    errors.push('disruptions/supply_chain_disruptions must be an array when present');
+  } else if (Array.isArray(disruptionsArray)) {
+    // Validate each disruption if present
+    disruptionsArray.forEach((disruption, index) => {
       const disruptionValidation = validateSupplyChainDisruption(disruption);
       if (!disruptionValidation.isValid) {
-        errors.push(`supply_chain_disruptions[${index}]: ${disruptionValidation.errors.join(', ')}`);
+        errors.push(`disruptions[${index}]: ${disruptionValidation.errors.join(', ')}`);
       }
     });
   }
 
-  if (!Array.isArray(response.data_sources)) {
-    errors.push('data_sources must be an array');
+  // Validate data_sources array (optional)
+  if (sourcesArray !== undefined && !Array.isArray(sourcesArray)) {
+    errors.push('data_sources must be an array when present');
   }
 
   if (errors.length === 0) {
