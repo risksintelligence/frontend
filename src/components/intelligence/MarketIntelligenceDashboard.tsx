@@ -61,6 +61,9 @@ interface MarketIntelligenceDashboardProps {
 export default function MarketIntelligenceDashboard({ className }: MarketIntelligenceDashboardProps) {
   const isClient = useIsClient();
   
+  // Debug logging
+  console.log('[MarketIntelligenceDashboard] isClient:', isClient);
+  
   const { 
     data: overviewData, 
     isLoading: overviewLoading, 
@@ -69,9 +72,16 @@ export default function MarketIntelligenceDashboard({ className }: MarketIntelli
     dataUpdatedAt: overviewUpdatedAt 
   } = useQuery({
     queryKey: ["market-intelligence-overview"],
-    queryFn: getMarketIntelligenceOverview,
+    queryFn: async () => {
+      console.log('[MarketIntelligenceDashboard] Fetching overview data...');
+      const result = await getMarketIntelligenceOverview();
+      console.log('[MarketIntelligenceDashboard] Overview data result:', result);
+      return result;
+    },
     staleTime: 300_000, // 5 minutes
     refetchInterval: 600_000, // 10 minutes
+    retry: 3,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const { 
@@ -81,12 +91,18 @@ export default function MarketIntelligenceDashboard({ className }: MarketIntelli
     refetch: refetchSources 
   } = useQuery({
     queryKey: ["market-intelligence-sources"],
-    queryFn: getMarketIntelligenceSources,
+    queryFn: async () => {
+      console.log('[MarketIntelligenceDashboard] Fetching sources data...');
+      const result = await getMarketIntelligenceSources();
+      console.log('[MarketIntelligenceDashboard] Sources data result:', result);
+      return result;
+    },
     staleTime: 900_000, // 15 minutes
     refetchInterval: 1800_000, // 30 minutes
+    retry: 3,
   });
 
-  // ML Insights Query
+  // ML Insights Query - Optional, only load on client
   const { 
     data: mlInsightsData, 
     isLoading: mlInsightsLoading, 
@@ -97,10 +113,11 @@ export default function MarketIntelligenceDashboard({ className }: MarketIntelli
     queryFn: () => mlIntelligenceService.getMLInsightsSummary(),
     staleTime: 600_000, // 10 minutes
     refetchInterval: 1200_000, // 20 minutes
-    enabled: isClient, // Only run on client side
+    enabled: isClient,
+    retry: 2,
   });
 
-  // Supply Chain Routes Query
+  // Supply Chain Routes Query - Optional, only load on client
   const { 
     data: routesData, 
     isLoading: routesLoading 
@@ -108,26 +125,42 @@ export default function MarketIntelligenceDashboard({ className }: MarketIntelli
     queryKey: ["supply-chain-routes"],
     queryFn: async () => {
       const response = await fetch(buildApiUrl('/api/v1/intel/supply-chain-mapping'));
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       return response.json();
     },
     staleTime: 600_000, // 10 minutes
-    enabled: isClient, // Only run on client side
+    enabled: isClient,
+    retry: 2,
   });
-
 
   const isLoading = overviewLoading || sourcesLoading;
   const error = overviewError || sourcesError;
+  
+  // Debug logging
+  console.log('[MarketIntelligenceDashboard] Component state:', {
+    isLoading,
+    error: error?.message,
+    overviewData,
+    sourcesData,
+    isClient
+  });
 
   if (isLoading) {
     return <SkeletonLoader variant="card" className={`h-96 ${className}`} />;
   }
 
   if (error) {
+    console.error('[MarketIntelligenceDashboard] Error state:', { overviewError, sourcesError });
     return (
       <div className={`terminal-card p-6 ${className}`}>
         <div className="text-center space-y-2">
           <StatusBadge variant="critical">Error</StatusBadge>
           <p className="text-sm text-terminal-muted">Failed to load market intelligence data</p>
+          <p className="text-xs text-terminal-muted font-mono">
+            {error.message || 'Unknown error occurred'}
+          </p>
           <div className="flex gap-2 justify-center">
             <Button onClick={() => refetchOverview()} size="sm" variant="outline">
               Retry Overview
@@ -145,7 +178,27 @@ export default function MarketIntelligenceDashboard({ className }: MarketIntelli
   }
 
   const overview = overviewData || {};
-  const sources = sourcesData?.sources || {};
+  
+  // Show a warning if we have no data but no error
+  if (!isLoading && (!overview || Object.keys(overview).length === 0)) {
+    console.warn('[MarketIntelligenceDashboard] No data available:', { overview, overviewData });
+    return (
+      <div className={`terminal-card p-6 ${className}`}>
+        <div className="text-center space-y-2">
+          <StatusBadge variant="warning">No Data</StatusBadge>
+          <p className="text-sm text-terminal-muted">Market intelligence data is not available</p>
+          <p className="text-xs text-terminal-muted font-mono">
+            Overview data: {JSON.stringify(overview, null, 2)}
+          </p>
+          <div className="flex gap-2 justify-center">
+            <Button onClick={() => refetchOverview()} size="sm" variant="outline">
+              Reload Data
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   // Extract data from each source
   const financialHealth = overview.financial_health || {};
