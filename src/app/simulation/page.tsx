@@ -10,8 +10,11 @@ import PagePrimer from "@/components/ui/PagePrimer";
 import TourOverlay from "@/components/ui/TourOverlay";
 import { useState } from "react";
 import WhatChanged from "@/components/risk/WhatChanged";
+import { useSimulationMetrics } from "@/hooks/useSimulationMetrics";
+import SkeletonLoader from "@/components/ui/SkeletonLoader";
 
 export default function SimulationPage() {
+  const { data: simMetrics, isLoading: metricsLoading } = useSimulationMetrics();
   const [showTour, setShowTour] = useState(false);
   const tourSteps = [
     { title: "Simulation Primer", description: "See how GRII baseline + forecasts feed Monte Carlo and stress engines." },
@@ -175,26 +178,34 @@ export default function SimulationPage() {
 
         {/* Simulation Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <MetricCard
-            title="Active Models"
-            value="7"
-            description="Running simulations"
-          />
-          <MetricCard
-            title="Monte Carlo Runs"
-            value="10,000"
-            description="Current iteration"
-          />
-          <MetricCard
-            title="Scenario Tests"
-            value="156"
-            description="Completed this week"
-          />
-          <MetricCard
-            title="Model Accuracy"
-            value="94.2%"
-            description="Validation score"
-          />
+          {metricsLoading ? (
+            Array.from({ length: 4 }).map((_, idx) => (
+              <SkeletonLoader key={idx} variant="card" />
+            ))
+          ) : (
+            <>
+              <MetricCard
+                title="Active Models"
+                value={simMetrics?.active_models.toString() || "7"}
+                description="Running simulations"
+              />
+              <MetricCard
+                title="Monte Carlo Runs"
+                value={simMetrics?.monte_carlo_runs.toLocaleString() || "10,000"}
+                description="Current iteration"
+              />
+              <MetricCard
+                title="Scenario Tests"
+                value={simMetrics?.scenario_tests.toString() || "156"}
+                description="Completed this week"
+              />
+              <MetricCard
+                title="Model Accuracy"
+                value={`${simMetrics?.model_accuracy.toFixed(1) || "94.2"}%`}
+                description="Validation score"
+              />
+            </>
+          )}
         </div>
 
         {/* Simulation Tools */}

@@ -217,66 +217,15 @@ export class MLIntelligenceService {
     } catch (error) {
       console.error('Failed to fetch ML insights summary:', error);
       
-      // Return fallback data structure
-      return {
-        supply_chain_insights: {
-          predictions: [
-            {
-              route_id: "shanghai-los_angeles",
-              risk_level: "medium",
-              confidence: 0.82,
-              predicted_delay: 2.5,
-              impact_factors: ["weather", "port_congestion"]
-            }
-          ],
-          insights: ["Supply chain routes showing moderate risk due to seasonal weather patterns"],
-          model_performance: {
-            accuracy: 0.85,
-            confidence: 0.82,
-            last_trained: "2025-11-25"
-          }
-        },
-        market_trend_insights: {
-          predictions: [
-            {
-              metric: "financial_health_trend",
-              current_value: 0.78,
-              predicted_value: 0.82,
-              trend: "improving",
-              confidence: 0.89
-            }
-          ],
-          insights: ["Market intelligence indicates improving financial health across key sectors"],
-          model_performance: {
-            accuracy: 0.87,
-            confidence: 0.89,
-            last_trained: "2025-11-25"
-          }
-        },
-        anomaly_insights: {
-          anomalies: [
-            {
-              metric: "trade_volume_variance",
-              value: 1.25,
-              expected_range: [0.8, 1.1],
-              severity: "medium",
-              detected_at: "2025-11-25T10:30:00Z"
-            }
-          ],
-          insights: ["Detected moderate anomaly in trade volume patterns"],
-          model_performance: {
-            precision: 0.91,
-            recall: 0.85,
-            last_trained: "2025-11-25"
-          }
-        },
-        summary_metrics: {
-          total_predictions: 3,
-          high_confidence_predictions: 2,
-          anomalies_detected: 1,
-          overall_risk_level: "medium"
-        }
-      };
+      // Check if this is a 503 error (service unavailable) vs network error
+      if (error instanceof Response && error.status === 503) {
+        throw new Error('ML insights service unavailable - no cached data available');
+      }
+      
+      // For other errors, throw to let the component handle gracefully
+      throw new Error(`ML insights service error: ${error}`);
+      
+      // Note: Fallback data removed - components should use error states instead
     }
   }
 
@@ -379,97 +328,13 @@ export class MLIntelligenceService {
     } catch (error) {
       console.error('Failed to fetch network ML insights:', error);
       
-      // Return fallback network data structure
-      return {
-        cascade_analysis: {
-          cascade_risk_score: 0.4,
-          risk_level: "medium",
-          confidence: 0.82,
-          critical_nodes: [
-            {
-              id: "hub_singapore",
-              name: "Singapore Hub",
-              risk_score: 0.35,
-              type: "hub"
-            }
-          ],
-          critical_edges: [
-            {
-              from: "china",
-              to: "usa", 
-              criticality: 0.92,
-              flow: 0.85,
-              congestion: 0.68
-            }
-          ],
-          risk_factors: ["congestion_influence", "flow_influence"],
-          insights: ["MEDIUM RISK: Network showing moderate cascade risk patterns"],
-          model_performance: {
-            accuracy: 0.87,
-            last_trained: new Date().toISOString(),
-            feature_importance: {
-              "flow": 0.24,
-              "congestion": 0.43,
-              "criticality": 0.22
-            }
-          },
-          prediction_timestamp: new Date().toISOString()
-        },
-        resilience_analysis: {
-          resilience_score: 0.65,
-          resilience_level: "medium",
-          redundancy_score: 0.42,
-          estimated_recovery_hours: 48,
-          confidence: 0.83,
-          insights: ["GOOD: Network resilience adequate for current topology"],
-          model_performance: {
-            accuracy: 0.83,
-            last_trained: new Date().toISOString()
-          },
-          prediction_timestamp: new Date().toISOString()
-        },
-        anomaly_analysis: {
-          anomalies: [
-            {
-              type: "high_congestion",
-              entity_id: "china-usa",
-              entity_name: "China → USA Route",
-              anomaly_score: 0.68,
-              severity: "medium",
-              detected_at: new Date().toISOString(),
-              details: "Severe congestion detected on critical trade route"
-            }
-          ],
-          total_anomalies: 1,
-          severity_breakdown: {
-            high: 0,
-            medium: 1,
-            low: 0
-          },
-          insights: ["Detected 1 network anomaly requiring attention"],
-          model_performance: {
-            precision: 0.89,
-            recall: 0.82,
-            last_trained: new Date().toISOString()
-          },
-          detection_timestamp: new Date().toISOString()
-        },
-        overall_metrics: {
-          network_health_score: 0.65,
-          overall_status: "moderate_risk",
-          total_nodes: 4,
-          total_edges: 4,
-          critical_paths: 2,
-          active_disruptions: 0
-        },
-        summary_insights: [
-          "Network health score: 65%",
-          "Cascade risk: Medium",
-          "Resilience: Adequate",
-          "Anomalies detected: 1"
-        ],
-        analysis_timestamp: new Date().toISOString()
-      };
+      // Check if this is a 503 error (service unavailable) vs network error
+      if (error instanceof Response && error.status === 503) {
+        throw new Error('Network ML insights service unavailable - no cached data available');
+      }
+      
+      // For other errors, throw to let the component handle gracefully
+      throw new Error(`Network ML insights service error: ${error}`);
     }
   }
 }

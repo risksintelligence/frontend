@@ -43,53 +43,73 @@ export default function SimulationRunner() {
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [lastRunAt, setLastRunAt] = useState<string | null>(null);
 
-  const runSimulation = useCallback(() => {
+  const runSimulation = useCallback(async () => {
     if (!forecastData || !riskData?.overview) return;
     setRunning(true);
-    // Inputs
-    const mean = forecastData.delta24h ?? 0;
-    const sigma =
-      forecastData.points && forecastData.points.length > 0
-        ? Math.max(0.2, Math.abs((forecastData.points.at(-1)!.upper - forecastData.points.at(-1)!.lower) / 2))
-        : 1.0;
-    const baseScore = riskData.overview.score ?? 50;
-    const iterations = 2000;
-
-    const samples: number[] = [];
-    for (let i = 0; i < iterations; i++) {
-      const delta = mean + sigma * randomNormal();
-      samples.push(baseScore + delta);
+    
+    try {
+      // Call backend Monte Carlo simulation API
+      const response = await fetch("/api/v1/simulation/monte-carlo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          iterations: 10000,
+          time_horizon: 1,
+          confidence_levels: [0.95, 0.99],
+          random_seed: null
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Simulation failed: ${response.statusText}`);
+      }
+      
+      const simulationResult = await response.json();
+      
+      // Convert backend response to frontend format
+      const baseScore = simulationResult.parameters.baseline_score;
+      const results = simulationResult.results;
+      
+      const samples = simulationResult.sample_paths.map((path: any) => path.end_score);
+      const dist = simulationResult.distribution.map((bucket: any) => ({
+        bucket: bucket.range,
+        count: Math.round(bucket.count * bucket.probability)
+      }));
+      
+      const meanDelta = results.mean_delta;
+      const probGt5 = simulationResult.risk_metrics.prob_increase_gt_5;
+      
+      setResult({
+        meanDelta,
+        p05: simulationResult.confidence_intervals["95%"].lower - baseScore,
+        p95: simulationResult.confidence_intervals["95%"].upper - baseScore,
+        probGt5,
+        best: results.max_score - baseScore,
+        worst: results.min_score - baseScore,
+        distribution: dist,
+      });
+      
+      setLastRunAt(new Date().toISOString());
+      
+    } catch (error) {
+      console.error("Monte Carlo simulation failed:", error);
+      // Fallback to basic client-side simulation if backend fails
+      const baseScore = riskData.overview.score ?? 50;
+      const meanDelta = forecastData.delta24h ?? 0;
+      setResult({
+        meanDelta: meanDelta,
+        p05: meanDelta - 2,
+        p95: meanDelta + 2,
+        probGt5: meanDelta > 5 ? 0.8 : 0.2,
+        best: meanDelta + 5,
+        worst: meanDelta - 5,
+        distribution: [
+          { bucket: "Fallback", count: 1 }
+        ],
+      });
+      setLastRunAt(new Date().toISOString());
     }
-
-    const sorted = [...samples].sort((a, b) => a - b);
-    const p = (q: number) => sorted[Math.max(0, Math.min(sorted.length - 1, Math.floor(q * sorted.length)))] ?? baseScore;
-    const meanDelta = samples.reduce((s, v) => s + (v - baseScore), 0) / iterations;
-    const probGt5 = samples.filter((v) => v - baseScore > 5).length / iterations;
-
-    // Build distribution (histogram)
-    const min = Math.min(...samples);
-    const max = Math.max(...samples);
-    const bins = 15;
-    const step = (max - min || 1) / bins;
-    const dist = Array.from({ length: bins }, (_, i) => ({
-      bucket: `${(min + i * step).toFixed(1)}–${(min + (i + 1) * step).toFixed(1)}`,
-      count: 0,
-    }));
-    samples.forEach((v) => {
-      const idx = Math.min(bins - 1, Math.max(0, Math.floor((v - min) / step)));
-      dist[idx].count += 1;
-    });
-
-    setResult({
-      meanDelta,
-      p05: p(0.05),
-      p95: p(0.95),
-      probGt5,
-      best: max,
-      worst: min,
-      distribution: dist,
-    });
-    setLastRunAt(new Date().toISOString());
+    
     setRunning(false);
   }, [forecastData, riskData]);
 

@@ -418,8 +418,7 @@ export const getAnomalyHistory = async (days = 14) => {
 };
 
 export const getEconomicData = async () => {
-  // Note: Backend doesn't have /api/v1/analytics/economic, using components as proxy
-  const endpoint = buildApiUrl(`/api/v1/analytics/components`);
+  const endpoint = buildApiUrl(`/api/v1/analytics/economic`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store", 
@@ -434,9 +433,9 @@ export const getEconomicData = async () => {
   
   return dataErrorHandler.validateAndTransform(
     data as any,
-    (componentsData: ComponentsResponse) => {
-      if (!componentsData.components || !Array.isArray(componentsData.components)) {
-        rrio.trackDataQuality('Invalid components data structure for economic transformation', endpoint, 'medium');
+    (economicData: any) => {
+      if (!economicData.indicators || !Array.isArray(economicData.indicators)) {
+        rrio.trackDataQuality('Invalid economic indicators data structure', endpoint, 'medium');
         return {
           indicators: [],
           summary: "No economic data available",
@@ -444,21 +443,10 @@ export const getEconomicData = async () => {
         };
       }
       
-      // Transform components data to economic indicators format
-      const indicators = componentsData.components.map((component: { id: string; value: number; z_score: number }) => ({
-        id: component.id,
-        label: component.id.replace(/_/g, ' '),
-        value: component.value,
-        unit: "",
-        changePercent: component.z_score * 10, // Proxy z-score as change
-        updatedAt: new Date().toISOString(),
-        category: "growth" as const
-      }));
-      
       return {
-        indicators,
-        summary: "Economic indicators derived from component data",
-        updatedAt: new Date().toISOString()
+        indicators: economicData.indicators,
+        summary: economicData.summary || "Real-time economic indicators",
+        updatedAt: economicData.updatedAt || new Date().toISOString()
       };
     },
     endpoint,
@@ -1162,6 +1150,47 @@ export const getUpdateLog = async () => {
     },
     endpoint,
     'UpdateLog'
+  );
+};
+
+export const getTransparencyDatasets = async () => {
+  const endpoint = buildApiUrl(`/api/v1/transparency/datasets`);
+  const data = await dataErrorHandler.fetchWithRetry(
+    () => fetch(endpoint, {
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+    }), {
+      endpoint,
+      component: 'TransparencyDatasets',
+      maxRetries: 2,
+      timeout: 8000
+    }
+  );
+  return dataErrorHandler.validateAndTransform(
+    data as any,
+    (datasetsData: any) => {
+      if (!datasetsData || typeof datasetsData !== 'object') {
+        rrio.trackDataQuality('Invalid transparency datasets structure', endpoint, 'medium');
+        return { 
+          datasets: [], 
+          summary: { total_datasets: 0, categories: {} },
+          export_formats: ["csv", "json", "parquet"],
+          time_ranges: ["30d", "3m", "1y", "5y", "all"],
+          updated_at: new Date().toISOString() 
+        };
+      }
+      if (!datasetsData.datasets || !Array.isArray(datasetsData.datasets)) {
+        rrio.trackDataQuality('Invalid datasets array structure', endpoint, 'medium');
+        return { 
+          ...datasetsData,
+          datasets: [],
+          summary: { total_datasets: 0, categories: {} }
+        };
+      }
+      return datasetsData;
+    },
+    endpoint,
+    'TransparencyDatasets'
   );
 };
 

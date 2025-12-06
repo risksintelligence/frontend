@@ -266,8 +266,26 @@ export default function MarketIntelligenceDashboard({ className }: MarketIntelli
   const overallRiskScore = combinedIntelligence.overall_risk_score || 0;
   const riskLevel = getRiskLevel(overallRiskScore);
 
+  // Add visible debug info in development or when no data
+  const showDebugInfo = process.env.NODE_ENV === 'development' || overallRiskScore === 0;
+
   return (
     <div className={`space-y-6 ${className}`}>
+      {showDebugInfo && (
+        <div className="terminal-card p-4 bg-red-900/10 border-red-500/30">
+          <div className="text-xs font-mono text-red-400">
+            <p><strong>DEBUG INFO:</strong></p>
+            <p>isClient: {String(isClient)}</p>
+            <p>isLoading: {String(isLoading)}</p>
+            <p>overviewLoading: {String(overviewLoading)}</p>
+            <p>sourcesLoading: {String(sourcesLoading)}</p>
+            <p>error: {error?.message || 'none'}</p>
+            <p>overviewData keys: {overviewData ? Object.keys(overviewData).join(', ') : 'null'}</p>
+            <p>overallRiskScore: {overallRiskScore}</p>
+            <p>dataUpdatedAt: {overviewUpdatedAt ? new Date(overviewUpdatedAt).toISOString() : 'never'}</p>
+          </div>
+        </div>
+      )}
       {/* Header Section */}
       <div className="terminal-card space-y-4">
         <div className="flex items-center justify-between">

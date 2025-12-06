@@ -75,27 +75,61 @@ export default function StressLab() {
   const baseScore = riskData?.overview?.score ?? 50;
   const components = componentsData?.components ?? [];
 
-  const runStress = () => {
+  const runStress = async () => {
     const scenario = SCENARIOS.find((s) => s.id === selectedScenario);
     if (!scenario) return;
+    
+    try {
+      // Call backend stress testing API
+      const response = await fetch("/api/v1/simulation/stress-test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scenario_id: selectedScenario,
+          custom_shocks: null
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Stress test failed: ${response.statusText}`);
+      }
+      
+      const stressResult = await response.json();
+      
+      // Convert backend response to frontend format
+      const deltas = Object.entries(stressResult.component_impacts).map(([component, impact]: [string, any]) => ({
+        component,
+        newValue: impact.stressed_value,
+        delta: impact.absolute_change
+      }));
+      
+      setResult({
+        scenarioId: selectedScenario,
+        stressedScore: stressResult.stressed.score,
+        baseScore: stressResult.baseline.score,
+        deltas
+      });
+      
+    } catch (error) {
+      console.error("Stress test failed:", error);
+      // Fallback to client-side stress calculation if backend fails
+      const impactFactor = 1.2;
+      const deltas: StressResult["deltas"] = scenario.shocks.map((shock) => {
+        const comp = components.find((c) => c.id.toUpperCase() === shock.component.toUpperCase());
+        const baseVal = comp?.value ?? 0;
+        return { component: shock.component, newValue: baseVal + shock.delta, delta: shock.delta };
+      });
 
-    // Simple deterministic stress: each component delta impacts GRII by factor
-    const impactFactor = 1.2; // tune as needed
-    const deltas: StressResult["deltas"] = scenario.shocks.map((shock) => {
-      const comp = components.find((c) => c.id.toUpperCase() === shock.component.toUpperCase());
-      const baseVal = comp?.value ?? 0;
-      return { component: shock.component, newValue: baseVal + shock.delta, delta: shock.delta };
-    });
+      const totalImpact = deltas.reduce((sum, d) => sum + d.delta * impactFactor, 0);
+      const stressedScore = baseScore + totalImpact;
 
-    const totalImpact = deltas.reduce((sum, d) => sum + d.delta * impactFactor, 0);
-    const stressedScore = baseScore + totalImpact;
-
-    setResult({
-      scenarioId: scenario.id,
-      stressedScore,
-      baseScore,
-      deltas,
-    });
+      setResult({
+        scenarioId: scenario.id,
+        stressedScore,
+        baseScore,
+        deltas,
+      });
+    }
   };
 
   const chartData = useMemo(() => {

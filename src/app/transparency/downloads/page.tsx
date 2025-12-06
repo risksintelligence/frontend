@@ -3,7 +3,8 @@
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import StatusBadge from "@/components/ui/StatusBadge";
-import { useComponentsData } from "@/hooks/useComponentsData";
+import SkeletonLoader from "@/components/ui/SkeletonLoader";
+import { useTransparencyDatasets } from "@/hooks/useTransparencyDatasets";
 import { Download, FileText, Database, Calendar, Users } from "lucide-react";
 
 interface DatasetInfo {
@@ -17,64 +18,6 @@ interface DatasetInfo {
   lastUpdated: string;
   category: "macro" | "financial" | "supply" | "policy";
 }
-
-const AVAILABLE_DATASETS: DatasetInfo[] = [
-  {
-    id: "VIX",
-    name: "CBOE Volatility Index",
-    description: "Market volatility expectations derived from S&P 500 index options",
-    source: "Chicago Board Options Exchange (CBOE)",
-    frequency: "Daily",
-    startDate: "1990-01-02",
-    recordCount: 8756,
-    lastUpdated: "2024-11-24",
-    category: "financial"
-  },
-  {
-    id: "YIELD_CURVE",
-    name: "US Treasury Yield Curve",
-    description: "10-Year minus 2-Year Treasury constant maturity rates",
-    source: "Federal Reserve Economic Data (FRED)",
-    frequency: "Daily",
-    startDate: "1976-06-01",
-    recordCount: 12543,
-    lastUpdated: "2024-11-24",
-    category: "financial"
-  },
-  {
-    id: "UNEMPLOYMENT",
-    name: "US Unemployment Rate",
-    description: "Civilian unemployment rate, seasonally adjusted",
-    source: "Bureau of Labor Statistics (BLS)",
-    frequency: "Monthly",
-    startDate: "1948-01-01",
-    recordCount: 923,
-    lastUpdated: "2024-10-01",
-    category: "macro"
-  },
-  {
-    id: "WTI_OIL",
-    name: "WTI Crude Oil Prices",
-    description: "West Texas Intermediate crude oil spot prices",
-    source: "Energy Information Administration (EIA)",
-    frequency: "Daily",
-    startDate: "1986-01-02",
-    recordCount: 9876,
-    lastUpdated: "2024-11-24",
-    category: "supply"
-  },
-  {
-    id: "CREDIT_SPREAD",
-    name: "Investment Grade Credit Spreads",
-    description: "ICE BofA US Corporate Index Option-Adjusted Spread",
-    source: "Federal Reserve Economic Data (FRED)",
-    frequency: "Daily",
-    startDate: "1996-12-31",
-    recordCount: 7234,
-    lastUpdated: "2024-11-24",
-    category: "financial"
-  }
-];
 
 const EXPORT_FORMATS = [
   { id: "csv", name: "CSV", description: "Comma-separated values for Excel/R/Python", icon: FileText },
@@ -96,10 +39,13 @@ export default function DataDownloadsPage() {
   const [selectedTimeRange, setSelectedTimeRange] = useState("1y");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
-  const { data: componentsData } = useComponentsData();
-  void componentsData;
+  const { data: datasetsResponse, isLoading: datasetsLoading } = useTransparencyDatasets();
   
-  const filteredDatasets = AVAILABLE_DATASETS.filter(dataset => 
+  const availableDatasets: DatasetInfo[] = datasetsResponse?.datasets || [];
+  const exportFormats = datasetsResponse?.export_formats || ["csv", "json", "parquet"];
+  const timeRanges = datasetsResponse?.time_ranges || ["30d", "3m", "1y", "5y", "all"];
+  
+  const filteredDatasets = availableDatasets.filter(dataset => 
     categoryFilter === "all" || dataset.category === categoryFilter
   );
 
@@ -133,7 +79,7 @@ export default function DataDownloadsPage() {
 
   const getTotalRecords = () => {
     return selectedDatasets.reduce((total, datasetId) => {
-      const dataset = AVAILABLE_DATASETS.find(d => d.id === datasetId);
+      const dataset = availableDatasets.find(d => d.id === datasetId);
       const timeRange = TIME_RANGES.find(r => r.id === selectedTimeRange);
       
       if (!dataset || !timeRange) return total;
@@ -208,7 +154,7 @@ export default function DataDownloadsPage() {
                 Available Datasets
               </h3>
               <p className="text-xs text-terminal-muted font-mono">
-                Select economic indicators for download
+                {datasetsLoading ? "Loading datasets..." : "Select economic indicators for download"}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -227,7 +173,11 @@ export default function DataDownloadsPage() {
           </div>
 
           <div className="space-y-3">
-            {filteredDatasets.map((dataset) => (
+            {datasetsLoading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <SkeletonLoader key={idx} variant="card" />
+              ))
+            ) : filteredDatasets.map((dataset) => (
               <div 
                 key={dataset.id}
                 className={`border rounded p-4 transition-colors cursor-pointer ${
