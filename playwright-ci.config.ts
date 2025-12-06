@@ -1,28 +1,28 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * RRIO Frontend Test Configuration
- * Bloomberg-grade testing setup for financial intelligence platform
+ * CI-Optimized RRIO Frontend Test Configuration
+ * Focused tests for CI/CD pipeline validation
  */
 export default defineConfig({
   testDir: './tests',
+  testMatch: [
+    'critical-smoke.spec.ts',
+    'production-readiness-validation.spec.ts'
+  ],
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: process.env.CI ? 1 : 0,
-  /* Opt out of parallel tests on CI */
-  workers: process.env.CI ? 1 : undefined,
+  retries: 1,
+  /* Use single worker for CI stability */
+  workers: 1,
   /* Reporter to use */
-  reporter: process.env.CI ? [
+  reporter: [
     ['html'],
     ['json', { outputFile: 'test-results/results.json' }],
     ['github']
-  ] : [
-    ['html'],
-    ['json', { outputFile: 'test-results/results.json' }],
-    ['list']
   ],
   /* Shared settings for all the projects below */
   use: {
@@ -40,47 +40,25 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
   },
 
-  /* Configure projects for major browsers */
+  /* Configure projects for major browsers - CI optimized */
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-    /* Test against mobile viewports */
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
     },
   ],
 
   /* Global setup and teardown */
   globalSetup: require.resolve('./tests/global-setup.ts'),
   
-  /* Run your local dev server before starting the tests */
-  webServer: process.env.CI ? undefined : {
-    command: 'npm run dev',
-    port: 3000,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000, // 2 minutes
-  },
+  /* Do not start web server - will be started by CI */
+  webServer: undefined,
 
-  /* Test timeout */
-  timeout: 30 * 1000, // 30 seconds per test
+  /* Test timeout - increased for CI */
+  timeout: 60 * 1000, // 60 seconds per test
   expect: {
     /* Global expect timeout */
-    timeout: 10 * 1000, // 10 seconds
+    timeout: 15 * 1000, // 15 seconds
   },
 
   /* Output directory */

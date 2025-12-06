@@ -42,7 +42,7 @@ export default function ResilienceMetricsPage() {
               title: "Data Integration", 
               content: "Real-time feeds from S&P Global, trade flows, geopolitical events, port congestion.",
               tooltip: "Multi-source data fusion with real-time processing",
-              expandedContent: "Integrated data streams including S&P Global sector intelligence, UN Comtrade trade statistics, Free Geopolitical Intelligence events, Free Maritime Intelligence port congestion data, and proprietary supply chain topology mapping. Data processed in real-time with 30-second refresh cycles and historical trend analysis."
+              expandedContent: "Integrated data streams including S&P Global sector intelligence, WTO Statistics trade statistics, Free Geopolitical Intelligence events, Free Maritime Intelligence port congestion data, and proprietary supply chain topology mapping. Data processed in real-time with 30-second refresh cycles and historical trend analysis."
             },
             {
               title: "ML Analytics",

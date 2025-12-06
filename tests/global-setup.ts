@@ -40,26 +40,43 @@ async function globalSetup(config: FullConfig) {
   // Check if backend is ready
   console.log('⏳ Waiting for backend to be ready...');
   retries = 0;
-  while (retries < maxRetries) {
+  let backendReady = false;
+  
+  while (retries < maxRetries && !backendReady) {
     try {
-      const response = await page.request.get(`${backendURL}/health`);
+      const response = await page.request.get(`${backendURL}/api/v1/health/basic`);
       if (response.ok()) {
-        console.log('✅ Backend is ready');
+        console.log('✅ Backend is ready (health endpoint)');
+        backendReady = true;
         break;
       }
     } catch {
-      // Backend might not have health endpoint, try main endpoint
+      // Try alternative endpoints
       try {
-        await page.request.get(`${backendURL}/api/v1/analytics/geri`);
-        console.log('✅ Backend is ready (via GERI endpoint)');
-        break;
-      } catch {
-        retries++;
-        if (retries === maxRetries) {
-          console.warn('⚠️  Backend not responding, tests will use mock data');
+        const geriResponse = await page.request.get(`${backendURL}/api/v1/analytics/geri`);
+        if (geriResponse.status() !== 404) {
+          console.log('✅ Backend is ready (via GERI endpoint)');
+          backendReady = true;
           break;
         }
-        await page.waitForTimeout(1000);
+      } catch {
+        // Last resort - check if any backend endpoint responds
+        try {
+          const rootResponse = await page.request.get(`${backendURL}/`);
+          if (rootResponse.status() < 500) {
+            console.log('✅ Backend is responding (via root endpoint)');
+            backendReady = true;
+            break;
+          }
+        } catch {
+          retries++;
+          if (retries === maxRetries) {
+            console.warn('⚠️  Backend not responding, tests will continue with frontend-only mode');
+            break;
+          }
+          console.log(`⏳ Backend check attempt ${retries}/${maxRetries}...`);
+          await page.waitForTimeout(2000); // Increased wait time
+        }
       }
     }
   }

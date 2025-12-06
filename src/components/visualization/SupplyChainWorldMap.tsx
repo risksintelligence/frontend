@@ -130,7 +130,7 @@ export default function SupplyChainWorldMap({ data, className = "" }: SupplyChai
     showCriticalPaths: true,
     showAnimation: true,
     severityFilter: ['low', 'medium', 'high', 'critical'],
-    sourceFilter: ['Free Geopolitical Intelligence', 'Free Maritime Intelligence', 'UN_Comtrade'],
+    sourceFilter: ['Free Geopolitical Intelligence', 'Free Maritime Intelligence', 'WTO_Statistics'],
     minTradeValue: 0,
     nodeTypeFilter: ['port', 'manufacturer', 'supplier', 'distributor', 'retailer'],
     searchQuery: '',

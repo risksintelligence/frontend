@@ -9,6 +9,7 @@
     "lint": "eslint",
     "generate:api-types": "openapi-typescript http://127.0.0.1:8000/openapi.json --output src/lib/api-types.ts",
     "test": "playwright test",
+    "test:ci": "playwright test --config=playwright-ci.config.ts",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",

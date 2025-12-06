@@ -211,7 +211,7 @@ export default function MarketIntelligenceDashboard({ className }: MarketIntelli
   const riskScoreData = [
     { name: 'Financial Health', value: financialHealth.market_score || 0, source: 'SEC EDGAR' },
     { name: 'Trade Stress', value: 100 - (tradeIntelligence.global_stress_score || 0), source: 'World Bank' },
-    { name: 'Trade Vulnerability', value: 100 - (tradeFlows.vulnerability_score || 0), source: 'UN Comtrade' },
+    { name: 'Trade Vulnerability', value: 100 - (tradeFlows.vulnerability_score || 0), source: 'WTO Statistics' },
     { name: 'Supply Chain Risk', value: 100 - (supplyChainMapping.average_risk_score || 0), source: 'OpenStreetMap' },
   ];
 
@@ -422,11 +422,11 @@ export default function MarketIntelligenceDashboard({ className }: MarketIntelli
           </div>
         </div>
 
-        {/* UN Comtrade */}
+        {/* WTO Statistics */}
         <div className="terminal-card space-y-3">
           <div className="flex items-center gap-2">
             <BarChart2 className="h-4 w-4 text-yellow-400" />
-            <h4 className="text-sm font-semibold text-terminal-text font-mono">UN Comtrade</h4>
+            <h4 className="text-sm font-semibold text-terminal-text font-mono">WTO Statistics</h4>
             <StatusBadge variant="good" size="sm">ACTIVE</StatusBadge>
           </div>
           <div className="space-y-2">
@@ -1311,7 +1311,7 @@ export default function MarketIntelligenceDashboard({ className }: MarketIntelli
           </div>
           <div className="flex items-center gap-4">
             <span className="text-xs font-mono text-terminal-muted">
-              {combinedIntelligence.data_sources?.join(' • ') || 'SEC EDGAR • World Bank • UN Comtrade • OpenStreetMap'}
+              {combinedIntelligence.data_sources?.join(' • ') || 'SEC EDGAR • World Bank • WTO Statistics • OpenStreetMap'}
             </span>
             <span className="text-xs font-mono text-terminal-green">
               Status: Operational

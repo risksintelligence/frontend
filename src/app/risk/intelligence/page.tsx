@@ -22,15 +22,15 @@ export default function MarketIntelligencePage() {
         <PagePrimer
           kicker="Primer"
           title="Market Intelligence Platform"
-          description="Professional-grade market intelligence combining SEC EDGAR, World Bank WITS, UN Comtrade, and OpenStreetMap data sources."
+          description="Professional-grade market intelligence combining SEC EDGAR, World Bank WITS, WTO Statistics, and OpenStreetMap data sources."
           expandable={true}
           showDataFlow={true}
           items={[
             {
               title: "Data Sources",
-              content: "SEC EDGAR, World Bank WITS, UN Comtrade, OpenStreetMap - authoritative government APIs.",
+              content: "SEC EDGAR, World Bank WITS, WTO Statistics, OpenStreetMap - authoritative government APIs.",
               tooltip: "Authoritative data from government and international organizations",
-              expandedContent: "Four authoritative data sources: SEC EDGAR for U.S. company financials and market health, World Bank WITS for global trade flows and country risk indicators, UN Comtrade for bilateral trade statistics and concentration analysis, and OpenStreetMap + OpenRouteService for supply chain mapping and logistics risk assessment."
+              expandedContent: "Four authoritative data sources: SEC EDGAR for U.S. company financials and market health, World Bank WITS for global trade flows and country risk indicators, WTO Statistics for bilateral trade statistics and concentration analysis, and OpenStreetMap + OpenRouteService for supply chain mapping and logistics risk assessment."
             },
             {
               title: "Intelligence Features", 
@@ -67,8 +67,8 @@ export default function MarketIntelligencePage() {
               endpoint: "/api/v1/intel/trade-intelligence"
             },
             {
-              id: "un-comtrade-feed",
-              label: "UN Comtrade",
+              id: "wto-statistics-feed",
+              label: "WTO Statistics",
               type: "source",
               status: "active",
               latency: "< 45s", 
@@ -108,7 +108,7 @@ export default function MarketIntelligencePage() {
           dataFlowConnections={[
             { from: "sec-edgar-feed", to: "intelligence-aggregator", type: "real-time", volume: "~50 metrics/min" },
             { from: "worldbank-feed", to: "intelligence-aggregator", type: "real-time", volume: "~30 metrics/min" },
-            { from: "un-comtrade-feed", to: "intelligence-aggregator", type: "real-time", volume: "~20 metrics/min" },
+            { from: "wto-statistics-feed", to: "intelligence-aggregator", type: "real-time", volume: "~20 metrics/min" },
             { from: "openstreetmap-feed", to: "intelligence-aggregator", type: "real-time", volume: "~15 metrics/min" },
             { from: "intelligence-aggregator", to: "intelligence-dashboard", type: "real-time" }
           ]}
