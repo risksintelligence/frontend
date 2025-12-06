@@ -106,6 +106,24 @@ export default function ResilienceMetricsVisualization({ className }: Resilience
 
   return (
     <div className={`terminal-card space-y-4 ${className}`}>
+      {/* Fallback Data Warning */}
+      {data?.fallback_data && (
+        <div className="bg-amber-900/30 border border-amber-600/50 rounded-lg p-4 mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertCircle className="w-5 h-5 text-amber-400" />
+            <h3 className="text-amber-400 font-semibold text-sm">Displaying Synthetic Data</h3>
+          </div>
+          <p className="text-amber-200 text-sm">
+            Resilience metrics API is currently unavailable. The data shown is simulated for demonstration purposes.
+            {data?.metadata?.fallback_reason && (
+              <span className="block text-xs text-amber-300 mt-1">
+                Reason: {data.metadata.fallback_reason}
+              </span>
+            )}
+          </p>
+        </div>
+      )}
+      
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>

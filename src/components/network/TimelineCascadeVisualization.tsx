@@ -256,6 +256,24 @@ export default function TimelineCascadeVisualization({ className }: TimelineCasc
 
   return (
     <div className={`terminal-card space-y-4 ${className}`}>
+      {/* Fallback Data Warning */}
+      {data.metadata?.data_source === "fallback_synthetic" && (
+        <div className="bg-amber-900/30 border border-amber-600/50 rounded-lg p-4 mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle className="w-5 h-5 text-amber-400" />
+            <h3 className="text-amber-400 font-semibold text-sm">Displaying Synthetic Timeline Data</h3>
+          </div>
+          <p className="text-amber-200 text-sm">
+            Timeline cascade API is currently unavailable. The events shown are simulated for demonstration purposes.
+            {data.metadata?.fallback_reason && (
+              <span className="block text-xs text-amber-300 mt-1">
+                Reason: {data.metadata.fallback_reason}
+              </span>
+            )}
+          </p>
+        </div>
+      )}
+      
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>

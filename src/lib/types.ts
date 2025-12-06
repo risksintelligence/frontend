@@ -317,6 +317,11 @@ export interface CascadeSnapshotResponse {
   edges: CascadeEdge[];
   critical_paths: string[][];
   disruptions: CascadeDisruption[];
+  fallback_data?: boolean;
+  metadata?: {
+    fallback_reason?: string;
+    data_source?: string;
+  };
 }
 
 export interface CascadeHistorySeries {
@@ -326,12 +331,22 @@ export interface CascadeHistorySeries {
 
 export interface CascadeHistoryResponse {
   series: CascadeHistorySeries[];
+  fallback_data?: boolean;
+  metadata?: {
+    fallback_reason?: string;
+    data_source?: string;
+  };
 }
 
 export interface CascadeImpactsResponse {
   financial: Record<string, unknown>;
   policy: Record<string, unknown>;
   industry: Record<string, unknown>;
+  fallback_data?: boolean;
+  metadata?: {
+    fallback_reason?: string;
+    data_source?: string;
+  };
 }
 
 // WTO trade volume

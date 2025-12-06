@@ -1340,7 +1340,7 @@ export const getSectorVulnerabilities = async (sector?: string) => {
 };
 
 export const getTimelineCascadeVisualization = async (visualizationType = "timeline") => {
-  const endpoint = buildApiUrl(`/api/v1/cascade/timeline/visualization?start_date=2024-01-01&end_date=2024-12-31&visualization_type=${visualizationType}`);
+  const endpoint = buildApiUrl(`/api/v1/network/timeline-cascade`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",
@@ -1350,7 +1350,44 @@ export const getTimelineCascadeVisualization = async (visualizationType = "timel
   );
   return dataErrorHandler.validateAndTransform(
     data as any,
-    (raw: any) => raw,
+    (raw: any) => {
+      // Transform backend timeline_cascade format to frontend timeline_visualization format
+      if (raw?.timeline_cascade) {
+        return {
+          timeline_visualization: {
+            visualization_type: visualizationType,
+            time_range: {
+              start_date: "2024-09-01",
+              end_date: new Date().toISOString().split('T')[0]
+            },
+            cascade_events: raw.timeline_cascade.events?.map((event: any) => ({
+              id: event.title?.replace(/\s+/g, '_').toLowerCase() || 'event',
+              name: event.title || 'Untitled Event',
+              description: event.description || '',
+              start_time: event.timestamp,
+              severity: event.severity || 'medium',
+              impact_regions: ['global'],
+              supply_chains_affected: event.affected_sectors || [],
+              mitigation_actions: ['Monitoring situation', 'Assessment ongoing']
+            })) || [],
+            critical_paths: [
+              {
+                path_id: 'critical_path_1',
+                description: 'Manufacturing → Technology → Energy supply chain',
+                events: raw.timeline_cascade.events?.slice(0, 3).map((e: any) => e.title) || [],
+                risk_level: 'high'
+              }
+            ],
+            metadata: {
+              generated_at: raw.last_updated || new Date().toISOString(),
+              total_events: raw.timeline_cascade.total_events || 0,
+              active_cascades: raw.timeline_cascade.recovery_metrics?.ongoing_incidents || 0
+            }
+          }
+        };
+      }
+      return raw;
+    },
     endpoint,
     "TimelineCascade",
     false
@@ -1358,7 +1395,7 @@ export const getTimelineCascadeVisualization = async (visualizationType = "timel
 };
 
 export const getResilienceMetrics = async () => {
-  const endpoint = buildApiUrl(`/api/v1/resilience/metrics`);
+  const endpoint = buildApiUrl(`/api/v1/network/resilience-metrics`);
   const data = await dataErrorHandler.fetchWithRetry(
     () => fetch(endpoint, {
       cache: "no-store",

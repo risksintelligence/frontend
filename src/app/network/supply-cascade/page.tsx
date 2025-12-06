@@ -235,9 +235,33 @@ export default function SupplyCascadePage() {
                   <span className="text-red-400 text-xs">Offline</span>
                 </>
               )}
+              {snapshot?.fallback_data && (
+                <>
+                  <div className="w-1 h-1 bg-amber-400 rounded-full"></div>
+                  <span className="text-amber-400 text-xs">Synthetic Data</span>
+                </>
+              )}
             </div>
           }
         />
+
+        {/* Fallback Data Warning */}
+        {snapshot?.fallback_data && (
+          <div className="bg-amber-900/30 border border-amber-600/50 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="w-5 h-5 text-amber-400" />
+              <h3 className="text-amber-400 font-semibold text-sm">Displaying Synthetic Data</h3>
+            </div>
+            <p className="text-amber-200 text-sm">
+              External API services are currently unavailable. The data shown is simulated for demonstration purposes.
+              {snapshot?.metadata?.fallback_reason && (
+                <span className="block text-xs text-amber-300 mt-1">
+                  Reason: {snapshot.metadata.fallback_reason}
+                </span>
+              )}
+            </p>
+          </div>
+        )}
 
         {/* Status Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
