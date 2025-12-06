@@ -6,7 +6,10 @@ export function useIsClient() {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
+    // Use a microtask to avoid synchronous setState within effect
+    Promise.resolve().then(() => {
+      setIsClient(true);
+    });
   }, []);
 
   return isClient;

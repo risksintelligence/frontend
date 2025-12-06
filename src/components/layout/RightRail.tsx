@@ -18,10 +18,13 @@ export default function RightRail() {
   const lastAlertCountRef = useRef(0);
 
   useEffect(() => {
-    const saved = typeof window !== "undefined" ? localStorage.getItem("rightRailCollapsed") : null;
-    if (saved) {
-      setIsCollapsed(JSON.parse(saved));
-    }
+    // Use a microtask to avoid synchronous setState within effect
+    Promise.resolve().then(() => {
+      const saved = typeof window !== "undefined" ? localStorage.getItem("rightRailCollapsed") : null;
+      if (saved) {
+        setIsCollapsed(JSON.parse(saved));
+      }
+    });
   }, []);
 
   // Auto-show when new alerts arrive
