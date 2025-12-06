@@ -51,8 +51,13 @@ export default defineConfig({
   /* Global setup and teardown */
   globalSetup: require.resolve('./tests/global-setup.ts'),
   
-  /* Do not start web server - will be started by CI */
-  webServer: undefined,
+  /* Start web server for CI tests */
+  webServer: {
+    command: 'npm run build && npm run start',
+    port: 3000,
+    reuseExistingServer: false,
+    timeout: 120 * 1000, // 2 minutes
+  },
 
   /* Test timeout - increased for CI */
   timeout: 60 * 1000, // 60 seconds per test

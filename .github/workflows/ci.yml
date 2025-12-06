@@ -22,13 +22,11 @@ jobs:
       - name: Lint
         run: npm run lint
       
-      - name: Build
-        run: npm run build
-      
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       
       # Run only CI-optimized tests for frontend repo
+      # Note: webServer in playwright-ci.config.ts will handle build and start
       - name: Run Playwright tests (CI)
         run: npm run test:ci
         env:
