@@ -7,8 +7,7 @@ import { createMockFetch, shouldUseMockApi } from './mock-api';
 
 /**
  * Get the correct API base URL for the current environment
- * In production: Use relative paths to leverage Next.js rewrites and avoid CORS
- * In development: Use full backend URL for direct connection
+ * Always use direct backend URL to avoid Next.js rewrite issues
  */
 export function getApiBaseUrl(): string {
   // More robust production detection
@@ -16,8 +15,8 @@ export function getApiBaseUrl(): string {
                        typeof window !== 'undefined' && window.location.hostname.includes('.up.railway.app');
   
   if (isProduction) {
-    // Use relative paths in production - Next.js will rewrite /api/v1/* to backend
-    return '';
+    // Use direct backend URL in production
+    return 'https://backend-production-83c7.up.railway.app';
   } else {
     // In development, use the configured backend URL or default to localhost
     return process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
