@@ -9,7 +9,7 @@ import { Play, TrendingUp, Truck, Calculator, Clock, CheckCircle } from "lucide-
 export default function GettingStartedPage() {
   return (
     <MainLayout>
-      <main className="px-6 py-6">
+      <div className="px-6 py-6">
         <div className="space-y-8">
           {/* Header */}
           <header>
@@ -551,7 +551,7 @@ export default function GettingStartedPage() {
             </div>
           </Card>
         </div>
-      </main>
+      </div>
     </MainLayout>
   );
 }

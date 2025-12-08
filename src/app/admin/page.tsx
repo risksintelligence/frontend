@@ -87,7 +87,7 @@ export default function AdminPage() {
 
   return (
     <MainLayout>
-      <main className="space-y-6 px-6 py-6">
+      <div className="space-y-6 px-6 py-6">
         <header>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -674,7 +674,7 @@ export default function AdminPage() {
             Export Logs
           </button>
         </div>
-      </main>
+      </div>
     </MainLayout>
   );
 }

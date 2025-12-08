@@ -24,7 +24,7 @@ export default function BlogPage() {
 
   return (
     <MainLayout>
-      <main className="px-6 py-6">
+      <div className="px-6 py-6">
         <div className="space-y-8">
           {/* Header */}
           <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
@@ -173,7 +173,7 @@ export default function BlogPage() {
             </div>
           </Card>
         </div>
-      </main>
+      </div>
     </MainLayout>
   );
 }

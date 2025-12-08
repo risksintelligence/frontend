@@ -72,7 +72,7 @@ test.describe('Production Readiness Validation', () => {
         
         // More lenient check - just ensure the page structure exists
         const hasError = await page.locator('text=/error|404|not found/i').isVisible({ timeout: 2000 }).catch(() => false);
-        const hasBasicStructure = await page.locator('body, html').isVisible({ timeout: 2000 });
+        const hasBasicStructure = await page.locator('body').isVisible({ timeout: 2000 });
         
         if (!hasError && hasBasicStructure) {
           successfulRoutes++;

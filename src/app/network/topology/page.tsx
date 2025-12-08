@@ -244,7 +244,7 @@ function NetworkTopologyContent() {
 export default function NetworkTopologyPage() {
   return (
     <MainLayout>
-      <main className="space-y-6 px-6 py-6">
+      <div className="space-y-6 px-6 py-6">
         <header>
           <p className="text-xs uppercase tracking-wide text-terminal-muted">
             Network Analysis
@@ -257,7 +257,7 @@ export default function NetworkTopologyPage() {
           </p>
         </header>
         <NetworkTopologyContent />
-      </main>
+      </div>
     </MainLayout>
   );
 }

@@ -18,7 +18,7 @@ export default function StressTestPage() {
 
   return (
     <MainLayout>
-      <main className="space-y-6 px-6 py-6">
+      <div className="space-y-6 px-6 py-6">
         <header>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -167,7 +167,7 @@ export default function StressTestPage() {
 
         <StressLab />
         {showTour && <TourOverlay steps={tourSteps} onClose={() => setShowTour(false)} />}
-      </main>
+      </div>
     </MainLayout>
   );
 }

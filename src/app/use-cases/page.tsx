@@ -9,7 +9,7 @@ import { TrendingUp, Truck, DollarSign, CheckCircle, Calendar } from "lucide-rea
 export default function UseCasesPage() {
   return (
     <MainLayout>
-      <main className="px-6 py-6">
+      <div className="px-6 py-6">
         <div className="space-y-8">
           {/* Header */}
           <header>
@@ -404,7 +404,7 @@ export default function UseCasesPage() {
             </div>
           </Card>
         </div>
-      </main>
+      </div>
     </MainLayout>
   );
 }

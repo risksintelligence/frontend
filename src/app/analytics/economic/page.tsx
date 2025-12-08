@@ -12,7 +12,7 @@ export default function EconomicPage() {
 
   return (
     <MainLayout>
-      <main className="space-y-6 px-6 py-6">
+      <div className="space-y-6 px-6 py-6">
         <header>
           <p className="text-xs uppercase tracking-wide text-terminal-muted">
             Analytics
@@ -97,7 +97,7 @@ export default function EconomicPage() {
             </table>
           )}
         </section>
-      </main>
+      </div>
     </MainLayout>
   );
 }

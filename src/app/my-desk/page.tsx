@@ -67,7 +67,7 @@ export default function MyDeskPage() {
 
   return (
     <MainLayout>
-      <main className="space-y-6 px-6 py-6">
+      <div className="space-y-6 px-6 py-6">
         <header className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-wide text-terminal-muted">My Desk</p>
@@ -125,7 +125,7 @@ export default function MyDeskPage() {
             </div>
           ))}
         </div>
-      </main>
+      </div>
     </MainLayout>
   );
 }

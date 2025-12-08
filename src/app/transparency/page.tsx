@@ -71,7 +71,7 @@ export default function TransparencyPage() {
 
   return (
     <MainLayout>
-      <main className="space-y-6 px-6 py-6">
+      <div className="space-y-6 px-6 py-6">
         <header>
           <p className="text-xs uppercase tracking-wide text-terminal-muted">
             Observatory Transparency
@@ -407,7 +407,7 @@ export default function TransparencyPage() {
             ))}
           </section>
         )}
-      </main>
+      </div>
     </MainLayout>
   );
 }

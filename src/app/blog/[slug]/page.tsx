@@ -149,7 +149,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   if (loading) {
     return (
       <MainLayout>
-        <main className="px-6 py-6 max-w-4xl mx-auto">
+        <div className="px-6 py-6 max-w-4xl mx-auto">
           <div className="space-y-6">
             <Card className="bg-black border-[#00D4AA] border-2 p-6">
               <div className="animate-pulse space-y-4">
@@ -161,7 +161,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
               </div>
             </Card>
           </div>
-        </main>
+        </div>
       </MainLayout>
     );
   }
@@ -169,7 +169,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   if (error || !post) {
     return (
       <MainLayout>
-        <main className="px-6 py-6 max-w-4xl mx-auto">
+        <div className="px-6 py-6 max-w-4xl mx-auto">
           <Card className="bg-black border-red-500 border-2 p-6">
             <h1 className="text-red-400 font-mono font-bold text-xl mb-4">
               Error Loading Blog Post
@@ -184,14 +184,14 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
               </Link>
             </Button>
           </Card>
-        </main>
+        </div>
       </MainLayout>
     );
   }
 
   return (
     <MainLayout>
-      <main className="px-6 py-6">
+      <div className="px-6 py-6">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Back Button */}
           <Button 
@@ -353,7 +353,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             </div>
           </Card>
         </div>
-      </main>
+      </div>
     </MainLayout>
   );
 }

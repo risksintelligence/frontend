@@ -9,7 +9,7 @@ import { BookOpen, Download, ExternalLink, FileText, Database, Code, Shield, Bea
 export default function DocumentationPage() {
   return (
     <MainLayout>
-      <main className="px-6 py-6">
+      <div className="px-6 py-6">
         <div className="space-y-8">
           {/* Header */}
           <header>
@@ -552,7 +552,7 @@ export default function DocumentationPage() {
             </div>
           </Card>
         </div>
-      </main>
+      </div>
     </MainLayout>
   );
 }

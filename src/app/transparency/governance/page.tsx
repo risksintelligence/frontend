@@ -363,7 +363,7 @@ export default function GovernancePage() {
 
   return (
     <MainLayout>
-      <main className="space-y-6 px-6 py-6">
+      <div className="space-y-6 px-6 py-6">
         <header className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-wide text-terminal-muted">Governance & Compliance</p>
@@ -411,7 +411,7 @@ export default function GovernancePage() {
         )}
 
         <AuditLogPanel />
-      </main>
+      </div>
     </MainLayout>
   );
 }

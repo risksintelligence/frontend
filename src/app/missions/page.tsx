@@ -11,7 +11,7 @@ export default function MissionsPage() {
 
   return (
     <MainLayout>
-      <main className="space-y-6 px-6 py-6">
+      <div className="space-y-6 px-6 py-6">
         <header>
           <p className="text-xs uppercase tracking-wide text-terminal-muted">
             Missions & Partners
@@ -66,7 +66,7 @@ export default function MissionsPage() {
             </p>
           )}
         </section>
-      </main>
+      </div>
     </MainLayout>
   );
 }

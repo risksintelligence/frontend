@@ -66,7 +66,7 @@ export default function ShapPage() {
 
   return (
     <MainLayout>
-      <main className="space-y-6 px-6 py-6">
+      <div className="space-y-6 px-6 py-6">
         <header>
           <p className="text-xs uppercase tracking-wide text-terminal-muted">
             Explainability
@@ -209,7 +209,7 @@ export default function ShapPage() {
             <ShapWaterfall drivers={forecastDrivers} title="Forecast What-If" />
           </div>
         )}
-      </main>
+      </div>
     </MainLayout>
   );
 }

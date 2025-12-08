@@ -97,7 +97,7 @@ export default function DataDownloadsPage() {
 
   return (
     <MainLayout>
-      <main className="space-y-6 px-6 py-6">
+      <div className="space-y-6 px-6 py-6">
         <header>
           <p className="text-xs uppercase tracking-wide text-terminal-muted">
             Transparency Portal
@@ -396,7 +396,7 @@ Energy Information Administration (EIA), Chicago Board Options Exchange (CBOE)`}
             </p>
           </div>
         </section>
-      </main>
+      </div>
     </MainLayout>
   );
 }

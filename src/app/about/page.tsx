@@ -98,7 +98,7 @@ export default function AboutPage() {
 
   return (
     <MainLayout>
-      <main className="px-6 py-6">
+      <div className="px-6 py-6">
         <div className="space-y-8">
           {/* Header */}
           <header>
@@ -421,7 +421,7 @@ export default function AboutPage() {
             </div>
           </Card>
         </div>
-      </main>
+      </div>
     </MainLayout>
   );
 }

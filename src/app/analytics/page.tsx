@@ -21,7 +21,7 @@ export default function AnalyticsPage() {
 
   return (
     <MainLayout>
-      <main className="space-y-8 px-6 py-6">
+      <div className="space-y-8">
         <header>
           <p className="text-xs uppercase tracking-wide text-terminal-muted">
             Analytics & Intelligence
@@ -150,7 +150,7 @@ export default function AnalyticsPage() {
         </div>
 
         {showTour && <TourOverlay steps={tourSteps} onClose={() => setShowTour(false)} />}
-      </main>
+      </div>
     </MainLayout>
   );
 }

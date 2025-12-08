@@ -15,7 +15,7 @@ export default function ScenariosPage() {
 
   return (
     <MainLayout>
-      <main className="px-6 py-6 space-y-4">
+      <div className="px-6 py-6 space-y-4">
         <header className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-wide text-terminal-muted">Scenario Studio</p>
@@ -31,7 +31,7 @@ export default function ScenariosPage() {
         </header>
         <ScenarioAnalysis />
         {showTour && <TourOverlay steps={tourSteps} onClose={() => setShowTour(false)} />}
-      </main>
+      </div>
     </MainLayout>
   );
 }

@@ -7,7 +7,7 @@ import { Settings } from "lucide-react";
 export default function SystemConfigPage() {
   return (
     <MainLayout>
-      <main className="space-y-6 px-6 py-6">
+      <div className="space-y-6 px-6 py-6">
         <header>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -63,7 +63,7 @@ export default function SystemConfigPage() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </MainLayout>
   );
 }

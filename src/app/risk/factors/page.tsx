@@ -390,9 +390,9 @@ function FactorsContent() {
 export default function RiskFactorsPage() {
   return (
     <MainLayout>
-      <main className="px-6 py-6">
+      <div className="px-6 py-6">
         <FactorsContent />
-      </main>
+      </div>
     </MainLayout>
   );
 }

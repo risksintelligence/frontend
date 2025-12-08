@@ -57,7 +57,7 @@ export default function NetworkPage() {
   });
   return (
     <MainLayout>
-      <main className="space-y-6 px-6 py-6">
+      <div className="space-y-6 px-6 py-6">
         <header>
           <p className="text-xs uppercase tracking-wide text-terminal-muted">
             Network Analysis
@@ -664,7 +664,7 @@ export default function NetworkPage() {
             <CascadeHistoryChart history={cascadeHistory} />
           )}
         </section>
-      </main>
+      </div>
     </MainLayout>
   );
 }

@@ -256,10 +256,10 @@ function RiskOverviewContent() {
 export default function RiskPage() {
   return (
     <MainLayout>
-      <main className="px-6 py-6">
+      <div className="px-6 py-6">
         <RiskOverviewContent />
         <FeedbackBanner page="risk" trigger="scroll" />
-      </main>
+      </div>
     </MainLayout>
   );
 }
