@@ -47,7 +47,7 @@ export default function RightRail() {
   };
 
   return (
-    <aside className={`hidden border-l border-terminal-border bg-terminal-surface/50 lg:flex lg:flex-col transition-all duration-300 ${isCollapsed ? 'w-12' : 'w-80'}`}>
+    <aside className={`border-l border-terminal-border bg-terminal-surface/50 flex flex-col transition-all duration-300 ${isCollapsed ? 'w-12' : 'w-80'} hidden lg:flex`}>
       {isCollapsed ? (
         <div className="p-2">
           <button

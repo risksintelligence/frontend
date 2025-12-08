@@ -18,9 +18,11 @@ test.describe('Production Readiness Validation', () => {
     await page.goto('/risk');
     
     // Wait for either content or skeleton loaders
-    await expect(
-      page.locator('[data-testid="skeleton-loader"], [class*="skeleton"], .terminal-card')
-    ).toBeVisible({ timeout: 10000 });
+    const hasSkeletonLoader = await page.locator('[data-testid="skeleton-loader"]').isVisible({ timeout: 5000 }).catch(() => false);
+    const hasSkeletonClass = await page.locator('[class*="skeleton"]').first().isVisible({ timeout: 5000 }).catch(() => false);
+    const hasTerminalCard = await page.locator('.terminal-card').first().isVisible({ timeout: 5000 }).catch(() => false);
+    
+    expect(hasSkeletonLoader || hasSkeletonClass || hasTerminalCard).toBe(true);
     
     console.log('✅ Skeleton loaders are being used for loading states');
   });
@@ -96,6 +98,8 @@ test.describe('Production Readiness Validation', () => {
   });
 
   test('Right rail data integration', async ({ page }) => {
+    // Set desktop viewport to ensure right rail is visible
+    await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/');
     
     // Wait for right rail to load

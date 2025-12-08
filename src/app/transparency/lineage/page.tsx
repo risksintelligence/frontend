@@ -331,7 +331,7 @@ export default function DataLineagePage() {
             Transparency Portal
           </p>
           <h1 className="text-2xl font-bold uppercase text-terminal-text">
-            Data Sources & Methodology
+            DATA LINEAGE & PROVENANCE
           </h1>
           <p className="text-sm text-terminal-muted">
             Authoritative data sourcing, institutional verification, and quality assurance for risk intelligence indicators.

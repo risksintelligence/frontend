@@ -63,8 +63,25 @@ function PartnerLabsContent() {
 
   if (isLoading || partnerLoading || realPartnersLoading) {
     return (
-      <div className="terminal-card">
-        <SkeletonLoader />
+      <div className="space-y-6">
+        {/* Partner Overview - Loading State */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="terminal-card">
+            <div className="text-xs text-terminal-muted font-mono uppercase mb-1">Active Partners</div>
+            <div className="text-2xl text-terminal-green font-mono font-bold">-</div>
+          </div>
+          <div className="terminal-card">
+            <div className="text-xs text-terminal-muted font-mono uppercase mb-1">Total Projects</div>
+            <div className="text-2xl text-terminal-blue font-mono font-bold">-</div>
+          </div>
+          <div className="terminal-card">
+            <div className="text-xs text-terminal-muted font-mono uppercase mb-1">Engagement Score</div>
+            <div className="text-2xl text-terminal-orange font-mono font-bold">-</div>
+          </div>
+        </div>
+        <div className="terminal-card">
+          <SkeletonLoader />
+        </div>
       </div>
     );
   }

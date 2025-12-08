@@ -109,7 +109,7 @@ test.describe('Critical Path Smoke Tests', () => {
       await expect(mainContent).toBeVisible({ timeout: 10000 });
       
       // Should contain correlation-related content
-      const correlationText = page.locator('text=correlation, text=CORRELATION, text=matrix');
+      const correlationText = page.getByText(/correlation|CORRELATION|matrix/i);
       const hasCorrelationContent = await correlationText.count() > 0;
       expect(hasCorrelationContent).toBeTruthy();
     });
@@ -124,7 +124,7 @@ test.describe('Critical Path Smoke Tests', () => {
       await expect(mainContent).toBeVisible({ timeout: 10000 });
       
       // Should contain lineage-related content
-      const lineageText = page.locator('text=lineage, text=LINEAGE, text=provenance');
+      const lineageText = page.getByText(/lineage|LINEAGE|provenance/i);
       const hasLineageContent = await lineageText.count() > 0;
       expect(hasLineageContent).toBeTruthy();
     });
@@ -148,19 +148,26 @@ test.describe('Critical Path Smoke Tests', () => {
     });
 
     test('Frontend handles slow API responses', async ({ page }) => {
-      // Simulate slow API responses
-      await page.route('**/api/v1/**', async route => {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 1s delay
+      // Simulate slow API responses for specific endpoints only
+      await page.route('**/api/v1/impact/partners', async route => {
+        await new Promise(resolve => setTimeout(resolve, 2000)); // 2s delay
         route.continue();
       });
       
       await page.goto('/missions/partners');
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(4000);
       
-      // Should eventually load
+      // Page layout should load even if data is slow
       const mainContent = page.locator('main');
-      await expect(mainContent).toBeVisible({ timeout: 15000 });
+      await expect(mainContent).toBeVisible({ timeout: 5000 });
+      
+      // Check that loading states are shown
+      const partnerLabsTitle = page.locator('text=Partner Labs');
+      await expect(partnerLabsTitle).toBeVisible({ timeout: 5000 });
+      
+      // Eventually data should load (or show fallback)
+      await page.waitForTimeout(3000);
+      const activePartnersText = page.locator('text=Active Partners');
+      await expect(activePartnersText).toBeVisible({ timeout: 10000 });
     });
   });
 

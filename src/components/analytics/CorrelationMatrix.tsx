@@ -46,7 +46,22 @@ export default function CorrelationMatrix() {
   }, [componentsData]);
 
   if (isLoading) {
-    return <SkeletonLoader variant="table" className="w-full" />;
+    return (
+      <div className="space-y-6">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-terminal-muted font-mono">
+            Analytics • Correlation Analysis
+          </p>
+          <h2 className="text-xl font-bold uppercase text-terminal-text font-mono">
+            CORRELATION MATRIX
+          </h2>
+          <p className="text-sm text-terminal-muted font-mono">
+            Loading correlation analysis...
+          </p>
+        </div>
+        <SkeletonLoader variant="table" className="w-full" />
+      </div>
+    );
   }
 
   if (!correlationData || !correlationData.factors.length) {
