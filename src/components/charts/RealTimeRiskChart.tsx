@@ -100,9 +100,9 @@ export default function RealTimeRiskChart({
         </div>
       </div>
 
-      <div className="w-full" style={{ height: height, minWidth: 200, minHeight: 150 }}>
+      <div className="w-full" style={{ height: Math.max(height, 150), minWidth: 200, minHeight: 150 }}>
         {isClientLoaded && data.length > 0 ? (
-          <ResponsiveContainer width="100%" height="100%" minHeight={150}>
+          <ResponsiveContainer width="100%" height="100%" minHeight={150} aspect={undefined}>
             <LineChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
             <XAxis
               dataKey="timestamp"

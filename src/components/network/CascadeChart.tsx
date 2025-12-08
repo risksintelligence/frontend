@@ -30,9 +30,9 @@ export default function CascadeChart({ data }: CascadeChartProps) {
         <p className="text-xs uppercase tracking-wide text-terminal-muted">Cascade Impact</p>
         <h3 className="text-sm font-semibold uppercase text-terminal-text">Failure Simulation</h3>
       </div>
-      <div className="h-48 w-full">
+      <div className="h-48 w-full" style={{ minWidth: 200, minHeight: 192 }}>
         {isClient ? (
-          <ResponsiveContainer>
+          <ResponsiveContainer width="100%" height="100%" minHeight={192} aspect={undefined}>
             <AreaChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis dataKey="step" tick={{ fontSize: 10 }} />
