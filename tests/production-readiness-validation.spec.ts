@@ -112,10 +112,10 @@ test.describe('Production Readiness Validation', () => {
     
     console.log('✅ Right rail sections are visible');
     
-    // Check for data or loading states
+    // Check for data or loading states (handle multiple skeleton elements)
     const hasDataOrLoading = await page.locator(
       'aside .terminal-card, aside [data-testid="skeleton"], aside [class*="skeleton"]'
-    ).isVisible({ timeout: 5000 });
+    ).first().isVisible({ timeout: 5000 });
     
     expect(hasDataOrLoading).toBeTruthy();
     console.log('✅ Right rail shows data or proper loading states');
@@ -225,9 +225,9 @@ test.describe('Integration Summary', () => {
     const totalRoutes = 25; // Based on our navigation structure
     console.log(`📊 Total application routes: ${totalRoutes}`);
     
-    // Check for critical components
+    // Check for critical components (handle multiple nav elements)
     const criticalComponents = {
-      navigation: await page.locator('nav').isVisible(),
+      navigation: await page.locator('nav').first().isVisible(),
       mainContent: await page.locator('main').isVisible(),
       rightRail: await page.locator('aside').isVisible(),
       terminalCards: await page.locator('.terminal-card').count() > 0,
