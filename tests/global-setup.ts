@@ -23,7 +23,7 @@ async function globalSetup(config: FullConfig) {
   console.log('⏳ Waiting for frontend to be ready...');
   while (retries < maxRetries) {
     try {
-      await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 5000 });
+      await page.goto(baseURL, { waitUntil: 'load', timeout: 10000 });
       console.log('✅ Frontend is ready');
       break;
     } catch (error) {
@@ -34,7 +34,7 @@ async function globalSetup(config: FullConfig) {
         throw error;
       }
       console.log(`⏳ Retrying frontend connection... attempt ${retries}/${maxRetries}`);
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000);
     }
   }
   
