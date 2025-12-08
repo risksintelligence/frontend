@@ -12,33 +12,10 @@ const nextConfig: NextConfig = {
     // Ignore TypeScript errors during build for now
     ignoreBuildErrors: true,
   },
-  async rewrites() {
-    // In production on Railway, use the backend URL
-    // In development, use local backend
-    const isProduction = process.env.NODE_ENV === 'production';
-    const backendUrl = isProduction 
-      ? 'https://backend-production-83c7.up.railway.app'
-      : (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000');
-    
-    return [
-      {
-        source: '/api/v1/:path*',
-        destination: `${backendUrl}/api/v1/:path*`,
-      },
-    ];
-  },
-  async headers() {
-    return [
-      {
-        source: '/api/:path*',
-        headers: [
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
-        ],
-      },
-    ];
-  },
+  // Removed rewrites - frontend now calls backend directly via api-config.ts
+  // This prevents proxy issues and socket hang up errors
+  // Removed headers config - no longer needed since we call backend directly
+  // CORS is handled by the backend FastAPI application
 };
 
 export default nextConfig;
